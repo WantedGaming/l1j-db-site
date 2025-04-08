@@ -193,7 +193,7 @@ $recentUpdates = [
                 <h3>Weapons</h3>
 				<img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
                 <p>Browse all weapons including swords, daggers, axes, bows, staves and more.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/items/weapons.php" class="resource-link">View Weapons</a>
+                <a href="<?php echo SITE_URL; ?>/pages/weapons/weapon-list.php" class="resource-link">View Weapons</a>
             </div>
             
             <div class="resource-card">

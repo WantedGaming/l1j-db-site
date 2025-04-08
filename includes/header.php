@@ -48,13 +48,12 @@ require_once __DIR__ . '/auth.php';
                 </div>
                 
                 <ul class="nav-links">
-                    <li><a href="<?php echo SITE_URL; ?>/pages/items/"><i class="fas fa-sword-alt"></i> Items</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/pages/monsters/"><i class="fas fa-dragon"></i> Monsters</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/pages/skills/"><i class="fas fa-hat-wizard"></i> Skills</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/pages/maps/"><i class="fas fa-map-marked-alt"></i> Maps</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/pages/characters/"><i class="fas fa-user-alt"></i> Characters</a></li>
+                    <li><a href="<?php echo SITE_URL; ?>/pages/items/"> Items</a></li>
+                    <li><a href="<?php echo SITE_URL; ?>/pages/monsters/"> Monsters</a></li>
+                    <li><a href="<?php echo SITE_URL; ?>/pages/skills/"> Skills</a></li>
+                    <li><a href="<?php echo SITE_URL; ?>/pages/maps/"> Maps</a></li>
+                    <li><a href="<?php echo SITE_URL; ?>/pages/characters/"> Characters</a></li>
 					<li><a href="<?php echo SITE_URL; ?>/admin/login.php">Admin Login</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/search.php"><i class="fas fa-search"></i> Search</a></li>
                 </ul>
             </nav>
         </div>

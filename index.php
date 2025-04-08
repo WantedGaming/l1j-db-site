@@ -62,31 +62,23 @@ $recentUpdates = [
     <section class="quick-links-section">
         <div class="link-cards">
             <a href="<?php echo SITE_URL; ?>/pages/items/" class="link-card">
-                <div class="link-icon">
-                    <i class="fas fa-sword-alt"></i>
-                </div>
-                <h3>Items</h3>
+                <img src="assets/img/placeholders/scrolls.png" alt="Scrolls Image" class="link-image">
+                <h3>Scrolls</h3>
             </a>
             
             <a href="<?php echo SITE_URL; ?>/pages/monsters/" class="link-card">
-                <div class="link-icon">
-                    <i class="fas fa-dragon"></i>
-                </div>
-                <h3>Monsters</h3>
+                <img src="assets/img/placeholders/quest.png" alt="Quest Image" class="link-image">
+                <h3>Quests</h3>
             </a>
             
             <a href="<?php echo SITE_URL; ?>/pages/skills/" class="link-card">
-                <div class="link-icon">
-                    <i class="fas fa-hat-wizard"></i>
-                </div>
-                <h3>Skills</h3>
+                <img src="assets/img/placeholders/amulets.png" alt="Amulets Image" class="link-image">
+                <h3>Amulets</h3>
             </a>
             
             <a href="<?php echo SITE_URL; ?>/pages/maps/" class="link-card">
-                <div class="link-icon">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <h3>Maps</h3>
+                <img src="assets/img/placeholders/material.png" alt="Material Image" class="link-image">
+                <h3>Material</h3>
             </a>
         </div>
     </section>
@@ -198,56 +190,44 @@ $recentUpdates = [
         
         <div class="resources-grid">
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-sword-alt"></i>
-                </div>
-                <h3>Weapons Database</h3>
+                <h3>Weapons</h3>
+				<img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
                 <p>Browse all weapons including swords, daggers, axes, bows, staves and more.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/items/weapons.php" class="resource-link">View Weapons</a>
             </div>
             
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Armor Database</h3>
+                <h3>Armor</h3>
+				<img src="assets/img/placeholders/armor.png" alt="Armor image" class="card-image">
                 <p>Explore armor sets, helmets, gloves, boots and other protective gear.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/items/armor.php" class="resource-link">View Armor</a>
             </div>
             
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-skull"></i>
-                </div>
-                <h3>Boss Monsters</h3>
-                <p>Find information on all bosses, their locations, drops, and strategies.</p>
+                <h3>Accessory</h3>
+				<img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
+                <p>Find information necklace, rings, and other jewelry you can utilize.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/monsters/bosses.php" class="resource-link">View Bosses</a>
             </div>
             
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-hat-wizard"></i>
-                </div>
-                <h3>Magic Skills</h3>
-                <p>Learn about spells, enchantments, and magical abilities for all classes.</p>
+                <h3>Monsters</h3>
+				<img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
+                <p>Find information on all bosses, their locations, drops, and strategies.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/skills/magic.php" class="resource-link">View Magic Skills</a>
             </div>
             
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>Class Guides</h3>
-                <p>Detailed class guides with optimal builds, skill rotations, and equipment.</p>
+                <h3>Maps</h3>
+				<img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
+                <p>Where to hunt, hunting grounds, and monster spawn locations.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/guides/classes.php" class="resource-link">View Class Guides</a>
             </div>
             
             <div class="resource-card">
-                <div class="resource-icon">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <h3>World Maps</h3>
-                <p>Interactive maps with points of interest, monster spawns, and resource nodes.</p>
+				<h3>Dolls</h3>
+				<img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
+                <p>Your ingame compaion to help you along your adventures.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/maps/world.php" class="resource-link">View World Maps</a>
             </div>
         </div>

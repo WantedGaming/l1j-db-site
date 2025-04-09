@@ -97,10 +97,10 @@ $recentActivity = [
         </div>
         
         <div class="quick-actions">
-            <a href="<?php echo SITE_URL; ?>/admin/items/create.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-plus-circle"></i></div>
-                <div class="action-label">Add Item</div>
-            </a>
+            <a href="<?php echo SITE_URL; ?>/admin/weapons/index.php" class="action-card">
+				<div class="action-icon"><i class="fas fa-sword"></i></div>
+				<div class="action-label">Manage Weapons</div>
+			</a>
             
             <a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
                 <div class="action-icon"><i class="fas fa-dragon"></i></div>

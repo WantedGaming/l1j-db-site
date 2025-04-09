@@ -9,6 +9,9 @@ require_once '../includes/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
+// Get database instance
+$db = Database::getInstance();
+
 // Check if user is already logged in
 if (isLoggedIn()) {
     redirect(SITE_URL . '/admin/');
@@ -22,9 +25,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         setFlash('error', 'Please enter both username and password.');
     } else {
-        if (loginUser($username, $password)) {
-            // Redirect to admin dashboard
-            redirect(SITE_URL . '/admin/');
+        // Query the accounts table with the provided credentials
+        // Assuming the Database class has a method like query() or getRow()
+        $user = $db->getRow("SELECT login, password, access_level, banned FROM accounts WHERE login = ?", [$username]);
+        
+        if ($user) {
+            // Check if the account is banned
+            if ($user['banned'] != 0) {
+                setFlash('error', 'This account has been banned.');
+            }
+            // Verify password - assuming plain text passwords in the database
+            else if ($user['password'] === $password) {
+                // Check if user has admin access (access_level = 1)
+                if ($user['access_level'] != 1) {
+                    setFlash('error', 'You do not have administrator privileges.');
+                } else {
+                    // Set session variables
+                    $_SESSION['user_id'] = $user['login'];
+                    $_SESSION['is_admin'] = true;
+                    
+                    // Update last active timestamp
+                    $db->execute("UPDATE accounts SET lastactive = NOW() WHERE login = ?", [$username]);
+                    
+                    // Redirect to admin dashboard
+                    redirect(SITE_URL . '/admin/');
+                }
+            } else {
+                setFlash('error', 'Invalid username or password.');
+            }
         } else {
             setFlash('error', 'Invalid username or password.');
         }

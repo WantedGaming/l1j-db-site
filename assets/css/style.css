@@ -882,3 +882,173 @@ footer {
         flex: 0 0 100%;
     }
 }
+
+/* Weapon List Page */
+
+/* Filter Container Styles */
+.filter-container {
+    background-color: var(--primary);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.filters-form {
+    width: 100%;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.filter-actions {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+/* Improved Pagination Styles */
+.pagination {
+    background-color: var(--primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination-info {
+    margin-bottom: 0.5rem;
+    color: #cccccc;
+}
+
+.pagination-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.pagination-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    background-color: var(--secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    text-align: center;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.pagination-link.active {
+    background-color: var(--accent);
+    color: white;
+}
+
+.pagination-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-ellipsis {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #cccccc;
+}
+
+.page-jump-form {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-jump-input {
+    width: 60px;
+    padding: 0.4rem;
+    border-radius: 4px;
+    background-color: var(--secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text);
+}
+
+/* Clickable Table Rows */
+.data-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.data-table tbody tr:active {
+    transform: translateY(0);
+    background-color: rgba(249, 75, 31, 0.1);
+}
+
+/* Data Table Styles */
+.data-table th, 
+.data-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.item-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    display: inline-block;
+}
+
+.unavailable-item {
+    opacity: 0.6;
+    background-color: rgba(244, 67, 54, 0.05) !important;
+}
+
+.badge-danger {
+    background-color: #f44336;
+}
+
+.badge-success {
+    background-color: #4caf50;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .pagination-links {
+        margin: 0.5rem 0;
+        justify-content: center;
+    }
+    
+    .page-jump-form {
+        justify-content: center;
+    }
+    
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+}

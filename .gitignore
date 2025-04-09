@@ -1,9 +1,7 @@
-/assets/img/skills
-/assets/img/monsters
-/assets/img/poly
-/assets/img/placeholders
-/assets/img/npcs
-/assets/img/maps
-/assets/img/items
-/assets/img/dolls
-/assets/img/class_icon
+/vendor/ 
+.env 
+/public/assets/img/items/* 
+/public/assets/img/monsters/* 
+!public/assets/img/items/.gitkeep 
+!public/assets/img/monsters/.gitkeep 
+/assets/img

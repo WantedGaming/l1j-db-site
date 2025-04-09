@@ -1,21 +1,38 @@
 <?php
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/database.php';
-require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/auth.php';
+/**
+ * Admin Header for L1J Database Website
+ */
 
-// Check if user is logged in
-requireLogin(SITE_URL . '/admin/login.php');
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Define variable to indicate we're in admin section
-$isAdmin = true;
+// Include necessary files
+require_once '../includes/config.php';
+require_once '../includes/database.php';
+require_once '../includes/functions.php';
+require_once '../includes/auth.php';
+
+// Check if user is logged in and has admin access
+if (!isLoggedIn() || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    redirect(SITE_URL . '/admin/login.php');
+}
+
+// Get current page from URL
+$currentPage = basename($_SERVER['PHP_SELF']);
+
+// Set default page title if not provided
+if (!isset($pageTitle)) {
+    $pageTitle = 'Admin Dashboard';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($pageTitle) ? $pageTitle . ' - Admin' : 'Admin Dashboard'; ?> | <?php echo SITE_NAME; ?></title>
+    <title><?php echo $pageTitle; ?> - L1J Database Admin</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="<?php echo SITE_URL; ?>/assets/img/favicon.ico" type="image/x-icon">
@@ -23,94 +40,109 @@ $isAdmin = true;
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
     <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/admin.css">
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/responsive.css">
     
     <!-- Font Awesome (for icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <?php if (isset($extraStyles)): ?>
-        <?php foreach ($extraStyles as $style): ?>
-            <link rel="stylesheet" href="<?php echo $style; ?>">
-        <?php endforeach; ?>
-    <?php endif; ?>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <div class="admin-sidebar">
-            <div class="admin-sidebar-header">
-                <div class="admin-sidebar-logo">
-                    L1J <span>Admin</span>
+<body class="admin-body">
+    <!-- Top Navigation Bar -->
+    <header class="admin-header">
+        <div class="admin-header-logo">
+            <a href="<?php echo SITE_URL; ?>/admin/">
+                L1J <span>Database</span>
+            </a>
+        </div>
+        
+        <div class="admin-header-actions">
+            <div class="dropdown">
+                <button class="dropdown-toggle">
+                    <i class="fas fa-user-circle"></i>
+                    <span><?php echo htmlspecialchars($_SESSION['user_id']); ?></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="<?php echo SITE_URL; ?>/admin/profile.php">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="<?php echo SITE_URL; ?>/admin/settings.php">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="<?php echo SITE_URL; ?>/admin/logout.php">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
-            
-            <ul class="admin-menu">
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/" class="admin-menu-link <?php echo (basename($_SERVER['PHP_SELF']) == 'index.php' && dirname($_SERVER['PHP_SELF']) == '/admin') ? 'active' : ''; ?>">
-                        <i class="fas fa-tachometer-alt admin-menu-icon"></i> Dashboard
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/items/" class="admin-menu-link <?php echo strContains($_SERVER['PHP_SELF'], '/admin/items/') ? 'active' : ''; ?>">
-                        <i class="fas fa-sword admin-menu-icon"></i> Items
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/monsters/" class="admin-menu-link <?php echo strContains($_SERVER['PHP_SELF'], '/admin/monsters/') ? 'active' : ''; ?>">
-                        <i class="fas fa-dragon admin-menu-icon"></i> Monsters
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/skills/" class="admin-menu-link <?php echo strContains($_SERVER['PHP_SELF'], '/admin/skills/') ? 'active' : ''; ?>">
-                        <i class="fas fa-magic admin-menu-icon"></i> Skills
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/characters/" class="admin-menu-link <?php echo strContains($_SERVER['PHP_SELF'], '/admin/characters/') ? 'active' : ''; ?>">
-                        <i class="fas fa-user admin-menu-icon"></i> Characters
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/users/" class="admin-menu-link <?php echo strContains($_SERVER['PHP_SELF'], '/admin/users/') ? 'active' : ''; ?>">
-                        <i class="fas fa-users admin-menu-icon"></i> Users
-                    </a>
-                </li>
-                <li class="admin-menu-item">
-                    <a href="<?php echo SITE_URL; ?>/admin/logout.php" class="admin-menu-link">
-                        <i class="fas fa-sign-out-alt admin-menu-icon"></i> Logout
-                    </a>
-                </li>
-            </ul>
         </div>
+    </header>
+    
+    <div class="admin-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="admin-sidebar">
+            <nav class="admin-nav">
+                <ul class="admin-menu">
+                    <li class="admin-menu-item <?php echo $currentPage === 'index.php' ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/index.php">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-header">Content Management</li>
+                    
+                    <li class="admin-menu-item <?php echo strpos($currentPage, 'items') !== false ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/items/index.php">
+                            <i class="fas fa-sword"></i>
+                            <span>Items</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-item <?php echo strpos($currentPage, 'monsters') !== false ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/monsters/index.php">
+                            <i class="fas fa-dragon"></i>
+                            <span>Monsters</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-item <?php echo strpos($currentPage, 'skills') !== false ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/skills/index.php">
+                            <i class="fas fa-magic"></i>
+                            <span>Skills</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-item <?php echo strpos($currentPage, 'maps') !== false ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/maps/index.php">
+                            <i class="fas fa-map"></i>
+                            <span>Maps</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-header">System</li>
+                    
+                    <li class="admin-menu-item <?php echo strpos($currentPage, 'users') !== false ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/users/index.php">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-item <?php echo $currentPage === 'backup.php' ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/backup.php">
+                            <i class="fas fa-database"></i>
+                            <span>Backup</span>
+                        </a>
+                    </li>
+                    
+                    <li class="admin-menu-item <?php echo $currentPage === 'settings.php' ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/admin/settings.php">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
         
         <!-- Main Content -->
         <div class="admin-content">
-            <div class="admin-header">
-                <div class="admin-toggle-sidebar">
-                    <i class="fas fa-bars"></i>
-                </div>
-                
-                <h1 class="admin-page-title"><?php echo isset($pageTitle) ? $pageTitle : 'Dashboard'; ?></h1>
-                
-                <div class="admin-user-dropdown">
-                    <div class="admin-user-info">
-                        <div class="admin-user-avatar">
-                            <img src="<?php echo SITE_URL; ?>/assets/img/avatar.png" alt="User Avatar">
-                        </div>
-                        <span class="admin-user-name"><?php echo $_SESSION['username']; ?></span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    
-                    <div class="admin-dropdown-content">
-                        <a href="<?php echo SITE_URL; ?>/admin/profile.php">
-                            <i class="fas fa-user"></i> Profile
-                        </a>
-                        <a href="<?php echo SITE_URL; ?>/admin/logout.php">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
             <?php displayFlash(); ?>
-					

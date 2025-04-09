@@ -24,7 +24,7 @@ if($weaponId <= 0) {
 
 // Get weapon details
 $query = "SELECT w.*, 
-          SUBSTRING_BEFORE(w.material, '(') as material_name
+          SUBSTRING_INDEX(w.material, '(', 1) as material_name
           FROM weapon w 
           WHERE w.item_id = ?";
 $weapon = $db->getRow($query, [$weaponId]);
@@ -45,11 +45,11 @@ $skillQuery = "SELECT ws.*, ss.name as skill_name, ss.desc_kr
                FROM weapon_skill ws 
                LEFT JOIN skills ss ON ws.skill_id = ss.skill_id
                WHERE ws.weapon_id = ?";
-$weaponSkills = $db->getResults($skillQuery, [$weaponId]);
+$weaponSkills = $db->getRows($skillQuery, [$weaponId]);
 
 // Get weapon skill models if any
 $modelQuery = "SELECT * FROM weapon_skill_model WHERE item_id = ?";
-$weaponSkillModels = $db->getResults($modelQuery, [$weaponId]);
+$weaponSkillModels = $db->getRows($modelQuery, [$weaponId]);
 
 // Get spell definition if any
 $spellDefQuery = "SELECT * FROM weapon_skill_spell_def WHERE id = ?";
@@ -62,7 +62,7 @@ $dropQuery = "SELECT d.*, n.desc_kr as monster_name, n.lvl as monster_level,
               JOIN npc n ON d.mobId = n.npcid
               WHERE d.itemId = ? AND n.impl LIKE '%L1Monster%'
               ORDER BY d.chance DESC";
-$dropMonsters = $db->getResults($dropQuery, [$weaponId]);
+$dropMonsters = $db->getRows($dropQuery, [$weaponId]);
 
 // Helper function to format material name
 function formatMaterial($material) {

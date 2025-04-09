@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('error', 'Please enter both username and password.');
     } else {
         // Query the accounts table with the provided credentials
-        // Assuming the Database class has a method like query() or getRow()
         $user = $db->getRow("SELECT login, password, access_level, banned FROM accounts WHERE login = ?", [$username]);
         
         if ($user) {
@@ -45,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['is_admin'] = true;
                     
                     // Update last active timestamp
-                    $db->execute("UPDATE accounts SET lastactive = NOW() WHERE login = ?", [$username]);
+                    // Using query() method instead of execute() since it seems execute() doesn't exist
+                    $db->query("UPDATE accounts SET lastactive = NOW() WHERE login = ?", [$username]);
                     
                     // Redirect to admin dashboard
                     redirect(SITE_URL . '/admin/');
@@ -56,6 +56,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setFlash('error', 'Invalid username or password.');
         }
+    }
+}
+
+/**
+ * Display flash messages with improved styling
+ */
+function displayLoginFlash() {
+    if (isset($_SESSION['flash']) && !empty($_SESSION['flash'])) {
+        foreach ($_SESSION['flash'] as $type => $message) {
+            $icon = '';
+            switch ($type) {
+                case 'error':
+                    $icon = '<i class="fas fa-exclamation-circle"></i>';
+                    break;
+                case 'success':
+                    $icon = '<i class="fas fa-check-circle"></i>';
+                    break;
+                case 'info':
+                    $icon = '<i class="fas fa-info-circle"></i>';
+                    break;
+                case 'warning':
+                    $icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    break;
+            }
+            
+            echo '<div class="flash-message ' . $type . '">';
+            echo $icon;
+            echo '<div class="flash-message-content">' . $message . '</div>';
+            echo '</div>';
+        }
+        
+        // Clear flash messages after displaying
+        $_SESSION['flash'] = [];
     }
 }
 ?>
@@ -85,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1>Admin Login</h1>
         </div>
         
-        <?php displayFlash(); ?>
+        <?php displayLoginFlash(); ?>
         
         <div class="login-form-container">
             <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" class="login-form">

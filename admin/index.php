@@ -116,6 +116,16 @@ $recentActivity = [
                 <div class="action-icon"><i class="fas fa-database"></i></div>
                 <div class="action-label">Backup Database</div>
             </a>
+            
+            <a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+                <div class="action-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="action-label">Manage Maps</div>
+            </a>
+            
+            <a href="<?php echo SITE_URL; ?>/admin/settings.php" class="action-card">
+                <div class="action-icon"><i class="fas fa-cog"></i></div>
+                <div class="action-label">Settings</div>
+            </a>
         </div>
     </section>
     
@@ -138,7 +148,7 @@ $recentActivity = [
                         </div>
                         <div class="chart-legend">
                             <div class="legend-item">
-                                <span class="legend-color" style="background-color: #4e73df"></span>
+                                <span class="legend-color" style="background-color: #f94b1f"></span>
                                 <span class="legend-label">Weapons (<?php echo number_format($totalWeapons); ?>)</span>
                             </div>
                             <div class="legend-item">
@@ -191,7 +201,9 @@ $recentActivity = [
     <section class="dashboard-section">
         <div class="section-header">
             <h2>Recent Activity</h2>
-            <a href="<?php echo SITE_URL; ?>/admin/activity.php" class="view-all">View All</a>
+            <a href="<?php echo SITE_URL; ?>/admin/activity.php" class="view-all">
+                View All <i class="fas fa-chevron-right"></i>
+            </a>
         </div>
         
         <div class="activity-card">
@@ -238,8 +250,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?php echo $totalArmor; ?>, 
                     <?php echo $totalEtcItems; ?>
                 ],
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
-                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                backgroundColor: ['#f94b1f', '#1cc88a', '#36b9cc'],
+                hoverBackgroundColor: ['#e03a10', '#17a673', '#2c9faf'],
                 borderWidth: 0
             }]
         },

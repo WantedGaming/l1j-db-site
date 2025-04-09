@@ -1,83 +1,80 @@
-<?php
-/**
- * Admin Footer for L1J Database Website
- */
-?>
-
-        </div><!-- End of .admin-content -->
-    </div><!-- End of .admin-wrapper -->
-
-    <!-- Footer -->
-    <footer class="admin-footer">
-        <div class="admin-footer-content">
-            <p>&copy; <?php echo date('Y'); ?> L1J Database Admin - All rights reserved</p>
-            <p>
-                <span>Version: 1.0.0</span> | 
-                <span>Server Time: <?php echo date('Y-m-d H:i:s'); ?></span>
-            </p>
-        </div>
-    </footer>
-
-    <!-- JavaScript -->
+</main>
+        
+        <!-- Admin Footer -->
+        <footer class="admin-footer">
+            <div class="admin-footer-container">
+                <div class="admin-footer-text">
+                    &copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?> - Admin Panel
+                </div>
+                <div class="admin-footer-nav">
+                    <a href="<?php echo SITE_URL; ?>" class="admin-footer-link">View Website</a>
+                    <a href="<?php echo SITE_URL; ?>/admin/help.php" class="admin-footer-link">Help</a>
+                    <a href="<?php echo SITE_URL; ?>/admin/logout.php" class="admin-footer-link">Logout</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container"></div>
+    
+    <!-- Main JavaScript -->
+    <script src="<?php echo SITE_URL; ?>/assets/js/main.js"></script>
+    
+    <!-- Admin JavaScript -->
     <script src="<?php echo SITE_URL; ?>/assets/js/admin.js"></script>
     
-    <!-- Toast/Notification System -->
-    <div id="toast-container" class="toast-container"></div>
     <script>
-        // Toast notification function
-        function showToast(message, type = 'info', duration = 5000) {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                </div>
-                <div class="toast-message">${message}</div>
-                <button class="toast-close"><i class="fas fa-times"></i></button>
-            `;
-            
-            document.getElementById('toast-container').appendChild(toast);
-            
-            // Add show class after a small delay for transition effect
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
-            // Setup close button
-            toast.querySelector('.toast-close').addEventListener('click', () => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            });
-            
-            // Auto remove after duration
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.classList.remove('show');
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.remove();
-                        }
-                    }, 300);
-                }
-            }, duration);
+    // Toast notification function
+    function showToast(message, type = 'info', duration = 5000) {
+        const toastContainer = document.querySelector('.toast-container');
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        // Set toast icon
+        let icon = '';
+        switch (type) {
+            case 'success':
+                icon = '<i class="fas fa-check-circle"></i>';
+                break;
+            case 'error':
+                icon = '<i class="fas fa-exclamation-circle"></i>';
+                break;
+            case 'warning':
+                icon = '<i class="fas fa-exclamation-triangle"></i>';
+                break;
+            default:
+                icon = '<i class="fas fa-info-circle"></i>';
         }
         
-        // Display any flash messages as toasts
-        document.addEventListener('DOMContentLoaded', function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            
-            flashMessages.forEach(flash => {
-                const type = flash.dataset.type || 'info';
-                const message = flash.textContent;
-                
-                showToast(message, type);
-                
-                // Hide the original flash message
-                flash.style.display = 'none';
-            });
+        // Set toast content
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-content">${message}</div>
+            <div class="toast-close"><i class="fas fa-times"></i></div>
+        `;
+        
+        // Add toast to container
+        toastContainer.appendChild(toast);
+        
+        // Set timeout to remove toast
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, duration);
+        
+        // Add click event to close button
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
         });
+    }
     </script>
 </body>
 </html>

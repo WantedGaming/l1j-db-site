@@ -10,6 +10,9 @@ $pageDescription = 'Detailed information about weapons in L1J Remastered, includ
 // Include header
 require_once '../../includes/header.php';
 
+// Include weapons functions
+require_once '../../includes/weapons-functions.php';
+
 // Get database instance
 $db = Database::getInstance();
 
@@ -64,48 +67,30 @@ $dropQuery = "SELECT d.*, n.desc_kr as monster_name, n.lvl as monster_level,
               ORDER BY d.chance DESC";
 $dropMonsters = $db->getRows($dropQuery, [$weaponId]);
 
-// Helper function to format material name
-function formatMaterial($material) {
-    // Remove Korean part if exists
-    $material = trim($material);
-    $material = strtoupper($material);
-    return $material;
-}
-
-// Helper function to get badge class based on item grade
-function getGradeBadgeClass($grade) {
-    switch($grade) {
-        case 'ONLY':
-            return 'badge-only';
-        case 'MYTH':
-            return 'badge-myth';
-        case 'LEGEND':
-            return 'badge-legend';
-        case 'HERO':
-            return 'badge-hero';
-        case 'RARE':
-            return 'badge-rare';
-        default:
-            return 'badge-normal';
-    }
-}
-
-// Helper function to get a formatted drop chance
-function formatDropChance($chance) {
-    if ($chance >= 10000) {
-        return '100%';
-    } else if ($chance >= 1000) {
-        return round($chance / 100, 2) . '%';
-    } else if ($chance >= 100) {
-        return round($chance / 100, 2) . '%';
-    } else {
-        return round($chance / 100, 3) . '%';
-    }
-}
-
 // Set page title to weapon name
 $pageTitle = $weapon['desc_en'];
+
+// Function to format drop chance (imported from functions.php)
+function formatDropChance($chance) {
+    $percentage = ($chance / 10000) * 100;
+    return $percentage < 0.01 ? '< 0.01%' : number_format($percentage, 2) . '%';
+}
+
 ?>
+
+<!-- Hero Section with Transparent Weapon Image -->
+<div class="weapon-hero">
+    <div class="weapon-hero-image-container">
+        <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
+             alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
+             class="weapon-hero-image"
+             onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+    </div>
+    <div class="weapon-hero-content">
+        <h1><?= htmlspecialchars($weapon['desc_en']) ?></h1>
+        <p><?= htmlspecialchars(ucwords(strtolower($weapon['type']))) ?>, <?= htmlspecialchars(formatMaterial($weapon['material_name'])) ?></p>
+    </div>
+</div>
 
 <div class="container">
     <!-- Breadcrumb Navigation -->
@@ -115,129 +100,218 @@ $pageTitle = $weapon['desc_en'];
         <span><?= htmlspecialchars($weapon['desc_en']) ?></span>
     </div>
 
-    <div class="detail-header">
-        <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
-             alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
-             class="detail-image"
-             onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
-        
-        <div class="detail-title-section">
-            <h1 class="detail-title">
-                <?= htmlspecialchars($weapon['desc_en']) ?>
-                <span class="badge <?= getGradeBadgeClass($weapon['itemGrade']) ?>"><?= $weapon['itemGrade'] ?></span>
-            </h1>
-            <div class="detail-meta">
-                <?= htmlspecialchars($weapon['type']) ?> | 
-                <?= htmlspecialchars(formatMaterial($weapon['material_name'])) ?> |
-                Weight: <?= $weapon['weight'] ?>
+    <!-- Main Content Grid -->
+    <div class="detail-content-grid">
+        <!-- Image Card -->
+        <div class="card">
+            <div class="detail-image-container">
+                <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
+                     alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
+                     class="detail-image-large"
+                     onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
             </div>
         </div>
-    </div>
 
-    <div class="detail-content-grid">
-        <!-- Main Stats Section -->
+        <!-- Basic Information Card -->
         <div class="card">
             <div class="card-header">
                 <h2>Basic Information</h2>
             </div>
             <div class="card-content">
                 <table class="detail-table">
-                    <tr>
-                        <th>Type</th>
-                        <td><?= htmlspecialchars($weapon['type']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Material</th>
-                        <td><?= htmlspecialchars(formatMaterial($weapon['material_name'])) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Damage (S/L)</th>
-                        <td><?= $weapon['dmg_small'] ?>/<?= $weapon['dmg_large'] ?></td>
-                    </tr>
-                    <tr>
-                        <th>Safe Enchant</th>
-                        <td>+<?= $weapon['safenchant'] ?></td>
-                    </tr>
-                    <tr>
-                        <th>Hit Modifier</th>
-                        <td><?= $weapon['hitmodifier'] > 0 ? '+' . $weapon['hitmodifier'] : $weapon['hitmodifier'] ?></td>
-                    </tr>
-                    <tr>
-                        <th>Damage Modifier</th>
-                        <td><?= $weapon['dmgmodifier'] > 0 ? '+' . $weapon['dmgmodifier'] : $weapon['dmgmodifier'] ?></td>
-                    </tr>
-                    <?php if ($weapon['double_dmg_chance'] > 0): ?>
-                    <tr>
-                        <th>Double Damage Chance</th>
-                        <td><?= $weapon['double_dmg_chance'] ?>%</td>
-                    </tr>
+            <tr>
+                <th>Type</th>
+                <td><?= htmlspecialchars(ucwords(strtolower($weapon['type']))) ?></td>
+            </tr>
+            <tr>
+                <th>Material</th>
+                <td><?= htmlspecialchars(formatMaterial($weapon['material_name'])) ?></td>
+            </tr>
+            <tr>
+                <th>Damage (S/L)</th>
+                <td><?= $weapon['dmg_small'] ?>/<?= $weapon['dmg_large'] ?></td>
+            </tr>
+            <tr>
+                <th>Safe</th>
+                <td>+<?= $weapon['safenchant'] ?></td>
+            </tr>
+            <tr>
+                <th>Hit</th>
+                <td><?= $weapon['hitmodifier'] > 0 ? '+' . $weapon['hitmodifier'] : $weapon['hitmodifier'] ?></td>
+            </tr>
+            <tr>
+                <th>Damage</th>
+                <td><?= $weapon['dmgmodifier'] > 0 ? '+' . $weapon['dmgmodifier'] : $weapon['dmgmodifier'] ?></td>
+            </tr>
+            <?php if ($weapon['double_dmg_chance'] > 0): ?>
+            <tr>
+                <th>Double Damage Chance</th>
+                <td><?= $weapon['double_dmg_chance'] ?>%</td>
+            </tr>
+            <?php endif; ?>
+            <?php if ($weapon['haste_item'] > 0): ?>
+            <tr>
+                <th>Haste</th>
+                <td>Yes</td>
+            </tr>
+            <?php endif; ?>
+            <?php if ($weaponDamage): ?>
+            <tr>
+                <th>Additional Damage</th>
+                <td>+<?= $weaponDamage['addDamege'] ?></td>
+            </tr>
+            <?php endif; ?>
+            <tr>
+                <th>Level</th>
+                <td>
+                    <?php if ($weapon['min_lvl'] > 0 && $weapon['max_lvl'] > 0): ?>
+                        <?= $weapon['min_lvl'] ?> - <?= $weapon['max_lvl'] ?>
+                    <?php elseif ($weapon['min_lvl'] > 0): ?>
+                        Min: <?= $weapon['min_lvl'] ?>
+                    <?php elseif ($weapon['max_lvl'] > 0): ?>
+                        Max: <?= $weapon['max_lvl'] ?>
+                    <?php else: ?>
+                        None
                     <?php endif; ?>
-                    <?php if ($weapon['haste_item'] > 0): ?>
-                    <tr>
-                        <th>Haste</th>
-                        <td>Yes</td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if ($weaponDamage): ?>
-                    <tr>
-                        <th>Additional Damage</th>
-                        <td>+<?= $weaponDamage['addDamege'] ?></td>
-                    </tr>
-                    <?php endif; ?>
-                </table>
-            </div>
-        </div>
-
-        <!-- Requirements Section -->
-        <div class="card">
-            <div class="card-header">
-                <h2>Requirements</h2>
-            </div>
-            <div class="card-content">
-                <table class="detail-table">
-                    <tr>
-                        <th>Level</th>
-                        <td>
-                            <?php if ($weapon['min_lvl'] > 0 && $weapon['max_lvl'] > 0): ?>
-                                <?= $weapon['min_lvl'] ?> - <?= $weapon['max_lvl'] ?>
-                            <?php elseif ($weapon['min_lvl'] > 0): ?>
-                                Min: <?= $weapon['min_lvl'] ?>
-                            <?php elseif ($weapon['max_lvl'] > 0): ?>
-                                Max: <?= $weapon['max_lvl'] ?>
-                            <?php else: ?>
-                                None
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Class Restrictions</th>
-                        <td>
-                            <?php
-                            $classes = [];
-                            if ($weapon['use_royal'] == 1) $classes[] = 'Royal';
-                            if ($weapon['use_knight'] == 1) $classes[] = 'Knight';
-                            if ($weapon['use_elf'] == 1) $classes[] = 'Elf';
-                            if ($weapon['use_mage'] == 1) $classes[] = 'Mage';
-                            if ($weapon['use_darkelf'] == 1) $classes[] = 'Dark Elf';
-                            if ($weapon['use_dragonknight'] == 1) $classes[] = 'Dragon Knight';
-                            if ($weapon['use_illusionist'] == 1) $classes[] = 'Illusionist';
-                            if ($weapon['use_warrior'] == 1) $classes[] = 'Warrior';
-                            if ($weapon['use_fencer'] == 1) $classes[] = 'Fencer';
-                            if ($weapon['use_lancer'] == 1) $classes[] = 'Lancer';
-                            
-                            if (empty($classes)) {
-                                echo 'None';
-                            } else {
-                                echo implode(', ', $classes);
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                </table>
+                </td>
+            </tr>
+        </table>
             </div>
         </div>
     </div>
 
+    <!-- Requirements Section -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Class</h2>
+        </div>
+        <div class="card-content">
+            <div class="requirements-grid">
+                <!-- Class Requirements -->
+                <div class="requirement-item">
+                    <div class="requirements-grid">
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_royal'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_royal'] ? '✓' : '✗' ?>
+                            </span>
+                            Royal
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_knight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_knight'] ? '✓' : '✗' ?>
+                            </span>
+                            Knight
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_elf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_elf'] ? '✓' : '✗' ?>
+                            </span>
+                            Elf
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_mage'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_mage'] ? '✓' : '✗' ?>
+                            </span>
+                            Mage
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_darkelf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_darkelf'] ? '✓' : '✗' ?>
+                            </span>
+                            Dark Elf
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_dragonknight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_dragonknight'] ? '✓' : '✗' ?>
+                            </span>
+                            Dragon Knight
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_illusionist'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_illusionist'] ? '✓' : '✗' ?>
+                            </span>
+                            Illusionist
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_warrior'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_warrior'] ? '✓' : '✗' ?>
+                            </span>
+                            Warrior
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_fencer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_fencer'] ? '✓' : '✗' ?>
+                            </span>
+                            Fencer
+                        </span>
+                        <span class="requirement-switch">
+                            <span class="requirement-switch-icon <?= $weapon['use_lancer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                                <?= $weapon['use_lancer'] ? '✓' : '✗' ?>
+                            </span>
+                            Lancer
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Item Properties Section -->
+    <?php
+    // Define all properties grouped by category
+    $property_groups = [
+        'Traits' => [
+            'haste_item' => 'Haste',
+            'canbedmg' => 'Can Be Damaged',
+            'bless' => 'Blessed'
+        ],
+        'Restrictions' => [
+            'trade' => 'Tradable',
+            'retrieve' => 'Retrievable',
+            'specialretrieve' => 'Special Retrieve',
+            'cant_delete' => 'Cannot Delete',
+            'cant_sell' => 'Cannot Sell'
+        ]
+    ];
+
+    // Check which groups have active properties
+    $active_groups = [];
+    foreach ($property_groups as $group_name => $properties) {
+        foreach ($properties as $field => $label) {
+            if (!empty($weapon[$field])) {
+                $active_groups[$group_name] = $properties;
+                break;
+            }
+        }
+    }
+
+    $show_grid = count($active_groups) > 1;
+    ?>
+
+    <?php if (!empty($active_groups)): ?>
+    <div class="<?= $show_grid ? 'detail-content-grid' : '' ?>">
+        <?php foreach ($active_groups as $group_name => $properties): ?>
+        <div class="card" style="<?= !$show_grid ? 'grid-column: 1 / -1;' : '' ?>">
+            <div class="card-header">
+                <h2><?= $group_name ?></h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <?php foreach ($properties as $field => $label): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon <?= !empty($weapon[$field]) ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
+                            <?= !empty($weapon[$field]) ? '✓' : '✗' ?>
+                        </span>
+                        <?= $label ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+    
     <!-- Stats Bonuses Section -->
     <?php
     $hasBonuses = $weapon['add_str'] != 0 || $weapon['add_con'] != 0 || $weapon['add_dex'] != 0 ||
@@ -249,7 +323,7 @@ $pageTitle = $weapon['desc_en'];
     ?>
     <div class="card">
         <div class="card-header">
-            <h2>Stat Bonuses</h2>
+            <h2>Bonuses</h2>
         </div>
         <div class="card-content">
             <div class="stat-grid">
@@ -460,7 +534,7 @@ $pageTitle = $weapon['desc_en'];
     <?php if (!empty($dropMonsters)): ?>
     <div class="card">
         <div class="card-header">
-            <h2>Drop Locations</h2>
+            <h2>Drop By</h2>
         </div>
         <div class="card-content">
             <table class="detail-table">
@@ -506,7 +580,6 @@ $pageTitle = $weapon['desc_en'];
         </div>
     </div>
     <?php endif; ?>
-
 </div>
 
 <?php

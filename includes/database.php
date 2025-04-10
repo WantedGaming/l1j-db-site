@@ -222,5 +222,22 @@ class Database {
     $stmt = $this->connection->prepare($query);
     return $stmt->execute($params);
 	}
-
+	
+    /**
+     * Check if a column exists in a table
+     * @param string $table Table name
+     * @param string $column Column name
+     * @return bool Whether the column exists
+     */
+    public function columnExists($table, $column) {
+        try {
+            $sql = "SHOW COLUMNS FROM $table LIKE ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$column]);
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            // Table might not exist
+            return false;
+        }
+    }
 }

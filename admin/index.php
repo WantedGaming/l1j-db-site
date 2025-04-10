@@ -33,6 +33,86 @@ $totalSkills = $db->getColumn("SELECT COUNT(*) FROM skills");
 $totalPassiveSkills = $db->getColumn("SELECT COUNT(*) FROM skills_passive");
 $totalMaps = $db->getColumn("SELECT COUNT(*) FROM mapids");
 
+// Get log data from different log tables
+$logTables = [
+    'app_alim_log' => 'Application Logs',
+    'app_engine_log' => 'Engine Logs',
+    'clan_warehouse_log' => 'Clan Warehouse Logs',
+    'log_chat' => 'Chat Logs',
+    'log_enchant' => 'Enchant Logs',
+    'log_shop' => 'Shop Logs',
+    'log_warehouse' => 'Warehouse Logs',
+    'log_private_shop' => 'Private Shop Logs'
+];
+
+// Get recent logs from all tables (limit 5 from each table, but more for display)
+$combinedLogs = [];
+$logsPerTable = 3; // Get 3 logs per table by default
+foreach ($logTables as $table => $displayName) {
+    // Skip tables that don't exist
+    $tableExists = $db->getColumn("SHOW TABLES LIKE '$table'");
+    if (!$tableExists) {
+        continue;
+    }
+    
+    // Get ID field name (might be different for some tables)
+    $idField = 'id';
+    
+    // Some tables use 'startTime' instead of standard datetime fields
+    $dateField = ($table == 'log_adena_monster' || $table == 'log_adena_shop') ? 'startTime' : 'date';
+    if (!$db->columnExists($table, $dateField)) {
+        $dateField = 'timestamp';
+        if (!$db->columnExists($table, $dateField)) {
+            $dateField = null;
+        }
+    }
+    
+    // Build query based on available fields
+    $query = "SELECT * FROM $table";
+    if ($dateField) {
+        $query .= " ORDER BY $dateField DESC";
+    } elseif ($db->columnExists($table, $idField)) {
+        $query .= " ORDER BY $idField DESC";
+    }
+    $query .= " LIMIT 10"; // Get 10 per table to support expanded view
+    
+    $logs = $db->getRows($query);
+    
+    if ($logs) {
+        foreach ($logs as $log) {
+            $log['source_table'] = $displayName;
+            $log['table_name'] = $table;
+            $combinedLogs[] = $log;
+        }
+    }
+}
+
+// Sort combined logs by date (if available)
+usort($combinedLogs, function($a, $b) {
+    // Try to find a date field to sort by
+    $dateFields = ['date', 'timestamp', 'startTime'];
+    
+    foreach ($dateFields as $field) {
+        if (isset($a[$field]) && isset($b[$field])) {
+            return strtotime($b[$field]) - strtotime($a[$field]);
+        }
+    }
+    
+    // If no date field is found, sort by ID if available
+    if (isset($a['id']) && isset($b['id'])) {
+        return $b['id'] - $a['id'];
+    }
+    
+    return 0;
+});
+
+// Get total number of logs for display
+$totalLogsAvailable = count($combinedLogs);
+
+// Create two arrays: one for initial display (5 logs) and one for expanded view (10 logs)
+$initialLogs = array_slice($combinedLogs, 0, 5);
+$expandedLogs = array_slice($combinedLogs, 0, 10);
+
 // Get recent activity
 $recentActivity = [
     [
@@ -199,13 +279,356 @@ $recentActivity = [
         </div>
     </section>
     
+    <!-- System Logs Section -->
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>System Logs</h2>
+            <div class="section-header-actions">
+                <button id="expandLogsBtn" class="btn btn-sm btn-secondary me-2">
+                    <i class="fas fa-expand-alt"></i> Show More
+                </button>
+                <a href="<?php echo SITE_URL; ?>/admin/logs.php" class="view-all" target="_blank">
+                    View All <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="logs-card">
+            <div class="log-filters">
+                <select id="logTypeFilter" class="form-control">
+                    <option value="all">All Log Types</option>
+                    <?php foreach ($logTables as $table => $displayName): ?>
+                        <option value="<?php echo $table; ?>"><?php echo $displayName; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="log-table-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Timestamp</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-initial-view">
+                        <?php if (count($initialLogs) > 0): ?>
+                            <?php foreach ($initialLogs as $log): ?>
+                                <tr data-log-type="<?php echo $log['table_name']; ?>">
+                                    <td class="log-source">
+                                        <span class="badge 
+                                            <?php 
+                                            $badgeClass = '';
+                                            if (strpos($log['table_name'], 'app_') === 0) {
+                                                $badgeClass = 'badge-info';
+                                            } elseif (strpos($log['table_name'], 'clan_') === 0) {
+                                                $badgeClass = 'badge-warning';
+                                            } else {
+                                                $badgeClass = 'badge-primary';
+                                            }
+                                            echo $badgeClass;
+                                            ?>
+                                        ">
+                                            <i class="<?php 
+                                            $iconClass = 'fas fa-file-alt'; // Default icon
+                                            
+                                            switch($log['table_name']) {
+                                                case 'app_alim_log':
+                                                    $iconClass = 'fas fa-code';
+                                                    break;
+                                                case 'app_engine_log':
+                                                    $iconClass = 'fas fa-cogs';
+                                                    break;
+                                                case 'clan_warehouse_log':
+                                                    $iconClass = 'fas fa-warehouse';
+                                                    break;
+                                                case 'log_chat':
+                                                    $iconClass = 'fas fa-comments';
+                                                    break;
+                                                case 'log_enchant':
+                                                    $iconClass = 'fas fa-scroll';
+                                                    break;
+                                                case 'log_shop':
+                                                    $iconClass = 'fas fa-store';
+                                                    break;
+                                                case 'log_warehouse':
+                                                    $iconClass = 'fas fa-box';
+                                                    break;
+                                                case 'log_private_shop':
+                                                    $iconClass = 'fas fa-store-alt';
+                                                    break;
+                                                case 'log_adena_monster':
+                                                    $iconClass = 'fas fa-dragon';
+                                                    break;
+                                                case 'log_adena_shop':
+                                                    $iconClass = 'fas fa-cash-register';
+                                                    break;
+                                                case 'log_cwarehouse':
+                                                    $iconClass = 'fas fa-boxes';
+                                                    break;
+                                            }
+                                            
+                                            echo $iconClass;
+                                            ?>"></i>
+                                            <span class="badge-text"><?php echo $log['source_table']; ?></span>
+                                        </span>
+                                    </td>
+                                    <td class="log-time">
+                                        <?php 
+                                        $timeStr = '';
+                                        // Try to find a date field to display
+                                        $dateFields = ['date', 'timestamp', 'startTime'];
+                                        foreach ($dateFields as $field) {
+                                            if (isset($log[$field])) {
+                                                $timeStr = formatDate($log[$field], 'M j, Y g:i A');
+                                                break;
+                                            }
+                                        }
+                                        if (empty($timeStr) && isset($log['id'])) {
+                                            $timeStr = 'ID: ' . $log['id'];
+                                        }
+                                        echo $timeStr;
+                                        ?>
+                                    </td>
+                                    <td class="log-details">
+                                        <?php 
+                                        // Determine which fields to display based on the log type
+                                        $detailsStr = '';
+                                        
+                                        // Application-specific logs
+                                        if ($log['table_name'] === 'app_alim_log' && isset($log['logContent'])) {
+                                            $detailsStr = htmlspecialchars($log['logContent']);
+                                        } 
+                                        // Engine logs
+                                        elseif ($log['table_name'] === 'app_engine_log' && isset($log['log'])) {
+                                            $detailsStr = htmlspecialchars($log['log']);
+                                        }
+                                        // Chat logs
+                                        elseif ($log['table_name'] === 'log_chat' && isset($log['chat_type']) && isset($log['content'])) {
+                                            $detailsStr = '<strong>' . htmlspecialchars($log['chat_type']) . ':</strong> ' . htmlspecialchars($log['content']);
+                                        }
+                                        // Enchant logs
+                                        elseif ($log['table_name'] === 'log_enchant' && isset($log['item_name'])) {
+                                            $result = isset($log['result']) && $log['result'] == 1 ? 'Success' : 'Failed';
+                                            $detailsStr = 'Enchant ' . $result . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Warehouse logs
+                                        elseif (($log['table_name'] === 'log_warehouse' || $log['table_name'] === 'log_cwarehouse') && isset($log['item_name'])) {
+                                            $action = isset($log['action']) ? $log['action'] : 'Action';
+                                            $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Shop logs
+                                        elseif (($log['table_name'] === 'log_shop' || $log['table_name'] === 'log_private_shop') && isset($log['item_name'])) {
+                                            $action = isset($log['action']) ? $log['action'] : 'Transaction';
+                                            $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Fallback - show a few key fields if available
+                                        else {
+                                            $priorityFields = ['message', 'description', 'content', 'action', 'item_name', 'character_name', 'account_name'];
+                                            foreach ($priorityFields as $field) {
+                                                if (isset($log[$field]) && !empty($log[$field])) {
+                                                    $detailsStr = htmlspecialchars($log[$field]);
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            // If no priority fields found, show the first non-id, non-date field
+                                            if (empty($detailsStr)) {
+                                                $skipFields = ['id', 'date', 'timestamp', 'startTime', 'table_name', 'source_table'];
+                                                foreach ($log as $key => $value) {
+                                                    if (!in_array($key, $skipFields) && !empty($value) && !is_array($value)) {
+                                                        $detailsStr = $key . ': ' . htmlspecialchars(substr($value, 0, 100));
+                                                        if (strlen($value) > 100) {
+                                                            $detailsStr .= '...';
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        echo !empty($detailsStr) ? $detailsStr : 'No details available';
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" class="text-center">No log entries found</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                    
+                    <!-- This is the expanded view that will be shown when the button is clicked -->
+                    <tbody id="logs-expanded-view" style="display: none;">
+                        <?php if (count($expandedLogs) > 0): ?>
+                            <?php foreach ($expandedLogs as $log): ?>
+                                <tr data-log-type="<?php echo $log['table_name']; ?>">
+                                    <td class="log-source">
+                                        <span class="badge 
+                                            <?php 
+                                            $badgeClass = '';
+                                            if (strpos($log['table_name'], 'app_') === 0) {
+                                                $badgeClass = 'badge-info';
+                                            } elseif (strpos($log['table_name'], 'clan_') === 0) {
+                                                $badgeClass = 'badge-warning';
+                                            } else {
+                                                $badgeClass = 'badge-primary';
+                                            }
+                                            echo $badgeClass;
+                                            ?>
+                                        ">
+                                            <i class="<?php 
+                                            $iconClass = 'fas fa-file-alt'; // Default icon
+                                            
+                                            switch($log['table_name']) {
+                                                case 'app_alim_log':
+                                                    $iconClass = 'fas fa-code';
+                                                    break;
+                                                case 'app_engine_log':
+                                                    $iconClass = 'fas fa-cogs';
+                                                    break;
+                                                case 'clan_warehouse_log':
+                                                    $iconClass = 'fas fa-warehouse';
+                                                    break;
+                                                case 'log_chat':
+                                                    $iconClass = 'fas fa-comments';
+                                                    break;
+                                                case 'log_enchant':
+                                                    $iconClass = 'fas fa-scroll';
+                                                    break;
+                                                case 'log_shop':
+                                                    $iconClass = 'fas fa-store';
+                                                    break;
+                                                case 'log_warehouse':
+                                                    $iconClass = 'fas fa-box';
+                                                    break;
+                                                case 'log_private_shop':
+                                                    $iconClass = 'fas fa-store-alt';
+                                                    break;
+                                                case 'log_adena_monster':
+                                                    $iconClass = 'fas fa-dragon';
+                                                    break;
+                                                case 'log_adena_shop':
+                                                    $iconClass = 'fas fa-cash-register';
+                                                    break;
+                                                case 'log_cwarehouse':
+                                                    $iconClass = 'fas fa-boxes';
+                                                    break;
+                                            }
+                                            
+                                            echo $iconClass;
+                                            ?>"></i>
+                                            <span class="badge-text"><?php echo $log['source_table']; ?></span>
+                                        </span>
+                                    </td>
+                                    <td class="log-time">
+                                        <?php 
+                                        $timeStr = '';
+                                        // Try to find a date field to display
+                                        $dateFields = ['date', 'timestamp', 'startTime'];
+                                        foreach ($dateFields as $field) {
+                                            if (isset($log[$field])) {
+                                                $timeStr = formatDate($log[$field], 'M j, Y g:i A');
+                                                break;
+                                            }
+                                        }
+                                        if (empty($timeStr) && isset($log['id'])) {
+                                            $timeStr = 'ID: ' . $log['id'];
+                                        }
+                                        echo $timeStr;
+                                        ?>
+                                    </td>
+                                    <td class="log-details">
+                                        <?php 
+                                        // Determine which fields to display based on the log type
+                                        $detailsStr = '';
+                                        
+                                        // Application-specific logs
+                                        if ($log['table_name'] === 'app_alim_log' && isset($log['logContent'])) {
+                                            $detailsStr = htmlspecialchars($log['logContent']);
+                                        } 
+                                        // Engine logs
+                                        elseif ($log['table_name'] === 'app_engine_log' && isset($log['log'])) {
+                                            $detailsStr = htmlspecialchars($log['log']);
+                                        }
+                                        // Chat logs
+                                        elseif ($log['table_name'] === 'log_chat' && isset($log['chat_type']) && isset($log['content'])) {
+                                            $detailsStr = '<strong>' . htmlspecialchars($log['chat_type']) . ':</strong> ' . htmlspecialchars($log['content']);
+                                        }
+                                        // Enchant logs
+                                        elseif ($log['table_name'] === 'log_enchant' && isset($log['item_name'])) {
+                                            $result = isset($log['result']) && $log['result'] == 1 ? 'Success' : 'Failed';
+                                            $detailsStr = 'Enchant ' . $result . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Warehouse logs
+                                        elseif (($log['table_name'] === 'log_warehouse' || $log['table_name'] === 'log_cwarehouse') && isset($log['item_name'])) {
+                                            $action = isset($log['action']) ? $log['action'] : 'Action';
+                                            $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Shop logs
+                                        elseif (($log['table_name'] === 'log_shop' || $log['table_name'] === 'log_private_shop') && isset($log['item_name'])) {
+                                            $action = isset($log['action']) ? $log['action'] : 'Transaction';
+                                            $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
+                                        }
+                                        // Fallback - show a few key fields if available
+                                        else {
+                                            $priorityFields = ['message', 'description', 'content', 'action', 'item_name', 'character_name', 'account_name'];
+                                            foreach ($priorityFields as $field) {
+                                                if (isset($log[$field]) && !empty($log[$field])) {
+                                                    $detailsStr = htmlspecialchars($log[$field]);
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            // If no priority fields found, show the first non-id, non-date field
+                                            if (empty($detailsStr)) {
+                                                $skipFields = ['id', 'date', 'timestamp', 'startTime', 'table_name', 'source_table'];
+                                                foreach ($log as $key => $value) {
+                                                    if (!in_array($key, $skipFields) && !empty($value) && !is_array($value)) {
+                                                        $detailsStr = $key . ': ' . htmlspecialchars(substr($value, 0, 100));
+                                                        if (strlen($value) > 100) {
+                                                            $detailsStr .= '...';
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        echo !empty($detailsStr) ? $detailsStr : 'No details available';
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <?php if ($totalLogsAvailable > 10): ?>
+                                <tr>
+                                    <td colspan="3" class="text-center view-more-row">
+                                        <a href="<?php echo SITE_URL; ?>/admin/logs.php" class="btn btn-sm btn-primary" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i> View All Logs (<?php echo number_format($totalLogsAvailable); ?>)
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" class="text-center">No log entries found</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- Recent Activity Section -->
     <section class="dashboard-section">
         <div class="section-header">
             <h2>Recent Activity</h2>
             <a href="<?php echo SITE_URL; ?>/admin/activity.php" class="view-all">
                 View All <i class="fas fa-chevron-right"></i>
-			</a>
+            </a>
         </div>
         
         <div class="activity-card">
@@ -236,6 +659,9 @@ $recentActivity = [
         </div>
     </section>
 </div>
+
+<!-- Include Logs Viewer JavaScript -->
+<script src="<?php echo SITE_URL; ?>/assets/js/logs-viewer.js"></script>
 
 <script>
 // Initialize charts when DOM is loaded
@@ -275,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php
+<?php 
 // Include the admin footer
 include_once '../includes/admin-footer.php';
 ?>

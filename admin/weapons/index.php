@@ -156,7 +156,7 @@ $weapons = $db->getRows($query, $params);
                                        onclick="confirmDelete(<?= $weapon['item_id'] ?>, '<?= addslashes($weapon['desc_en']) ?>')">
                                         <i class="fas fa-trash"></i>
                                     </a>
-                                    <a href="../../pages/items/weapon-detail.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
+                                    <a href="<?= SITE_URL ?>/pages/weapons/weapon-detail.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>

@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect weapon data from form
     $weapon = [
         'desc_en' => $_POST['desc_en'] ?? '',
+        'desc_kr' => $_POST['desc_kr'] ?? '',
         'type' => $_POST['type'] ?? '',
         'material' => $_POST['material'] ?? '',
         'weight' => intval($_POST['weight'] ?? 0),
@@ -68,11 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'add_mpr' => intval($_POST['add_mpr'] ?? 0),
         'add_sp' => intval($_POST['add_sp'] ?? 0),
         'iconId' => intval($_POST['iconId'] ?? 0),
+        'spriteId' => intval($_POST['spriteId'] ?? 0),
         'canbedmg' => isset($_POST['canbedmg']) ? 1 : 0,
         'cant_delete' => isset($_POST['cant_delete']) ? 1 : 0,
         'cant_sell' => isset($_POST['cant_sell']) ? 1 : 0,
         'retrieve' => isset($_POST['retrieve']) ? 1 : 0,
         'specialretrieve' => isset($_POST['specialretrieve']) ? 1 : 0,
+        'm_def' => intval($_POST['m_def'] ?? 0),
+        'shortCritical' => intval($_POST['shortCritical'] ?? 0),
+        'longCritical' => intval($_POST['longCritical'] ?? 0),
+        'magicCritical' => intval($_POST['magicCritical'] ?? 0),
+        'damage_reduction' => intval($_POST['damage_reduction'] ?? 0),
+        'MagicDamageReduction' => intval($_POST['MagicDamageReduction'] ?? 0),
+        'PVPDamage' => intval($_POST['PVPDamage'] ?? 0),
+        'PVPDamageReduction' => intval($_POST['PVPDamageReduction'] ?? 0),
+        'expBonus' => intval($_POST['expBonus'] ?? 0),
         'note' => $_POST['note'] ?? ''
     ];
     
@@ -139,7 +150,7 @@ if(!$weapon) {
 $weaponTypes = [
     'SWORD' => 'Sword',
     'DAGGER' => 'Dagger',
-    'TOHAND_SWORD' => 'Sword (2H)',
+    'TOHAND_SWORD' => 'Two-handed Sword',
     'BOW' => 'Bow (2H)',
     'SPEAR' => 'Spear (2H)',
     'BLUNT' => 'Blunt',
@@ -152,7 +163,9 @@ $weaponTypes = [
     'TOHAND_BLUNT' => 'Blunt (2H)',
     'TOHAND_STAFF' => 'Staff (2H)',
     'KEYRINGK' => 'Keyringk',
-    'CHAINSWORD' => 'Chain Sword'
+    'CHAINSWORD' => 'Chain Sword',
+    'STING' => 'Sting',
+    'ARROW' => 'Arrow'
 ];
 
 $materialTypes = [
@@ -182,7 +195,7 @@ $itemGrades = [
     'HERO' => 'Hero',
     'LEGEND' => 'Legend',
     'MYTH' => 'Myth',
-    'ONLY' => 'Only'
+    'ONLY' => 'Unique'
 ];
 
 // Extract material name without parentheses if needed
@@ -192,21 +205,52 @@ if (strpos($materialName, '(') !== false) {
 }
 ?>
 
-<div class="admin-container">
-    <div class="admin-header">
-        <h1>Edit Weapon: <?= htmlspecialchars($weapon['desc_en']) ?></h1>
-        <div class="admin-actions">
-            <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Weapons
-            </a>
-            <a href="<?= SITE_URL ?>/pages/items/weapon-detail.php?id=<?= $weaponId ?>" class="btn btn-primary" target="_blank">
-                <i class="fas fa-eye"></i> View Weapon
-            </a>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto text-center">
+                <h1 class="hero-title"><?= htmlspecialchars($weapon['desc_en']) ?></h1>
+                <div class="item-id-display mb-3">
+                    <span class="badge bg-primary fs-4 px-3 py-2">
+                        <i class="fas fa-tag me-2"></i>Item ID: <?= $weaponId ?>
+                    </span>
+                    <span class="mx-3 text-muted">|</span>
+                    <span class="text-muted fs-5">
+                        Type: <?= htmlspecialchars($weaponTypes[$weapon['type']] ?? $weapon['type']) ?>
+                    </span>
+                </div>
+                
+                <!-- Buttons row -->
+                <div class="hero-buttons mt-3">
+                    <a href="index.php" class="btn" style="background-color: #212121; color: #e0e0e0;">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Weapons
+                    </a>
+                    <button type="button" onclick="document.getElementById('editForm').reset();" class="btn" style="background-color: #343434; color: #e0e0e0;">
+                        <i class="fas fa-undo me-1"></i> Reset Changes
+                    </button>
+                    <button type="button" onclick="document.getElementById('editForm').submit();" class="btn" style="background-color: #212121; color: #e0e0e0;">
+                        <i class="fas fa-save me-1"></i> Save Changes
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../../admin_dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="index.php">Weapons</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Weapon</li>
+        </ol>
+    </nav>
     
+    <!-- Messages -->
     <?php if (!empty($errors)): ?>
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
             <ul>
                 <?php foreach ($errors as $error): ?>
                     <li><?= $error ?></li>
@@ -215,305 +259,487 @@ if (strpos($materialName, '(') !== false) {
         </div>
     <?php endif; ?>
     
-    <form method="POST" class="admin-form">
-        <div class="form-tabs">
-            <button type="button" class="form-tab active" data-tab="basic">Basic Info</button>
-            <button type="button" class="form-tab" data-tab="classes">Class Restrictions</button>
-            <button type="button" class="form-tab" data-tab="stats">Stats & Bonuses</button>
-            <button type="button" class="form-tab" data-tab="properties">Properties</button>
-            <button type="button" class="form-tab" data-tab="notes">Notes</button>
+    <?php if (isset($_SESSION['admin_message'])): ?>
+        <div class="alert alert-<?= $_SESSION['admin_message']['type'] ?>">
+            <?= $_SESSION['admin_message']['message'] ?>
         </div>
-        
-        <div class="form-section active" id="basic-section">
-            <h2>Basic Information</h2>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="item_id">Item ID</label>
-                    <input type="number" id="item_id" value="<?= $weapon['item_id'] ?>" disabled>
-                    <small>ID cannot be changed.</small>
+        <?php unset($_SESSION['admin_message']); ?>
+    <?php endif; ?>
+    
+    <div class="row equal-height-row">
+        <div class="col-md-3 sidebar-column">
+            <!-- Weapon Image and Basic Info -->
+            <div class="acquisition-card mb-4">
+                <div class="acquisition-card-header">
+                    Weapon Preview
                 </div>
-                
-                <div class="form-group">
-                    <label for="iconId">Icon ID</label>
-                    <input type="number" id="iconId" name="iconId" value="<?= $weapon['iconId'] ?>">
-                    <small>ID used for item icon image.</small>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="desc_en">Weapon Name*</label>
-                <input type="text" id="desc_en" name="desc_en" value="<?= htmlspecialchars($weapon['desc_en']) ?>" required>
-                <small>The name of the weapon.</small>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="type">Weapon Type*</label>
-                    <select id="type" name="type" required>
-                        <option value="">Select Type</option>
-                        <?php foreach ($weaponTypes as $value => $label): ?>
-                            <option value="<?= $value ?>" <?= $weapon['type'] === $value ? 'selected' : '' ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="material">Material*</label>
-                    <select id="material" name="material" required>
-                        <option value="">Select Material</option>
-                        <?php foreach ($materialTypes as $value => $label): ?>
-                            <option value="<?= $value ?>" <?= $materialName === $value ? 'selected' : '' ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="itemGrade">Grade</label>
-                    <select id="itemGrade" name="itemGrade">
-                        <?php foreach ($itemGrades as $value => $label): ?>
-                            <option value="<?= $value ?>" <?= $weapon['itemGrade'] === $value ? 'selected' : '' ?>><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="acquisition-card-body d-flex flex-column align-items-center justify-content-center">
+                    <?php if (isset($weapon['iconId']) && $weapon['iconId'] > 0): ?>
+                        <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
+                             alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
+                             style="max-width: 128px;"
+                             onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png';">
+                    <?php else: ?>
+                        <img src="<?= SITE_URL ?>/assets/img/items/default.png" 
+                             alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
+                             style="max-width: 128px; max-height: 128px;">
+                    <?php endif; ?>
+                    
+                    <h5 class="mt-3"><?= htmlspecialchars($weapon['desc_en']) ?></h5>
+                    <p class="mb-1"><?= htmlspecialchars($weaponTypes[$weapon['type']] ?? $weapon['type']) ?></p>
+                    <div class="item-ids w-100 text-center mt-3">
+                        <div class="badge bg-secondary mb-1">Item ID: <?= $weapon['item_id'] ?></div>
+                        <div class="badge bg-secondary">Icon ID: <?= $weapon['iconId'] ?? 'N/A' ?></div>
+                    </div>
                 </div>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="dmg_small">Small Damage</label>
-                    <input type="number" id="dmg_small" name="dmg_small" value="<?= $weapon['dmg_small'] ?>">
+            <!-- Weapon Stats Quick View -->
+            <div class="acquisition-card mb-4">
+                <div class="acquisition-card-header">
+                    Weapon Stats
                 </div>
-                
-                <div class="form-group">
-                    <label for="dmg_large">Large Damage</label>
-                    <input type="number" id="dmg_large" name="dmg_large" value="<?= $weapon['dmg_large'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="weight">Weight</label>
-                    <input type="number" id="weight" name="weight" value="<?= $weapon['weight'] ?>">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="safenchant">Safe Enchant</label>
-                    <input type="number" id="safenchant" name="safenchant" value="<?= $weapon['safenchant'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="hitmodifier">Hit Modifier</label>
-                    <input type="number" id="hitmodifier" name="hitmodifier" value="<?= $weapon['hitmodifier'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="dmgmodifier">Damage Modifier</label>
-                    <input type="number" id="dmgmodifier" name="dmgmodifier" value="<?= $weapon['dmgmodifier'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="double_dmg_chance">Double Damage Chance (%)</label>
-                    <input type="number" id="double_dmg_chance" name="double_dmg_chance" value="<?= $weapon['double_dmg_chance'] ?>" min="0" max="100">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="min_lvl">Min Level</label>
-                    <input type="number" id="min_lvl" name="min_lvl" value="<?= $weapon['min_lvl'] ?>" min="0">
-                </div>
-                
-                <div class="form-group">
-                    <label for="max_lvl">Max Level</label>
-                    <input type="number" id="max_lvl" name="max_lvl" value="<?= $weapon['max_lvl'] ?>" min="0">
+                <div class="acquisition-card-body">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Damage</span>
+                            <span class="badge bg-danger rounded-pill"><?= $weapon['dmg_small'] ?>-<?= $weapon['dmg_large'] ?></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Hit Modifier</span>
+                            <span class="badge bg-info rounded-pill"><?= $weapon['hitmodifier'] ?></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Grade</span>
+                            <span class="badge rarity-<?= strtolower($weapon['itemGrade'] ?? 'common') ?>"><?= $weapon['itemGrade'] ?? 'Common' ?></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Safe Enchant</span>
+                            <span class="badge bg-success rounded-pill"><?= $weapon['safenchant'] ?></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Weight</span>
+                            <span class="badge bg-secondary rounded-pill"><?= $weapon['weight'] ?></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Level Range</span>
+                            <span class="badge bg-primary rounded-pill"><?= $weapon['min_lvl'] ?>-<?= $weapon['max_lvl'] ?: '∞' ?></span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
         
-        <div class="form-section" id="classes-section">
-            <h2>Class Restrictions</h2>
-            
-            <div class="form-row checkbox-grid">
-                <div class="form-check">
-                    <input type="checkbox" id="use_royal" name="use_royal" <?= $weapon['use_royal'] ? 'checked' : '' ?>>
-                    <label for="use_royal">Royal</label>
+        <div class="col-md-9">
+            <!-- Edit Form -->
+            <div class="acquisition-card">
+                <div class="acquisition-card-header">
+                    <h4><i class="fas fa-edit me-2"></i> Edit Weapon</h4>
                 </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_knight" name="use_knight" <?= $weapon['use_knight'] ? 'checked' : '' ?>>
-                    <label for="use_knight">Knight</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_elf" name="use_elf" <?= $weapon['use_elf'] ? 'checked' : '' ?>>
-                    <label for="use_elf">Elf</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_mage" name="use_mage" <?= $weapon['use_mage'] ? 'checked' : '' ?>>
-                    <label for="use_mage">Mage</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_darkelf" name="use_darkelf" <?= $weapon['use_darkelf'] ? 'checked' : '' ?>>
-                    <label for="use_darkelf">Dark Elf</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_dragonknight" name="use_dragonknight" <?= $weapon['use_dragonknight'] ? 'checked' : '' ?>>
-                    <label for="use_dragonknight">Dragon Knight</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_illusionist" name="use_illusionist" <?= $weapon['use_illusionist'] ? 'checked' : '' ?>>
-                    <label for="use_illusionist">Illusionist</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_warrior" name="use_warrior" <?= $weapon['use_warrior'] ? 'checked' : '' ?>>
-                    <label for="use_warrior">Warrior</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_fencer" name="use_fencer" <?= $weapon['use_fencer'] ? 'checked' : '' ?>>
-                    <label for="use_fencer">Fencer</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="use_lancer" name="use_lancer" <?= $weapon['use_lancer'] ? 'checked' : '' ?>>
-                    <label for="use_lancer">Lancer</label>
+                <div class="acquisition-card-body p-4">
+                    <form method="POST" action="" id="editForm">
+                        <div class="row">
+                            <!-- Form Tabs -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="form-tabs">
+                                    <button type="button" class="form-tab active" data-tab="basic">Basic</button>
+                                    <button type="button" class="form-tab" data-tab="properties">Properties</button>
+                                    <button type="button" class="form-tab" data-tab="stats">Stats</button>
+                                    <button type="button" class="form-tab" data-tab="combat">Combats</button>
+                                    <button type="button" class="form-tab" data-tab="classes">Restrictions</button>
+                                    <button type="button" class="form-tab" data-tab="item_properties">Item</button>
+                                    <button type="button" class="form-tab" data-tab="additional">Additional</button>
+                                    <button type="button" class="form-tab" data-tab="notes">Notes</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Basic Information Section -->
+                            <div class="col-lg-12 form-section active" id="basic-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Basic Information
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="desc_en" class="form-label">Weapon Name (English) <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="desc_en" name="desc_en" value="<?= htmlspecialchars($weapon['desc_en']) ?>" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="desc_kr" class="form-label">Weapon Name (Korean)</label>
+                                                <input type="text" class="form-control" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($weapon['desc_kr'] ?? '') ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="type" class="form-label">Weapon Type</label>
+                                                <select class="form-select" id="type" name="type">
+                                                    <?php foreach ($weaponTypes as $value => $label): ?>
+                                                        <option value="<?= $value ?>" <?= $weapon['type'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="material" class="form-label">Material</label>
+                                                <select class="form-select" id="material" name="material">
+                                                    <?php foreach ($materialTypes as $value => $label): ?>
+                                                        <option value="<?= $value ?>" <?= $materialName === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="iconId" class="form-label">Icon ID</label>
+                                                <input type="number" class="form-control no-spinner" id="iconId" name="iconId" value="<?= (int)$weapon['iconId'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="spriteId" class="form-label">Sprite ID</label>
+                                                <input type="number" class="form-control no-spinner" id="spriteId" name="spriteId" value="<?= (int)$weapon['spriteId'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="weight" class="form-label">Weight</label>
+                                                <input type="number" class="form-control no-spinner" id="weight" name="weight" value="<?= (int)$weapon['weight'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="itemGrade" class="form-label">Item Grade</label>
+                                                <select class="form-select" id="itemGrade" name="itemGrade">
+                                                    <option value="" <?= empty($weapon['itemGrade']) ? 'selected' : '' ?>>None</option>
+                                                    <?php foreach ($itemGrades as $value => $label): ?>
+                                                        <option value="<?= $value ?>" <?= $weapon['itemGrade'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Weapon Properties Section -->
+                            <div class="col-lg-12 form-section" id="properties-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Weapon Properties
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="dmg_small" class="form-label">Small Target Damage</label>
+                                                <input type="number" class="form-control no-spinner" id="dmg_small" name="dmg_small" value="<?= (int)$weapon['dmg_small'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="dmg_large" class="form-label">Large Target Damage</label>
+                                                <input type="number" class="form-control no-spinner" id="dmg_large" name="dmg_large" value="<?= (int)$weapon['dmg_large'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="hitmodifier" class="form-label">Hit Modifier</label>
+                                                <input type="number" class="form-control no-spinner" id="hitmodifier" name="hitmodifier" value="<?= (int)$weapon['hitmodifier'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="dmgmodifier" class="form-label">Damage Modifier</label>
+                                                <input type="number" class="form-control no-spinner" id="dmgmodifier" name="dmgmodifier" value="<?= (int)$weapon['dmgmodifier'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="double_dmg_chance" class="form-label">Double Damage Chance (%)</label>
+                                                <input type="number" class="form-control no-spinner" id="double_dmg_chance" name="double_dmg_chance" value="<?= (int)$weapon['double_dmg_chance'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="safenchant" class="form-label">Safe Enchant Level</label>
+                                                <input type="number" class="form-control no-spinner" id="safenchant" name="safenchant" value="<?= (int)$weapon['safenchant'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="min_lvl" class="form-label">Minimum Level</label>
+                                                <input type="number" class="form-control no-spinner" id="min_lvl" name="min_lvl" value="<?= (int)$weapon['min_lvl'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="max_lvl" class="form-label">Maximum Level</label>
+                                                <input type="number" class="form-control no-spinner" id="max_lvl" name="max_lvl" value="<?= (int)$weapon['max_lvl'] ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stats & Bonuses Section -->
+                            <div class="col-lg-12 form-section" id="stats-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Stats Bonuses
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_str" class="form-label">+ STR</label>
+                                                <input type="number" class="form-control no-spinner" id="add_str" name="add_str" value="<?= (int)$weapon['add_str'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_con" class="form-label">+ CON</label>
+                                                <input type="number" class="form-control no-spinner" id="add_con" name="add_con" value="<?= (int)$weapon['add_con'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_dex" class="form-label">+ DEX</label>
+                                                <input type="number" class="form-control no-spinner" id="add_dex" name="add_dex" value="<?= (int)$weapon['add_dex'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_int" class="form-label">+ INT</label>
+                                                <input type="number" class="form-control no-spinner" id="add_int" name="add_int" value="<?= (int)$weapon['add_int'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_wis" class="form-label">+ WIS</label>
+                                                <input type="number" class="form-control no-spinner" id="add_wis" name="add_wis" value="<?= (int)$weapon['add_wis'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_cha" class="form-label">+ CHA</label>
+                                                <input type="number" class="form-control no-spinner" id="add_cha" name="add_cha" value="<?= (int)$weapon['add_cha'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_hp" class="form-label">+ HP</label>
+                                                <input type="number" class="form-control no-spinner" id="add_hp" name="add_hp" value="<?= (int)$weapon['add_hp'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_mp" class="form-label">+ MP</label>
+                                                <input type="number" class="form-control no-spinner" id="add_mp" name="add_mp" value="<?= (int)$weapon['add_mp'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_hpr" class="form-label">+ HP Regen</label>
+                                                <input type="number" class="form-control no-spinner" id="add_hpr" name="add_hpr" value="<?= (int)$weapon['add_hpr'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_mpr" class="form-label">+ MP Regen</label>
+                                                <input type="number" class="form-control no-spinner" id="add_mpr" name="add_mpr" value="<?= (int)$weapon['add_mpr'] ?>">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="add_sp" class="form-label">+ SP</label>
+                                                <input type="number" class="form-control no-spinner" id="add_sp" name="add_sp" value="<?= (int)$weapon['add_sp'] ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<!-- Combat Stats Section -->
+                            <div class="col-lg-12 form-section" id="combat-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Combat Stats
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="m_def" class="form-label">Magic Defense</label>
+                                                <input type="number" class="form-control no-spinner" id="m_def" name="m_def" value="<?= (int)$weapon['m_def'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="shortCritical" class="form-label">Short Range Critical</label>
+                                                <input type="number" class="form-control no-spinner" id="shortCritical" name="shortCritical" value="<?= (int)$weapon['shortCritical'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="longCritical" class="form-label">Long Range Critical</label>
+                                                <input type="number" class="form-control no-spinner" id="longCritical" name="longCritical" value="<?= (int)$weapon['longCritical'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="magicCritical" class="form-label">Magic Critical</label>
+                                                <input type="number" class="form-control no-spinner" id="magicCritical" name="magicCritical" value="<?= (int)$weapon['magicCritical'] ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Class Restrictions Section -->
+                            <div class="col-lg-12 form-section" id="classes-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Class Restrictions
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_royal" name="use_royal" <?= $weapon['use_royal'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_royal">Royal</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_knight" name="use_knight" <?= $weapon['use_knight'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_knight">Knight</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_elf" name="use_elf" <?= $weapon['use_elf'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_elf">Elf</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_mage" name="use_mage" <?= $weapon['use_mage'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_mage">Mage</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_darkelf" name="use_darkelf" <?= $weapon['use_darkelf'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_darkelf">Dark Elf</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_dragonknight" name="use_dragonknight" <?= $weapon['use_dragonknight'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_dragonknight">Dragon Knight</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_illusionist" name="use_illusionist" <?= $weapon['use_illusionist'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_illusionist">Illusionist</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_warrior" name="use_warrior" <?= $weapon['use_warrior'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_warrior">Warrior</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_fencer" name="use_fencer" <?= $weapon['use_fencer'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_fencer">Fencer</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="use_lancer" name="use_lancer" <?= $weapon['use_lancer'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="use_lancer">Lancer</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Item Properties Section (New) -->
+                            <div class="col-lg-12 form-section" id="item_properties-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Item Properties
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="bless" name="bless" <?= $weapon['bless'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="bless">Blessed</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="trade" name="trade" <?= $weapon['trade'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="trade">Tradeable</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="canbedmg" name="canbedmg" <?= $weapon['canbedmg'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="canbedmg">Can Be Damaged</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="haste_item" name="haste_item" <?= $weapon['haste_item'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="haste_item">Haste Item</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="cant_delete" name="cant_delete" <?= $weapon['cant_delete'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="cant_delete">Can't Delete</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="cant_sell" name="cant_sell" <?= $weapon['cant_sell'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="cant_sell">Can't Sell</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="retrieve" name="retrieve" <?= $weapon['retrieve'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="retrieve">Retrievable</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="specialretrieve" name="specialretrieve" <?= $weapon['specialretrieve'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="specialretrieve">Special Retrieve</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Stats Section -->
+                            <div class="col-lg-12 form-section" id="additional-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Additional Stats
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="damage_reduction" class="form-label">Damage Reduction</label>
+                                                <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="<?= (int)$weapon['damage_reduction'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="MagicDamageReduction" class="form-label">Magic Damage Reduction</label>
+                                                <input type="number" class="form-control no-spinner" id="MagicDamageReduction" name="MagicDamageReduction" value="<?= (int)$weapon['MagicDamageReduction'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="PVPDamage" class="form-label">PVP Damage Bonus</label>
+                                                <input type="number" class="form-control no-spinner" id="PVPDamage" name="PVPDamage" value="<?= (int)$weapon['PVPDamage'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="PVPDamageReduction" class="form-label">PVP Damage Reduction</label>
+                                                <input type="number" class="form-control no-spinner" id="PVPDamageReduction" name="PVPDamageReduction" value="<?= (int)$weapon['PVPDamageReduction'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="expBonus" class="form-label">EXP Bonus (%)</label>
+                                                <input type="number" class="form-control no-spinner" id="expBonus" name="expBonus" value="<?= (int)$weapon['expBonus'] ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notes Section -->
+                            <div class="col-lg-12 form-section" id="notes-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Additional Notes
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="note" class="form-label">Notes</label>
+                                            <textarea class="form-control" id="note" name="note" rows="5"><?= htmlspecialchars($weapon['note'] ?? '') ?></textarea>
+                                            <small>Enter any additional information about this weapon.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions mt-4">
+                            <button type="submit" class="btn btn-primary">Update Weapon</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        
-        <div class="form-section" id="stats-section">
-            <h2>Stats & Bonuses</h2>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="add_str">STR</label>
-                    <input type="number" id="add_str" name="add_str" value="<?= $weapon['add_str'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_con">CON</label>
-                    <input type="number" id="add_con" name="add_con" value="<?= $weapon['add_con'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_dex">DEX</label>
-                    <input type="number" id="add_dex" name="add_dex" value="<?= $weapon['add_dex'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_int">INT</label>
-                    <input type="number" id="add_int" name="add_int" value="<?= $weapon['add_int'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_wis">WIS</label>
-                    <input type="number" id="add_wis" name="add_wis" value="<?= $weapon['add_wis'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_cha">CHA</label>
-                    <input type="number" id="add_cha" name="add_cha" value="<?= $weapon['add_cha'] ?>">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="add_hp">HP</label>
-                    <input type="number" id="add_hp" name="add_hp" value="<?= $weapon['add_hp'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_mp">MP</label>
-                    <input type="number" id="add_mp" name="add_mp" value="<?= $weapon['add_mp'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_hpr">HP Regen</label>
-                    <input type="number" id="add_hpr" name="add_hpr" value="<?= $weapon['add_hpr'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_mpr">MP Regen</label>
-                    <input type="number" id="add_mpr" name="add_mpr" value="<?= $weapon['add_mpr'] ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="add_sp">SP</label>
-                    <input type="number" id="add_sp" name="add_sp" value="<?= $weapon['add_sp'] ?>">
-                </div>
-            </div>
-        </div>
-        
-        <div class="form-section" id="properties-section">
-            <h2>Properties</h2>
-            
-            <div class="form-row checkbox-grid">
-                <div class="form-check">
-                    <input type="checkbox" id="bless" name="bless" <?= $weapon['bless'] ? 'checked' : '' ?>>
-                    <label for="bless">Blessed</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="haste_item" name="haste_item" <?= $weapon['haste_item'] ? 'checked' : '' ?>>
-                    <label for="haste_item">Haste</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="canbedmg" name="canbedmg" <?= $weapon['canbedmg'] ? 'checked' : '' ?>>
-                    <label for="canbedmg">Can Be Damaged</label>
-                </div>
-            </div>
-            
-            <h3>Restrictions</h3>
-            
-            <div class="form-row checkbox-grid">
-                <div class="form-check">
-                    <input type="checkbox" id="trade" name="trade" <?= $weapon['trade'] ? 'checked' : '' ?>>
-                    <label for="trade">Tradable</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="retrieve" name="retrieve" <?= $weapon['retrieve'] ? 'checked' : '' ?>>
-                    <label for="retrieve">Retrievable</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="specialretrieve" name="specialretrieve" <?= $weapon['specialretrieve'] ? 'checked' : '' ?>>
-                    <label for="specialretrieve">Special Retrieve</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="cant_delete" name="cant_delete" <?= $weapon['cant_delete'] ? 'checked' : '' ?>>
-                    <label for="cant_delete">Cannot Delete</label>
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" id="cant_sell" name="cant_sell" <?= $weapon['cant_sell'] ? 'checked' : '' ?>>
-                    <label for="cant_sell">Cannot Sell</label>
-                </div>
-            </div>
-        </div>
-        
-        <div class="form-section" id="notes-section">
-            <h2>Additional Notes</h2>
-            
-            <div class="form-group">
-                <label for="note">Notes</label>
-                <textarea id="note" name="note" rows="5"><?= htmlspecialchars($weapon['note'] ?? '') ?></textarea>
-                <small>Enter any additional information about this weapon.</small>
-            </div>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Weapon</button>
-            <a href="index.php" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -538,6 +764,24 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(tabId + '-section').classList.add('active');
         });
     });
+    
+    // Image preview functionality
+    const iconIdInput = document.getElementById('iconId');
+    const imagePreview = document.querySelector('.acquisition-card-body img');
+    const basePath = '<?= SITE_URL ?>/assets/img/items/';
+    const defaultImage = basePath + 'default.png';
+    
+    // Update image when icon ID changes
+    if (iconIdInput && imagePreview) {
+        iconIdInput.addEventListener('input', function() {
+            const iconId = this.value.trim();
+            if (iconId && !isNaN(iconId)) {
+                imagePreview.src = basePath + iconId + '.png';
+            } else {
+                imagePreview.src = defaultImage;
+            }
+        });
+    }
 });
 </script>
 

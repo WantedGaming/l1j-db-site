@@ -65,27 +65,29 @@ $recentActivity = [
         
         <div class="stats-overview">
             <div class="stat-card primary">
-                <div class="stat-value"><?php echo number_format($totalWeapons + $totalArmor + $totalEtcItems); ?></div>
-                <div class="stat-label">Total Items</div>
-                <div class="stat-icon"><i class="fas fa-database"></i></div>
-            </div>
+				<div class="stat-value"><?php echo number_format($totalWeapons + $totalArmor + $totalEtcItems); ?></div>
+				<div class="stat-label">Total Items</div>
+				<div class="stat-icon">
+					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/items.png" alt="Items icon" style="width: 64px; height: 64px;">
+				</div>
+			</div>
             
             <div class="stat-card success">
                 <div class="stat-value"><?php echo number_format($totalMonsters); ?></div>
                 <div class="stat-label">Monsters</div>
-                <div class="stat-icon"><i class="fas fa-dragon"></i></div>
+                <div class="stat-icon"><img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Items icon" style="width: 64px; height: 64px;"></div>
             </div>
             
             <div class="stat-card info">
                 <div class="stat-value"><?php echo number_format($totalSkills); ?></div>
                 <div class="stat-label">Skills</div>
-                <div class="stat-icon"><i class="fas fa-magic"></i></div>
+                <div class="stat-icon"><img src="<?php echo SITE_URL; ?>/assets/img/placeholders/skill.png" alt="Items icon" style="width: 64px; height: 64px;"></div>
             </div>
             
             <div class="stat-card warning">
                 <div class="stat-value"><?php echo number_format($totalMaps); ?></div>
                 <div class="stat-label">Maps</div>
-                <div class="stat-icon"><i class="fas fa-map"></i></div>
+                <div class="stat-icon"><img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Items icon" style="width: 64px; height: 64px;"></div>
             </div>
         </div>
     </section>
@@ -93,23 +95,29 @@ $recentActivity = [
     <!-- Quick Actions -->
     <section class="dashboard-section">
         <div class="section-header">
-            <h2>Quick Actions</h2>
+            <h2>Management</h2>
         </div>
         
         <div class="quick-actions">
             <a href="<?php echo SITE_URL; ?>/admin/weapons/index.php" class="action-card">
-				<div class="action-icon"><i class="fas fa-sword"></i></div>
-				<div class="action-label">Manage Weapons</div>
+				<div class="action-icon">
+					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/weapons.png" alt="Weapons icon" style="width: 64px; height: 64px;">
+				</div>
+				<div class="action-label">Weapons</div>
 			</a>
             
             <a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-dragon"></i></div>
-                <div class="action-label">Add Monster</div>
+                <div class="action-icon">
+					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Weapons icon" style="width: 64px; height: 64px;">
+				</div>
+                <div class="action-label">Monster</div>
             </a>
             
             <a href="<?php echo SITE_URL; ?>/admin/skills/create.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-magic"></i></div>
-                <div class="action-label">Add Skill</div>
+                <div class="action-icon">
+					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/skill.png" alt="Weapons icon" style="width: 64px; height: 64px;">
+				</div>
+                <div class="action-label">Skill</div>
             </a>
             
             <a href="<?php echo SITE_URL; ?>/admin/backup.php" class="action-card">
@@ -118,7 +126,9 @@ $recentActivity = [
             </a>
             
             <a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="action-icon">
+					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Weapons icon" style="width: 64px; height: 64px;">
+				</div>
                 <div class="action-label">Manage Maps</div>
             </a>
             

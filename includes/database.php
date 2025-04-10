@@ -217,4 +217,10 @@ class Database {
     public function rollback() {
         $this->conn->rollBack();
     }
+	
+	public function execute($query, $params = []) {
+    $stmt = $this->connection->prepare($query);
+    return $stmt->execute($params);
+	}
+
 }

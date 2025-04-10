@@ -22,12 +22,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
     // Add confirmation check with POST for security
     if (isset($_POST['confirm_delete']) && $_POST['confirm_delete'] == 'yes') {
         // Delete associated records first (foreign key constraints)
-        $db->execute("DELETE FROM weapon_skill WHERE weapon_id = ?", [$weaponId]);
-        $db->execute("DELETE FROM weapon_skill_model WHERE item_id = ?", [$weaponId]);
-        $db->execute("DELETE FROM weapon_damege WHERE item_id = ?", [$weaponId]);
+        $db->query("DELETE FROM weapon_skill WHERE weapon_id = ?", [$weaponId]);
+        $db->query("DELETE FROM weapon_skill_model WHERE item_id = ?", [$weaponId]);
+        $db->query("DELETE FROM weapon_damege WHERE item_id = ?", [$weaponId]);
         
         // Then delete the weapon
-        $result = $db->execute("DELETE FROM weapon WHERE item_id = ?", [$weaponId]);
+        $result = $db->query("DELETE FROM weapon WHERE item_id = ?", [$weaponId]);
         
         if ($result) {
             // Set success message and redirect
@@ -45,9 +45,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
 
 // Build query for weapons list
 $query = "SELECT w.item_id, w.desc_en, w.type, 
-                 SUBSTRING_INDEX(w.material, '(', 1) as material_name, 
-                 w.dmg_small, w.dmg_large, w.safenchant, w.itemGrade, 
-                 w.iconId 
+                 w.dmg_small, w.dmg_large, w.iconId 
           FROM weapon w";
 
 // Handle search if present
@@ -79,27 +77,36 @@ $weapons = $db->getRows($query, $params);
 ?>
 
 <div class="admin-container">
-    <div class="admin-header">
-        <h1>Manage Weapons</h1>
-        <div class="admin-actions">
-            <a href="create.php" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Weapon
-            </a>
+    <div class="admin-hero-section">
+    <div class="admin-hero-container">
+        <div class="admin-hero-content">
+            <h1 class="admin-hero-title">Manage Weapons</h1>
+            <p class="admin-hero-subtitle">Total Weapons: <?= $totalWeapons ?></p>
+            
+            <div class="hero-search-form mt-4">
+                <form action="index.php" method="GET">
+                    <div class="search-input-group">
+                        <input type="text" name="q" placeholder="Search weapons by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <?php if (isset($_GET['q']) && !empty($_GET['q'])): ?>
+                            <a href="index.php" class="search-clear-btn">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="mt-3">
+                <a href="create.php" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add New Weapon
+                </a>
+            </div>
         </div>
     </div>
-    
-    <!-- Search and Filters -->
-    <div class="admin-filters">
-        <form action="index.php" method="GET" class="search-form">
-            <div class="form-group">
-                <input type="text" name="q" placeholder="Search weapons..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-                <button type="submit" class="btn">Search</button>
-                <?php if (isset($_GET['q']) && !empty($_GET['q'])): ?>
-                    <a href="index.php" class="btn btn-secondary">Clear</a>
-                <?php endif; ?>
-            </div>
-        </form>
-    </div>
+</div>
     
     <!-- Display success/error messages -->
     <?php if (isset($_SESSION['admin_message'])): ?>
@@ -109,78 +116,110 @@ $weapons = $db->getRows($query, $params);
         <?php unset($_SESSION['admin_message']); ?>
     <?php endif; ?>
     
-    <!-- Weapons List Table -->
-    <div class="table-responsive">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th width="60">ID</th>
-                    <th width="60">Icon</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Material</th>
-                    <th>Dmg(S/L)</th>
-                    <th>Safe</th>
-                    <th>Grade</th>
-                    <th width="150">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($weapons)): ?>
+    <!-- Weapons List Table - Wrapped in constrained width -->
+    <div class="admin-table-container">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
                     <tr>
-                        <td colspan="9" class="text-center">No weapons found.</td>
+                        <th width="60">ID</th>
+                        <th width="60">Icon</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Dmg(S/L)</th>
+                        <th width="150">Actions</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($weapons as $weapon): ?>
+                </thead>
+                <tbody>
+                    <?php if (empty($weapons)): ?>
                         <tr>
-                            <td><?= $weapon['item_id'] ?></td>
-                            <td>
-                                <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
-                                     alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
-                                     class="admin-item-icon"
-                                     onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
-                            </td>
-                            <td><?= htmlspecialchars($weapon['desc_en']) ?></td>
-                            <td><?= formatWeaponType($weapon['type']) ?></td>
-                            <td><?= formatMaterial($weapon['material_name']) ?></td>
-                            <td><?= $weapon['dmg_small'] ?>/<?= $weapon['dmg_large'] ?></td>
-                            <td>+<?= $weapon['safenchant'] ?></td>
-                            <td><span class="badge <?= getGradeBadgeClass($weapon['itemGrade']) ?>"><?= formatGrade($weapon['itemGrade']) ?></span></td>
-                            <td class="actions">
-                                <a href="edit.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-edit" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-sm btn-delete" title="Delete" 
-                                   onclick="confirmDelete(<?= $weapon['item_id'] ?>, '<?= addslashes($weapon['desc_en']) ?>')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                                <a href="<?= SITE_URL ?>/pages/items/weapon-detail.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
+                            <td colspan="9" class="text-center">No weapons found.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php foreach ($weapons as $weapon): ?>
+                            <tr>
+                                <td><?= $weapon['item_id'] ?></td>
+                                <td>
+                                    <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
+                                         alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
+                                         class="admin-item-icon"
+                                         onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+                                </td>
+                                <td><?= htmlspecialchars($weapon['desc_en']) ?></td>
+                                <td><?= formatWeaponType($weapon['type']) ?></td>
+                                <td><?= $weapon['dmg_small'] ?>/<?= $weapon['dmg_large'] ?></td>
+                                <td class="actions">
+                                    <a href="edit.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-edit" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-delete" title="Delete" 
+                                       onclick="confirmDelete(<?= $weapon['item_id'] ?>, '<?= addslashes($weapon['desc_en']) ?>')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a href="../../pages/items/weapon-detail.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
     
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
-        <div class="admin-pagination">
-            <?php if ($page > 1): ?>
-                <a href="index.php?page=<?= ($page - 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="btn btn-sm">
-                    &laquo; Previous
-                </a>
-            <?php endif; ?>
+        <div class="pagination">
+            <div class="pagination-info">
+                Showing <?= ($offset + 1) ?>-<?= min($offset + $itemsPerPage, $totalWeapons) ?> of <?= $totalWeapons ?> weapons
+            </div>
             
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?></span>
-            
-            <?php if ($page < $totalPages): ?>
-                <a href="index.php?page=<?= ($page + 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="btn btn-sm">
-                    Next &raquo;
-                </a>
-            <?php endif; ?>
+            <div class="pagination-links">
+                <?php if ($page > 1): ?>
+                    <a href="index.php?page=1<?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="index.php?page=<?= ($page - 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-link disabled"><i class="fas fa-angle-double-left"></i></span>
+                    <span class="pagination-link disabled"><i class="fas fa-angle-left"></i></span>
+                <?php endif; ?>
+                
+                <?php
+                $startPage = max(1, $page - 2);
+                $endPage = min($totalPages, $page + 2);
+                
+                if ($startPage > 1) {
+                    echo '<span class="pagination-ellipsis">...</span>';
+                }
+                
+                for ($i = $startPage; $i <= $endPage; $i++): ?>
+                    <a href="index.php?page=<?= $i ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" 
+                       class="pagination-link <?= ($i == $page) ? 'active' : '' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor;
+                
+                if ($endPage < $totalPages) {
+                    echo '<span class="pagination-ellipsis">...</span>';
+                }
+                ?>
+                
+                <?php if ($page < $totalPages): ?>
+                    <a href="index.php?page=<?= ($page + 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="index.php?page=<?= $totalPages ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-link disabled"><i class="fas fa-angle-right"></i></span>
+                    <span class="pagination-link disabled"><i class="fas fa-angle-double-right"></i></span>
+                <?php endif; ?>
+            </div>
         </div>
     <?php endif; ?>
 </div>

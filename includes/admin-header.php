@@ -57,7 +57,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                 </div>
                 
                 <nav class="admin-nav">
-                    <ul class="admin-nav-links">
+						<ul class="admin-nav-links">
+							<li class="admin-nav-item">
+								<a href="<?php echo SITE_URL; ?>/" class="admin-nav-link back-to-site">
+							<i class="fas fa-globe me-1"></i> View Site
+							</a>
+						</li>
                         <li class="admin-nav-item">
                             <a href="<?php echo SITE_URL; ?>/admin/" class="admin-nav-link <?php echo $currentPage === 'index' ? 'active' : ''; ?>">
                                 Dashboard

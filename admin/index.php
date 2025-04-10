@@ -28,7 +28,7 @@ $db = Database::getInstance();
 $totalWeapons = $itemStats['weapons'];
 $totalArmor = $itemStats['armor'];
 $totalEtcItems = $itemStats['etcitems'];
-$totalMonsters = $monsterStats['total'];
+$totalMonsters = $db->getColumn("SELECT COUNT(*) FROM npc WHERE impl LIKE '%L1monster%'");
 $totalSkills = $db->getColumn("SELECT COUNT(*) FROM skills");
 $totalPassiveSkills = $db->getColumn("SELECT COUNT(*) FROM skills_passive");
 $totalMaps = $db->getColumn("SELECT COUNT(*) FROM mapids");
@@ -76,7 +76,7 @@ $recentActivity = [
                 <div class="stat-value"><?php echo number_format($totalMonsters); ?></div>
                 <div class="stat-label">Monsters</div>
                 <div class="stat-icon"><img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Items icon" style="width: 64px; height: 64px;"></div>
-            </div>
+			</div>
             
             <div class="stat-card info">
                 <div class="stat-value"><?php echo number_format($totalSkills); ?></div>
@@ -99,45 +99,37 @@ $recentActivity = [
         </div>
         
         <div class="quick-actions">
-            <a href="<?php echo SITE_URL; ?>/admin/weapons/index.php" class="action-card">
-				<div class="action-icon">
-					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/weapons.png" alt="Weapons icon" style="width: 64px; height: 64px;">
-				</div>
+			<a href="<?php echo SITE_URL; ?>/admin/weapons/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/weapons.png" alt="Weapons icon" class="action-icon">
 				<div class="action-label">Weapons</div>
 			</a>
-            
-            <a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
-                <div class="action-icon">
-					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Weapons icon" style="width: 64px; height: 64px;">
-				</div>
-                <div class="action-label">Monster</div>
-            </a>
-            
-            <a href="<?php echo SITE_URL; ?>/admin/skills/create.php" class="action-card">
-                <div class="action-icon">
-					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/skill.png" alt="Weapons icon" style="width: 64px; height: 64px;">
-				</div>
-                <div class="action-label">Skill</div>
-            </a>
-            
-            <a href="<?php echo SITE_URL; ?>/admin/backup.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-database"></i></div>
-                <div class="action-label">Backup Database</div>
-            </a>
-            
-            <a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-                <div class="action-icon">
-					<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Weapons icon" style="width: 64px; height: 64px;">
-				</div>
-                <div class="action-label">Manage Maps</div>
-            </a>
-            
-            <a href="<?php echo SITE_URL; ?>/admin/settings.php" class="action-card">
-                <div class="action-icon"><i class="fas fa-cog"></i></div>
-                <div class="action-label">Settings</div>
-            </a>
-        </div>
-    </section>
+
+			<a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Monster icon" class="action-icon">
+				<div class="action-label">Monster</div>
+			</a>
+
+			<a href="<?php echo SITE_URL; ?>/admin/skills/create.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/skill.png" alt="Skill icon" class="action-icon">
+				<div class="action-label">Skill</div>
+			</a>
+
+			<a href="<?php echo SITE_URL; ?>/admin/backup.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/backup.png" alt="Backup icon" class="action-icon">
+				<div class="action-label">Backup Database</div>
+			</a>
+
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Manage Maps</div>
+			</a>
+
+			<a href="<?php echo SITE_URL; ?>/admin/settings.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/settings.png" alt="Settings icon" class="action-icon">
+				<div class="action-label">Settings</div>
+			</a>
+		</div>
+	</section>
     
     <!-- Data Visualization Section -->
     <section class="dashboard-section">
@@ -213,12 +205,12 @@ $recentActivity = [
             <h2>Recent Activity</h2>
             <a href="<?php echo SITE_URL; ?>/admin/activity.php" class="view-all">
                 View All <i class="fas fa-chevron-right"></i>
-            </a>
+			</a>
         </div>
         
         <div class="activity-card">
             <?php foreach ($recentActivity as $activity): ?>
-                <div class="activity-item">
+                <div class="activity-item py-3">
                     <div class="activity-icon 
                         <?php if ($activity['type'] === 'add') echo 'add';
                               elseif ($activity['type'] === 'edit') echo 'edit';

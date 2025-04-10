@@ -1,0 +1,34 @@
+/assets/img/icons/icons/ => Items, Armor, Weapon, Others (png)
+/assets/img/icons/dolls/ => Dolls (png)
+/assets/img/icons/maps/ => Maps (jpeg)
+/assets/img/icons/monsters/ => Monsters (png/gif)
+/assets/img/icons/npcs/ => NPC's (gif)
+/assets/img/icons/poly/ => Polymorps (png/gif)
+/assets/img/icons/skills/ => Skills (png)
+
+
+In characters.sql table, characters are identified by column "objid".  The number from "objid" is used in multiple locations.
+- characters_items.sql
+- character_einhasadstat.sql
+- character_einhasadfaith.sql
+- character_config.sql
+
+But we are mainly focusing on characters_items.sql file, which contains all the items the character has.
+
+In the character_items.sql, we have column label "is_equipped".  These items should go into the Equipment Card on character-detail.php if there is a "1". Also, if it's equipped it means, it's either an armor, or weapon.  Which "item_id" should match "item_id" in armor.sql and weapon.sql. Once we get here, we need to check column "iconId" which holds the image name. 
+
+If the "is_equipped" equals 0, then it should go into the inventory card on character-detail.php.
+
+In characters_items.sql file, we also have column "item_id", which is the number we need to focus on getting images, and figuring out what kinda of item it is. As state above we already figure out if it's armor/weapon simply by the column "is_equpped".  But for items, and others we need to match "item_id" with "item_id" in etcitem.sql table.  Inside the etcitem.sql table, we need to grab two things, "desc_en" name of the item in english, and "iconId" image name inside the /assets/img/icons/icons/ directory, these should match.
+
+
+Class 0 = Royal
+Class 37 = Elf
+Class 48 = Knight
+Class 2079 = Wizard
+Class 2769 = DarkElf
+Class 6650 = Illusionist
+Class 6661 = Dragonknight
+Class 18499 = Fencer
+Class 19299 = Lancer
+Class 20577 = Warrior

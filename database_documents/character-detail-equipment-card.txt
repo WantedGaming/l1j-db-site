@@ -1,0 +1,55 @@
+Left Top
+========
+Earring Slot -> (Open) Earrings [armor.sql type = EARRING]
+Earring Slot -> (Locked) Earrings (Can open at level 101) [armor.sql type = EARRING]
+Insignia Slot -> (Locked) Insignia (Can open at level 60)
+Glove -> (Open) Gloves [armor.sql type = GLOVE]
+
+Middle Top
+==========
+Helm -> (Open) Helmets [armor.sql type = HELMET]
+Pendant -> (Open) Pendants [armor.sql type = PENDANT]
+Amulet -> (Open) Necklace, Amulet [armor.sql type = AMULET]
+
+Right Top
+=========
+Earring Slot -> (Locked) Earrings (Can open at level 60) [armor.sql type = EARRING]
+Earring Slot -> (Locked) Earrings (Can open at level 103) [armor.sql type = EARRING]
+Pauldrons Slot -> (Locked) Pauldrons (Can open at level 60) [armor.sql type = SHOULDER]
+Cloak Slot -> (Open) Cloak [armor.sql type = CLOAK]
+
+Middle Left
+===========
+Weapon Slot -> (Open) Weapons [weapon.sql]
+
+Middle Middle
+=============
+T-shirt Slot -> (Open) T-Shirts [armor.sql type = T_SHIRT]
+Armor Slot -> (Open) Armor [armor.sql type = ARMOR]
+
+Middle Right
+============
+Shield/Guarder -> (Open) Shield or Guarder [armor.sql type = GARDER, SHIELD]
+
+Bottom Left
+===========
+Ring Slot -> (Open) Rings [armor.sql type = RING]
+Ring Slot -> (Locked) Rings (Can be open at level 60) [armor.sql type = RING]
+Ring Slot -> (Locked) Rings (Can be open at level 95) [armor.sql type = RING]
+Rune Slot -> (Open) Rune [armor.sql type = RON]
+
+Bottom Middle
+=============
+Belt Slot -> (Open) Belts [armor.sql type = BELT]
+Gaiter Slot -> (Open) Gaiters [armor.sql type = PAIR]
+Boots Slot -> (Open) Boots [armor.sql type = BOOTS]
+
+Bottom Right
+============
+Ring Slot -> (Open) Rings [armor.sql type = RING]
+Ring Slot -> (Locked) Rings (Can be open at level 60) [armor.sql type = RING]
+Ring Slot -> (Locked) Rings (Can be open at level 100) [armor.sql type = RING]
+Badge Slot -> (Open) Badge [armor.sql type = SENTENCE]
+
+
+

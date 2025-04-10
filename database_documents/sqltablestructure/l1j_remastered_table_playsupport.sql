@@ -1,0 +1,18 @@
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `playsupport`
+--
+
+CREATE TABLE `playsupport` (
+  `mapid` int(6) NOT NULL,
+  `mapname` varchar(50) DEFAULT NULL,
+  `whole` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `surround` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `sub` tinyint(1) UNSIGNED NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `playsupport`:
+--

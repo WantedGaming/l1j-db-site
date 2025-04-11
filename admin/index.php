@@ -90,7 +90,7 @@ foreach ($logTables as $table => $displayName) {
 // Sort combined logs by date (if available)
 usort($combinedLogs, function($a, $b) {
     // Try to find a date field to sort by
-    $dateFields = ['date', 'timestamp', 'startTime'];
+    $dateFields = ['datetime', 'date', 'timestamp', 'startTime'];
     
     foreach ($dateFields as $field) {
         if (isset($a[$field]) && isset($b[$field])) {
@@ -183,6 +183,11 @@ $recentActivity = [
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/weapons.png" alt="Weapons icon" class="action-icon">
 				<div class="action-label">Weapons</div>
 			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/armor/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/armor.png" alt="Armor icon" class="action-icon">
+				<div class="action-label">Armor</div>
+			</a>
 
 			<a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Monster icon" class="action-icon">
@@ -193,15 +198,40 @@ $recentActivity = [
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/skill.png" alt="Skill icon" class="action-icon">
 				<div class="action-label">Skill</div>
 			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Maps</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/items.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Items</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/dolls.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Dolls</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/potions.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Potions</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/scroll2.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Scrolls</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/currency.png" alt="Maps icon" class="action-icon">
+				<div class="action-label">Currency</div>
+			</a>
 
 			<a href="<?php echo SITE_URL; ?>/admin/backup.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/backup.png" alt="Backup icon" class="action-icon">
 				<div class="action-label">Backup Database</div>
-			</a>
-
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Maps icon" class="action-icon">
-				<div class="action-label">Manage Maps</div>
 			</a>
 
 			<a href="<?php echo SITE_URL; ?>/admin/settings.php" class="action-card">
@@ -378,7 +408,7 @@ $recentActivity = [
                                         <?php 
                                         $timeStr = '';
                                         // Try to find a date field to display
-                                        $dateFields = ['date', 'timestamp', 'startTime'];
+                                        $dateFields = ['datetime', 'date', 'timestamp', 'startTime'];
                                         foreach ($dateFields as $field) {
                                             if (isset($log[$field])) {
                                                 $timeStr = formatDate($log[$field], 'M j, Y g:i A');
@@ -414,7 +444,15 @@ $recentActivity = [
                                             $detailsStr = 'Enchant ' . $result . ': ' . htmlspecialchars($log['item_name']);
                                         }
                                         // Warehouse logs
-                                        elseif (($log['table_name'] === 'log_warehouse' || $log['table_name'] === 'log_cwarehouse') && isset($log['item_name'])) {
+                                        elseif ($log['table_name'] === 'log_warehouse' && isset($log['item_name'])) {
+                                            $detailsStr = '<strong>Type:</strong> ' . htmlspecialchars($log['type']) . 
+                                                ' | <strong>Character:</strong> ' . htmlspecialchars($log['char_name']) . ' (ID: ' . $log['char_id'] . ')' .
+                                                ' | <strong>Item:</strong> ' . htmlspecialchars($log['item_name']) . ' (ID: ' . $log['item_id'] . ')' .
+                                                ' | <strong>Enchant:</strong> ' . htmlspecialchars($log['item_enchantlvl']) .
+                                                ' | <strong>Count:</strong> ' . $log['item_count'];
+                                        }
+                                        // CWarehouse logs (keeping this separate from log_warehouse)
+                                        elseif ($log['table_name'] === 'log_cwarehouse' && isset($log['item_name'])) {
                                             $action = isset($log['action']) ? $log['action'] : 'Action';
                                             $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
                                         }
@@ -527,7 +565,7 @@ $recentActivity = [
                                         <?php 
                                         $timeStr = '';
                                         // Try to find a date field to display
-                                        $dateFields = ['date', 'timestamp', 'startTime'];
+                                        $dateFields = ['datetime', 'date', 'timestamp', 'startTime'];
                                         foreach ($dateFields as $field) {
                                             if (isset($log[$field])) {
                                                 $timeStr = formatDate($log[$field], 'M j, Y g:i A');
@@ -563,7 +601,15 @@ $recentActivity = [
                                             $detailsStr = 'Enchant ' . $result . ': ' . htmlspecialchars($log['item_name']);
                                         }
                                         // Warehouse logs
-                                        elseif (($log['table_name'] === 'log_warehouse' || $log['table_name'] === 'log_cwarehouse') && isset($log['item_name'])) {
+                                        elseif ($log['table_name'] === 'log_warehouse' && isset($log['item_name'])) {
+                                            $detailsStr = '<strong>Type:</strong> ' . htmlspecialchars($log['type']) . 
+                                                ' | <strong>Character:</strong> ' . htmlspecialchars($log['char_name']) . ' (ID: ' . $log['char_id'] . ')' .
+                                                ' | <strong>Item:</strong> ' . htmlspecialchars($log['item_name']) . ' (ID: ' . $log['item_id'] . ')' .
+                                                ' | <strong>Enchant:</strong> ' . htmlspecialchars($log['item_enchantlvl']) .
+                                                ' | <strong>Count:</strong> ' . $log['item_count'];
+                                        }
+                                        // CWarehouse logs (keeping this separate from log_warehouse)
+                                        elseif ($log['table_name'] === 'log_cwarehouse' && isset($log['item_name'])) {
                                             $action = isset($log['action']) ? $log['action'] : 'Action';
                                             $detailsStr = htmlspecialchars($action) . ': ' . htmlspecialchars($log['item_name']);
                                         }

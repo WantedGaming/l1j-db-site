@@ -22,14 +22,7 @@ require_once __DIR__ . '/auth.php';
     <!-- Font Awesome (for icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <?php
-    // Include home.css specifically for the homepage
-    $current_file = basename($_SERVER['PHP_SELF']);
-    if ($current_file == 'index.php') {
-        echo '<link rel="stylesheet" href="' . SITE_URL . '/assets/css/home.css">';
-    }
-    ?>
-    
+       
     <?php if (isset($extraStyles)): ?>
         <?php foreach ($extraStyles as $style): ?>
             <link rel="stylesheet" href="<?php echo $style; ?>">

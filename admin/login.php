@@ -44,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['is_admin'] = true;
                     
                     // Update last active timestamp
-                    // Using query() method instead of execute() since it seems execute() doesn't exist
                     $db->query("UPDATE accounts SET lastactive = NOW() WHERE login = ?", [$username]);
                     
                     // Redirect to admin dashboard
@@ -108,6 +107,182 @@ function displayLoginFlash() {
     
     <!-- Font Awesome (for icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Inline styles to ensure login page looks correct */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--secondary);
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            padding: 30px 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .login-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        
+        .login-logo span {
+            color: var(--accent);
+        }
+        
+        .login-header h1 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .login-form-container {
+            padding: 30px;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .login-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            color: var(--text);
+            opacity: 0.7;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--secondary);
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-form input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(249, 75, 31, 0.2);
+        }
+        
+        .btn-login {
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login:hover {
+            background-color: #ff6b43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .login-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-footer a:hover {
+            color: #ff6b43;
+            text-decoration: none;
+        }
+        
+        /* Flash Messages */
+        .flash-message {
+            padding: 15px;
+            margin: 0 30px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .flash-message i {
+            font-size: 20px;
+        }
+        
+        .flash-message-content {
+            flex: 1;
+        }
+        
+        .flash-message.error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        
+        .flash-message.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+        
+        .flash-message.info {
+            background-color: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            color: #2196f3;
+        }
+        
+        .flash-message.warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            color: #ff9800;
+        }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-container">
@@ -126,7 +301,7 @@ function displayLoginFlash() {
                     <label for="username">Username</label>
                     <div class="input-with-icon">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                        <input type="text" id="username" name="username" required>
                     </div>
                 </div>
                 
@@ -134,7 +309,7 @@ function displayLoginFlash() {
                     <label for="password">Password</label>
                     <div class="input-with-icon">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <input type="password" id="password" name="password" required>
                     </div>
                 </div>
                 

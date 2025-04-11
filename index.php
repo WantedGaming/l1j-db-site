@@ -9,6 +9,9 @@ $pageDescription = 'Welcome to L1J Remastered Database - Your comprehensive reso
 
 // Include header
 require_once 'includes/header.php';
+?>
+
+<?php
 
 // Get database instance
 $db = Database::getInstance();
@@ -117,42 +120,42 @@ $recentUpdates = [
         <div class="resources-grid">
             <div class="resource-card">
                 <h3>Weapons</h3>
-				<img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
+                <img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
                 <p>Browse all weapons including swords, daggers, axes, bows, staves and more.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/weapons/weapon-list.php" class="resource-link">View Weapons</a>
             </div>
             
             <div class="resource-card">
                 <h3>Armor</h3>
-				<img src="assets/img/placeholders/armor.png" alt="Armor image" class="card-image">
+                <img src="assets/img/placeholders/armor.png" alt="Armor image" class="card-image">
                 <p>Explore armor sets, helmets, gloves, boots and other protective gear.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/items/armor.php" class="resource-link">View Armor</a>
+                <a href="<?php echo SITE_URL; ?>/pages/armor/armor-list.php" class="resource-link">View Armor</a>
             </div>
             
             <div class="resource-card">
                 <h3>Accessory</h3>
-				<img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
+                <img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
                 <p>Find information necklace, rings, and other jewelry you can utilize.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/monsters/bosses.php" class="resource-link">View Bosses</a>
             </div>
             
             <div class="resource-card">
                 <h3>Monsters</h3>
-				<img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
+                <img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
                 <p>Find information on all bosses, their locations, drops, and strategies.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/skills/magic.php" class="resource-link">View Magic Skills</a>
             </div>
             
             <div class="resource-card">
                 <h3>Maps</h3>
-				<img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
+                <img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
                 <p>Where to hunt, hunting grounds, and monster spawn locations.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/guides/classes.php" class="resource-link">View Class Guides</a>
             </div>
             
             <div class="resource-card">
-				<h3>Dolls</h3>
-				<img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
+                <h3>Dolls</h3>
+                <img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
                 <p>Your ingame compaion to help you along your adventures.</p>
                 <a href="<?php echo SITE_URL; ?>/pages/maps/world.php" class="resource-link">View World Maps</a>
             </div>

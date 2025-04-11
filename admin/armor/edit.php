@@ -351,12 +351,12 @@ $yesNoOptions = [
 <div class="container mt-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="../../admin_dashboard.php">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit Armor</li>
-        </ol>
-    </nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin_dashboard.php">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
+    </ol>
+</nav>
     
     <!-- Messages -->
     <?php if (!empty($errors)): ?>
@@ -532,7 +532,8 @@ $yesNoOptions = [
                                     <button type="button" class="form-tab active" data-tab="basic">Basic</button>
                                     <button type="button" class="form-tab" data-tab="properties">Properties</button>
                                     <button type="button" class="form-tab" data-tab="stats">Stats</button>
-                                    <button type="button" class="form-tab" data-tab="defenses">Defenses</button>
+                                    <button type="button" class="form-tab" data-tab="resistance">Resistance</button>
+                                    <button type="button" class="form-tab" data-tab="bonus">Bonus</button>
                                     <button type="button" class="form-tab" data-tab="classes">Restrictions</button>
                                     <button type="button" class="form-tab" data-tab="item_properties">Item</button>
                                     <button type="button" class="form-tab" data-tab="pvp">PVP</button>
@@ -647,7 +648,7 @@ $yesNoOptions = [
                                                 <label for="damage_reduction" class="form-label">Damage Reduction</label>
                                                 <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="<?= (int)$armor['damage_reduction'] ?>">
                                             </div>
-											<div class="col-md-6 mb-3">
+                                            <div class="col-md-6 mb-3">
                                                 <label for="hit_rate" class="form-label">Hit Rate</label>
                                                 <input type="number" class="form-control no-spinner" id="hit_rate" name="hit_rate" value="<?= (int)$armor['hit_rate'] ?>">
                                             </div>
@@ -761,76 +762,101 @@ $yesNoOptions = [
                                 </div>
                             </div>
 
-                            <!-- Defenses & Resistances Section -->
-                            <div class="col-lg-12 form-section" id="defenses-section">
+                            <!-- Resistance Section (Updated) -->
+                            <div class="col-lg-12 form-section" id="resistance-section">
+                                <div class="row"> <!-- Add a row to contain both cards -->
+                                    <!-- Elemental Resistance Card -->
+                                    <div class="col-lg-12 mb-4">
+                                        <div class="card bg-dark">
+                                            <div class="card-header">
+                                                Elemental Resistance
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="defense_water" class="form-label">Water Defense</label>
+                                                        <input type="number" class="form-control no-spinner" id="defense_water" name="defense_water" value="<?= (int)$armor['defense_water'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="defense_wind" class="form-label">Wind Defense</label>
+                                                        <input type="number" class="form-control no-spinner" id="defense_wind" name="defense_wind" value="<?= (int)$armor['defense_wind'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="defense_fire" class="form-label">Fire Defense</label>
+                                                        <input type="number" class="form-control no-spinner" id="defense_fire" name="defense_fire" value="<?= (int)$armor['defense_fire'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="defense_earth" class="form-label">Earth Defense</label>
+                                                        <input type="number" class="form-control no-spinner" id="defense_earth" name="defense_earth" value="<?= (int)$armor['defense_earth'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="attr_all" class="form-label">All Attributes</label>
+                                                        <input type="number" class="form-control no-spinner" id="attr_all" name="attr_all" value="<?= (int)$armor['attr_all'] ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Status Resistance Card -->
+                                    <div class="col-lg-12">
+                                        <div class="card bg-dark">
+                                            <div class="card-header">
+                                                Status Resistance
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_skill" class="form-label">Skill Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_skill" name="regist_skill" value="<?= (int)$armor['regist_skill'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_stone" class="form-label">Stone Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_stone" name="regist_stone" value="<?= (int)$armor['regist_stone'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_sleep" class="form-label">Sleep Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_sleep" name="regist_sleep" value="<?= (int)$armor['regist_sleep'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_freeze" class="form-label">Freeze Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_freeze" name="regist_freeze" value="<?= (int)$armor['regist_freeze'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_blind" class="form-label">Blind Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_blind" name="regist_blind" value="<?= (int)$armor['regist_blind'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_spirit" class="form-label">Spirit Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_spirit" name="regist_spirit" value="<?= (int)$armor['regist_spirit'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_dragon" class="form-label">Dragon Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_dragon" name="regist_dragon" value="<?= (int)$armor['regist_dragon'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_fear" class="form-label">Fear Resistance</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_fear" name="regist_fear" value="<?= (int)$armor['regist_fear'] ?>">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="regist_all" class="form-label">All Resistances</label>
+                                                        <input type="number" class="form-control no-spinner" id="regist_all" name="regist_all" value="<?= (int)$armor['regist_all'] ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bonus Section (New) -->
+                            <div class="col-lg-12 form-section" id="bonus-section">
                                 <div class="card bg-dark">
                                     <div class="card-header">
-                                        Elemental Defense & Resistances
+                                        Hit Bonuses
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_water" class="form-label">Water Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_water" name="defense_water" value="<?= (int)$armor['defense_water'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_wind" class="form-label">Wind Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_wind" name="defense_wind" value="<?= (int)$armor['defense_wind'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_fire" class="form-label">Fire Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_fire" name="defense_fire" value="<?= (int)$armor['defense_fire'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_earth" class="form-label">Earth Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_earth" name="defense_earth" value="<?= (int)$armor['defense_earth'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr_all" class="form-label">All Attributes</label>
-                                                <input type="number" class="form-control no-spinner" id="attr_all" name="attr_all" value="<?= (int)$armor['attr_all'] ?>">
-                                            </div>
-                                            
-                                            <div class="col-12"><hr class="border-gray-600"></div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_skill" class="form-label">Skill Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_skill" name="regist_skill" value="<?= (int)$armor['regist_skill'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_stone" class="form-label">Stone Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_stone" name="regist_stone" value="<?= (int)$armor['regist_stone'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_sleep" class="form-label">Sleep Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_sleep" name="regist_sleep" value="<?= (int)$armor['regist_sleep'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_freeze" class="form-label">Freeze Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_freeze" name="regist_freeze" value="<?= (int)$armor['regist_freeze'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_blind" class="form-label">Blind Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_blind" name="regist_blind" value="<?= (int)$armor['regist_blind'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_spirit" class="form-label">Spirit Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_spirit" name="regist_spirit" value="<?= (int)$armor['regist_spirit'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_dragon" class="form-label">Dragon Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_dragon" name="regist_dragon" value="<?= (int)$armor['regist_dragon'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_fear" class="form-label">Fear Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_fear" name="regist_fear" value="<?= (int)$armor['regist_fear'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_all" class="form-label">All Resistances</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_all" name="regist_all" value="<?= (int)$armor['regist_all'] ?>">
-                                            </div>
-                                            
-                                            <div class="col-12"><hr class="border-gray-600"></div>
-                                            
                                             <div class="col-md-4 mb-3">
                                                 <label for="hitup_skill" class="form-label">Hit Up Skill</label>
                                                 <input type="number" class="form-control no-spinner" id="hitup_skill" name="hitup_skill" value="<?= (int)$armor['hitup_skill'] ?>">
@@ -854,16 +880,6 @@ $yesNoOptions = [
                                             <div class="col-md-4 mb-3">
                                                 <label for="hitup_magic" class="form-label">Hit Up Magic</label>
                                                 <input type="number" class="form-control no-spinner" id="hitup_magic" name="hitup_magic" value="<?= (int)$armor['hitup_magic'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="poisonRegist" class="form-label">Poison Resistance</label>
-                                                <select class="form-select" id="poisonRegist" name="poisonRegist">
-                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $armor['poisonRegist'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -926,7 +942,7 @@ $yesNoOptions = [
                                                     <label class="form-check-label" for="use_warrior">Warrior</label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 mb-3">
+											<div class="col-md-4 mb-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="use_fencer" name="use_fencer" <?= $armor['use_fencer'] ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="use_fencer">Fencer</label>
@@ -990,6 +1006,16 @@ $yesNoOptions = [
                                             <div class="col-md-6 mb-3">
                                                 <label for="retrieveEnchant" class="form-label">Retrieve Enchant</label>
                                                 <input type="number" class="form-control no-spinner" id="retrieveEnchant" name="retrieveEnchant" value="<?= (int)$armor['retrieveEnchant'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="poisonRegist" class="form-label">Poison Resistance</label>
+                                                <select class="form-select" id="poisonRegist" name="poisonRegist">
+                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
+                                                        <option value="<?= $value ?>" <?= $armor['poisonRegist'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>

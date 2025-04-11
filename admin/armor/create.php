@@ -456,7 +456,7 @@ $yesNoOptions = [
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="../../admin_dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="../admin_dashboard.php">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
             <li class="breadcrumb-item active" aria-current="page">Add New Armor</li>
         </ol>
@@ -551,18 +551,19 @@ $yesNoOptions = [
                             <!-- Form Tabs -->
                             <div class="col-lg-12 mb-4">
                                 <div class="form-tabs">
-                                    <button type="button" class="form-tab active" data-tab="basic">Basic</button>
-                                    <button type="button" class="form-tab" data-tab="properties">Properties</button>
-                                    <button type="button" class="form-tab" data-tab="stats">Stats</button>
-                                    <button type="button" class="form-tab" data-tab="defenses">Defenses</button>
-                                    <button type="button" class="form-tab" data-tab="classes">Restrictions</button>
-                                    <button type="button" class="form-tab" data-tab="item_properties">Item</button>
-                                    <button type="button" class="form-tab" data-tab="pvp">PVP</button>
-                                    <button type="button" class="form-tab" data-tab="critical">Critical</button>
-                                    <button type="button" class="form-tab" data-tab="set">Armor Set</button>
-                                    <button type="button" class="form-tab" data-tab="advanced">Advanced</button>
-                                    <button type="button" class="form-tab" data-tab="notes">Notes</button>
-                                </div>
+									<button type="button" class="form-tab active" data-tab="basic">Basic</button>
+									<button type="button" class="form-tab" data-tab="properties">Properties</button>
+									<button type="button" class="form-tab" data-tab="stats">Stats</button>
+									<button type="button" class="form-tab" data-tab="resistance">Resistance</button>
+									<button type="button" class="form-tab" data-tab="bonus">Bonus</button>
+									<button type="button" class="form-tab" data-tab="classes">Restrictions</button>
+									<button type="button" class="form-tab" data-tab="item_properties">Item</button>
+									<button type="button" class="form-tab" data-tab="pvp">PVP</button>
+									<button type="button" class="form-tab" data-tab="critical">Critical</button>
+									<button type="button" class="form-tab" data-tab="set">Armor Set</button>
+									<button type="button" class="form-tab" data-tab="advanced">Advanced</button>
+									<button type="button" class="form-tab" data-tab="notes">Notes</button>
+								</div>
                             </div>
                             
                             <!-- Basic Information Section -->
@@ -786,113 +787,131 @@ $yesNoOptions = [
                             </div>
 
                             <!-- Defenses & Resistances Section -->
-                            <div class="col-lg-12 form-section" id="defenses-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Elemental Defense & Resistances
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_water" class="form-label">Water Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_water" name="defense_water" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_wind" class="form-label">Wind Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_wind" name="defense_wind" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_fire" class="form-label">Fire Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_fire" name="defense_fire" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="defense_earth" class="form-label">Earth Defense</label>
-                                                <input type="number" class="form-control no-spinner" id="defense_earth" name="defense_earth" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr_all" class="form-label">All Attributes</label>
-                                                <input type="number" class="form-control no-spinner" id="attr_all" name="attr_all" value="0">
-                                            </div>
-                                            
-                                            <div class="col-12"><hr class="border-gray-600"></div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_skill" class="form-label">Skill Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_skill" name="regist_skill" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_stone" class="form-label">Stone Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_stone" name="regist_stone" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_sleep" class="form-label">Sleep Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_sleep" name="regist_sleep" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_freeze" class="form-label">Freeze Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_freeze" name="regist_freeze" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_blind" class="form-label">Blind Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_blind" name="regist_blind" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_spirit" class="form-label">Spirit Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_spirit" name="regist_spirit" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_dragon" class="form-label">Dragon Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_dragon" name="regist_dragon" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_fear" class="form-label">Fear Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_fear" name="regist_fear" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="regist_all" class="form-label">All Resistances</label>
-                                                <input type="number" class="form-control no-spinner" id="regist_all" name="regist_all" value="0">
-                                            </div>
-                                            
-                                            <div class="col-12"><hr class="border-gray-600"></div>
-                                            
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_skill" class="form-label">Hit Up Skill</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_skill" name="hitup_skill" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_spirit" class="form-label">Hit Up Spirit</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_spirit" name="hitup_spirit" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_dragon" class="form-label">Hit Up Dragon</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_dragon" name="hitup_dragon" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_fear" class="form-label">Hit Up Fear</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_fear" name="hitup_fear" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_all" class="form-label">Hit Up All</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_all" name="hitup_all" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hitup_magic" class="form-label">Hit Up Magic</label>
-                                                <input type="number" class="form-control no-spinner" id="hitup_magic" name="hitup_magic" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="poisonRegist" class="form-label">Poison Resistance</label>
-                                                <select class="form-select" id="poisonRegist" name="poisonRegist">
-                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $value === 'false' ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Replace the entire resistance-section with this fixed version -->
+<!-- Complete replacement for the resistance section with clean structure -->
+<div class="col-lg-12 form-section" id="resistance-section">
+    <div class="row"> <!-- Add a row to contain both cards -->
+        <!-- Elemental Resistance Card -->
+        <div class="col-lg-12 mb-4">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    Elemental Resistance
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="defense_water" class="form-label">Water Defense</label>
+                            <input type="number" class="form-control no-spinner" id="defense_water" name="defense_water" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="defense_wind" class="form-label">Wind Defense</label>
+                            <input type="number" class="form-control no-spinner" id="defense_wind" name="defense_wind" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="defense_fire" class="form-label">Fire Defense</label>
+                            <input type="number" class="form-control no-spinner" id="defense_fire" name="defense_fire" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="defense_earth" class="form-label">Earth Defense</label>
+                            <input type="number" class="form-control no-spinner" id="defense_earth" name="defense_earth" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="attr_all" class="form-label">All Attributes</label>
+                            <input type="number" class="form-control no-spinner" id="attr_all" name="attr_all" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Resistance Card -->
+        <div class="col-lg-12">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    Status Resistance
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_skill" class="form-label">Skill Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_skill" name="regist_skill" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_stone" class="form-label">Stone Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_stone" name="regist_stone" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_sleep" class="form-label">Sleep Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_sleep" name="regist_sleep" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_freeze" class="form-label">Freeze Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_freeze" name="regist_freeze" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_blind" class="form-label">Blind Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_blind" name="regist_blind" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_spirit" class="form-label">Spirit Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_spirit" name="regist_spirit" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_dragon" class="form-label">Dragon Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_dragon" name="regist_dragon" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_fear" class="form-label">Fear Resistance</label>
+                            <input type="number" class="form-control no-spinner" id="regist_fear" name="regist_fear" value="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="regist_all" class="form-label">All Resistances</label>
+                            <input type="number" class="form-control no-spinner" id="regist_all" name="regist_all" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+								</div>
                             </div>
+							
+							<div class="col-lg-12 form-section" id="bonus-section">
+								<div class="card bg-dark">
+									<div class="card-header">
+										Hit Bonuses
+									</div>
+									<div class="card-body">
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<label for="hitup_skill" class="form-label">Hit Up Skill</label>
+												<input type="number" class="form-control no-spinner" id="hitup_skill" name="hitup_skill" value="0">
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="hitup_spirit" class="form-label">Hit Up Spirit</label>
+												<input type="number" class="form-control no-spinner" id="hitup_spirit" name="hitup_spirit" value="0">
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="hitup_dragon" class="form-label">Hit Up Dragon</label>
+												<input type="number" class="form-control no-spinner" id="hitup_dragon" name="hitup_dragon" value="0">
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="hitup_fear" class="form-label">Hit Up Fear</label>
+												<input type="number" class="form-control no-spinner" id="hitup_fear" name="hitup_fear" value="0">
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="hitup_all" class="form-label">Hit Up All</label>
+												<input type="number" class="form-control no-spinner" id="hitup_all" name="hitup_all" value="0">
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="hitup_magic" class="form-label">Hit Up Magic</label>
+												<input type="number" class="form-control no-spinner" id="hitup_magic" name="hitup_magic" value="0">
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 
                             <!-- Class Restrictions Section -->
                             <div class="col-lg-12 form-section" id="classes-section">
@@ -1015,6 +1034,16 @@ $yesNoOptions = [
                                                 <label for="retrieveEnchant" class="form-label">Retrieve Enchant</label>
                                                 <input type="number" class="form-control no-spinner" id="retrieveEnchant" name="retrieveEnchant" value="0">
                                             </div>
+											<div class="col-md-6 mb-3">
+												<label for="poisonRegist" class="form-label">Poison Resistance</label>
+												<select class="form-select" id="poisonRegist" name="poisonRegist">
+													<?php foreach ($yesNoOptions as $value => $label): ?>
+														<option value="<?= $value ?>" <?= $value === 'false' ? 'selected' : '' ?>>
+															<?= $label ?>
+														</option>
+													<?php endforeach; ?>
+												</select>
+											</div>
                                         </div>
                                     </div>
                                 </div>

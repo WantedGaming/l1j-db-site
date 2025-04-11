@@ -456,7 +456,7 @@ $yesNoOptions = [
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="../admin_dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
             <li class="breadcrumb-item active" aria-current="page">Add New Armor</li>
         </ol>
@@ -1131,7 +1131,7 @@ $yesNoOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-12 mb-3">
                                                 <label for="Set_Id" class="form-label">Armor Set</label>
                                                 <select class="form-select" id="Set_Id" name="Set_Id">
                                                     <option value="0">None</option>
@@ -1139,6 +1139,31 @@ $yesNoOptions = [
                                                         <option value="<?= $set['id'] ?>"><?= htmlspecialchars($set['note'] ?: 'Set #'.$set['id']) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
+                                            </div>
+
+                                            <div id="set-pieces-container" class="col-md-12 mb-3" style="display: none;">
+                                                <div class="card bg-darker">
+                                                    <div class="card-header">
+                                                        Set Pieces
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-dark table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Icon</th>
+                                                                        <th>ID</th>
+                                                                        <th>Name</th>
+                                                                        <th>Type</th>
+                                                                        <th>Actions</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="set-pieces-tbody">
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label for="polyDescId" class="form-label">Polymorph Description ID</label>
@@ -1424,6 +1449,63 @@ document.addEventListener('DOMContentLoaded', function() {
         
         minLvlInput.addEventListener('input', updateLevelRange);
         maxLvlInput.addEventListener('input', updateLevelRange);
+    }
+
+    // Handle armor set selection
+    const setIdSelect = document.getElementById('Set_Id');
+    const setPiecesContainer = document.getElementById('set-pieces-container');
+    const setPiecesTbody = document.getElementById('set-pieces-tbody');
+
+    if (setIdSelect) {
+        setIdSelect.addEventListener('change', async function() {
+            const setId = this.value;
+            
+            if (setId === '0') {
+                setPiecesContainer.style.display = 'none';
+                setPiecesTbody.innerHTML = '';
+                return;
+            }
+
+            // Show loading state
+            setPiecesContainer.style.display = 'block';
+            setPiecesTbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading set pieces...</td></tr>';
+
+            try {
+                // Fetch set pieces
+                const response = await fetch(`<?= SITE_URL ?>/admin/armor/get_set_pieces.php?set_id=${setId}`);
+                const pieces = await response.json();
+
+                if (pieces.length === 0) {
+                    setPiecesTbody.innerHTML = '<tr><td colspan="5" class="text-center">No pieces found in this set</td></tr>';
+                    return;
+                }
+
+                // Update table
+                setPiecesTbody.innerHTML = pieces.map(piece => `
+                    <tr>
+                        <td>
+                            <img src="<?= SITE_URL ?>/assets/img/items/${piece.iconId}.png" 
+                                 alt="${piece.desc_en}"
+                                 style="width: 32px; height: 32px;"
+                                 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'"
+                                 class="admin-item-icon">
+                        </td>
+                        <td>${piece.item_id}</td>
+                        <td>${piece.desc_en}</td>
+                        <td>${armorTypes[piece.type] || piece.type}</td>
+                        <td>
+                            <a href="edit.php?id=${piece.item_id}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                setPiecesTbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading set pieces</td></tr>';
+                console.error('Error loading set pieces:', error);
+            }
+        });
     }
 });
 </script>

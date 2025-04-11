@@ -352,7 +352,7 @@ $yesNoOptions = [
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin_dashboard.php">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a></li>
         <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
         <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
     </ol>
@@ -1104,7 +1104,7 @@ $yesNoOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-12 mb-3">
                                                 <label for="Set_Id" class="form-label">Armor Set</label>
                                                 <select class="form-select" id="Set_Id" name="Set_Id">
                                                     <option value="0">None</option>
@@ -1115,6 +1115,58 @@ $yesNoOptions = [
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
+
+                                            <?php if ($armor['Set_Id'] > 0): 
+                                                // Get all armor pieces in this set
+                                                $setArmorQuery = "SELECT item_id, desc_en, type, iconId FROM armor WHERE Set_Id = ? AND item_id != ?";
+                                                $setArmorPieces = $db->getRows($setArmorQuery, [$armor['Set_Id'], $armorId]);
+                                                
+                                                if (!empty($setArmorPieces)): ?>
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="card bg-darker">
+                                                        <div class="card-header">
+                                                            Set Pieces
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-dark table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Icon</th>
+                                                                            <th>ID</th>
+                                                                            <th>Name</th>
+                                                                            <th>Type</th>
+                                                                            <th>Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <?php foreach ($setArmorPieces as $piece): ?>
+                                                                        <tr>
+                                                                            <td>
+                                                                            <img src="<?= SITE_URL ?>/assets/img/items/<?= $piece['iconId'] ?>.png" 
+                                                                                 alt="<?= htmlspecialchars($piece['desc_en']) ?>"
+                                                                                 style="width: 32px; height: 32px;"
+                                                                                 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'"
+                                                                                 class="admin-item-icon">
+                                                                            </td>
+                                                                            <td><?= $piece['item_id'] ?></td>
+                                                                            <td><?= htmlspecialchars($piece['desc_en']) ?></td>
+                                                                            <td><?= $armorTypes[$piece['type']] ?? $piece['type'] ?></td>
+                                                                            <td>
+                                                                                <a href="edit.php?id=<?= $piece['item_id'] ?>" class="btn btn-sm btn-primary">
+                                                                                    <i class="fas fa-edit"></i> Edit
+                                                                                </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <?php endforeach; ?>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                             <div class="col-md-6 mb-3">
                                                 <label for="polyDescId" class="form-label">Polymorph Description ID</label>
                                                 <input type="number" class="form-control no-spinner" id="polyDescId" name="polyDescId" value="<?= (int)$armor['polyDescId'] ?>">

@@ -43,11 +43,22 @@ $query = "SELECT a.item_id, a.desc_en, a.type,
                  a.ac, a.grade, a.iconId 
           FROM armor a";
 
-// Handle search if present
+// Handle search and type filter
 $params = [];
+$whereConditions = [];
+
 if (isset($_GET['q']) && !empty($_GET['q'])) {
-    $query .= " WHERE a.desc_en LIKE ?";
+    $whereConditions[] = "a.desc_en LIKE ?";
     $params[] = '%' . $_GET['q'] . '%';
+}
+
+if (isset($_GET['type']) && !empty($_GET['type'])) {
+    $whereConditions[] = "a.type = ?";
+    $params[] = $_GET['type'];
+}
+
+if (!empty($whereConditions)) {
+    $query .= " WHERE " . implode(" AND ", $whereConditions);
 }
 
 // Add order by
@@ -79,7 +90,7 @@ $armors = $db->getRows($query, $params);
                 <p class="admin-hero-subtitle">Total Armor: <?= $totalArmor ?></p>
                 
                 <div class="hero-search-form mt-4">
-                    <form action="index.php" method="GET">
+                    <form action="index.php" method="GET" class="d-flex gap-2">
                         <div class="search-input-group">
                             <input type="text" name="q" placeholder="Search armor by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                             <button type="submit" class="search-btn">
@@ -90,6 +101,26 @@ $armors = $db->getRows($query, $params);
                                     <i class="fas fa-times"></i>
                                 </a>
                             <?php endif; ?>
+                        </div>
+                        <div class="search-input-group">
+                            <select name="type" class="form-control">
+                                <option value="">All Types</option>
+                                <option value="HELMET" <?= (isset($_GET['type']) && $_GET['type'] === 'HELMET') ? 'selected' : '' ?>>Helmet</option>
+                                <option value="ARMOR" <?= (isset($_GET['type']) && $_GET['type'] === 'ARMOR') ? 'selected' : '' ?>>Armor</option>
+                                <option value="T_SHIRT" <?= (isset($_GET['type']) && $_GET['type'] === 'T_SHIRT') ? 'selected' : '' ?>>T-Shirt</option>
+                                <option value="CLOAK" <?= (isset($_GET['type']) && $_GET['type'] === 'CLOAK') ? 'selected' : '' ?>>Cloak</option>
+                                <option value="GLOVE" <?= (isset($_GET['type']) && $_GET['type'] === 'GLOVE') ? 'selected' : '' ?>>Glove</option>
+                                <option value="BOOTS" <?= (isset($_GET['type']) && $_GET['type'] === 'BOOTS') ? 'selected' : '' ?>>Boots</option>
+                                <option value="SHIELD" <?= (isset($_GET['type']) && $_GET['type'] === 'SHIELD') ? 'selected' : '' ?>>Shield</option>
+                                <option value="AMULET" <?= (isset($_GET['type']) && $_GET['type'] === 'AMULET') ? 'selected' : '' ?>>Amulet</option>
+                                <option value="RING" <?= (isset($_GET['type']) && $_GET['type'] === 'RING') ? 'selected' : '' ?>>Ring</option>
+                                <option value="BELT" <?= (isset($_GET['type']) && $_GET['type'] === 'BELT') ? 'selected' : '' ?>>Belt</option>
+                                <option value="EARRING" <?= (isset($_GET['type']) && $_GET['type'] === 'EARRING') ? 'selected' : '' ?>>Earring</option>
+                                <option value="GARDER" <?= (isset($_GET['type']) && $_GET['type'] === 'GARDER') ? 'selected' : '' ?>>Garder</option>
+                                <option value="SHOULDER" <?= (isset($_GET['type']) && $_GET['type'] === 'SHOULDER') ? 'selected' : '' ?>>Shoulder</option>
+                                <option value="BADGE" <?= (isset($_GET['type']) && $_GET['type'] === 'BADGE') ? 'selected' : '' ?>>Badge</option>
+                                <option value="PENDANT" <?= (isset($_GET['type']) && $_GET['type'] === 'PENDANT') ? 'selected' : '' ?>>Pendant</option>
+                            </select>
                         </div>
                     </form>
                 </div>
@@ -180,10 +211,10 @@ $armors = $db->getRows($query, $params);
             
             <div class="pagination-links">
                 <?php if ($page > 1): ?>
-                    <a href="index.php?page=1<?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                    <a href="index.php?page=1<?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?><?= isset($_GET['type']) ? '&type='.urlencode($_GET['type']) : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
-                    <a href="index.php?page=<?= ($page - 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                    <a href="index.php?page=<?= ($page - 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?><?= isset($_GET['type']) ? '&type='.urlencode($_GET['type']) : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 <?php else: ?>
@@ -200,7 +231,7 @@ $armors = $db->getRows($query, $params);
                 }
                 
                 for ($i = $startPage; $i <= $endPage; $i++): ?>
-                    <a href="index.php?page=<?= $i ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" 
+                    <a href="index.php?page=<?= $i ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?><?= isset($_GET['type']) ? '&type='.urlencode($_GET['type']) : '' ?>" 
                        class="pagination-link <?= ($i == $page) ? 'active' : '' ?>">
                         <?= $i ?>
                     </a>
@@ -212,10 +243,10 @@ $armors = $db->getRows($query, $params);
                 ?>
                 
                 <?php if ($page < $totalPages): ?>
-                    <a href="index.php?page=<?= ($page + 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                    <a href="index.php?page=<?= ($page + 1) ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?><?= isset($_GET['type']) ? '&type='.urlencode($_GET['type']) : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-right"></i>
                     </a>
-                    <a href="index.php?page=<?= $totalPages ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?>" class="pagination-link">
+                    <a href="index.php?page=<?= $totalPages ?><?= isset($_GET['q']) ? '&q='.urlencode($_GET['q']) : '' ?><?= isset($_GET['type']) ? '&type='.urlencode($_GET['type']) : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-double-right"></i>
                     </a>
                 <?php else: ?>

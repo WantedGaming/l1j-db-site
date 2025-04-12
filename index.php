@@ -136,28 +136,28 @@ $recentUpdates = [
                 <h3>Accessory</h3>
                 <img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
                 <p>Find information necklace, rings, and other jewelry you can utilize.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/monsters/bosses.php" class="resource-link">View Bosses</a>
+                <a href="<?php echo SITE_URL; ?>/pages/monsters/bosses.php" class="resource-link">View Accessories</a>
             </div>
             
             <div class="resource-card">
                 <h3>Monsters</h3>
                 <img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
                 <p>Find information on all bosses, their locations, drops, and strategies.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/skills/magic.php" class="resource-link">View Magic Skills</a>
+                <a href="<?php echo SITE_URL; ?>/pages/skills/magic.php" class="resource-link">View Monsters</a>
             </div>
             
             <div class="resource-card">
                 <h3>Maps</h3>
                 <img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
                 <p>Where to hunt, hunting grounds, and monster spawn locations.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/guides/classes.php" class="resource-link">View Class Guides</a>
+                <a href="<?php echo SITE_URL; ?>/pages/guides/classes.php" class="resource-link">View Maps</a>
             </div>
             
             <div class="resource-card">
                 <h3>Dolls</h3>
                 <img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
                 <p>Your ingame compaion to help you along your adventures.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/maps/world.php" class="resource-link">View World Maps</a>
+                <a href="<?php echo SITE_URL; ?>/pages/maps/world.php" class="resource-link">View Dolls</a>
             </div>
         </div>
     </section>

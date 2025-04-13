@@ -43,12 +43,16 @@ if(!$armor) {
 $setQuery = "SELECT * FROM armor_set WHERE id = ?";
 $armorSet = $db->getRow($setQuery, [$armor['Set_Id']]);
 
-// Get monsters that drop this armor
+// Get monsters that drop this armor with spawn information
 $dropQuery = "SELECT d.*, n.desc_kr as monster_name, n.lvl as monster_level, 
-              n.spriteId as monster_sprite_id
+              n.spriteId as monster_sprite_id, n.npcid,
+              GROUP_CONCAT(DISTINCT CONCAT(m.locationname, ':', s.count, ':', m.pngId, ':', s.locx, ':', s.locy) SEPARATOR '|') as spawn_data
               FROM droplist d
               JOIN npc n ON d.mobId = n.npcid
+              LEFT JOIN spawnlist s ON n.npcid = s.npc_templateid
+              LEFT JOIN mapids m ON s.mapid = m.mapid
               WHERE d.itemId = ? AND n.impl LIKE '%L1Monster%'
+              GROUP BY d.mobId, d.itemId, d.chance, d.min, d.max
               ORDER BY d.chance DESC";
 $dropMonsters = $db->getRows($dropQuery, [$armorId]);
 
@@ -59,6 +63,36 @@ $pageTitle = $armor['desc_en'];
 function formatDropChance($chance) {
     $percentage = ($chance / 100000) * 100;
     return $percentage < 0.01 ? '< 0.01%' : number_format($percentage, 2) . '%';
+}
+
+// Function to get map image path
+function get_map_image($pngId) {
+    if ($pngId > 0) {
+        $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
+        
+        // Try jpeg format
+        $image_path = "/assets/img/maps/{$pngId}.jpeg";
+        $server_path = $base_path . $image_path;
+        
+        // Try png format if jpeg doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.png";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // Try jpg format if png doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.jpg";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // If any of the formats exist, return the URL
+        if (file_exists($server_path)) {
+            return SITE_URL . $image_path;
+        }
+    }
+    
+    return SITE_URL . '/assets/img/maps/default.jpg';
 }
 
 ?>
@@ -716,8 +750,7 @@ function formatDropChance($chance) {
                         <th>Monster</th>
                         <th>Level</th>
                         <th>Drop Chance</th>
-                        <th>Min Count</th>
-                        <th>Max Count</th>
+                        <th>Max</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -729,19 +762,56 @@ function formatDropChance($chance) {
                                      alt="<?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?>"
                                      class="monster-sprite"
                                      onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
-                                <a href="<?= SITE_URL ?>/pages/monsters/detail.php?id=<?= $drop['mobId'] ?>">
+                                <a href="<?= SITE_URL ?>/pages/monsters/detail.php?id=<?= $drop['npcid'] ?>">
                                     <?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?>
                                 </a>
                             </div>
                         </td>
                         <td><?= $drop['monster_level'] ?></td>
                         <td><?= formatDropChance($drop['chance']) ?></td>
-                        <td><?= $drop['min'] ?></td>
                         <td><?= $drop['max'] ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Spawn Locations Section -->
+    <?php if (!empty($dropMonsters)): ?>
+    <div class="card">
+        <div class="card-header">
+            <h2>Spawn Locations</h2>
+        </div>
+        <div class="card-content">
+            <?php foreach($dropMonsters as $drop):
+                if (!empty($drop['spawn_data'])):
+                    $locations = explode('|', $drop['spawn_data']);
+                    foreach($locations as $location):
+                        list($mapName, $count, $pngId, $locX, $locY) = explode(':', $location);
+            ?>
+                <div class="spawn-location-card">
+                    <div class="spawn-location-header">
+                        <h3><?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?></h3>
+                        <span class="spawn-count"><?= $count ?> spawns</span>
+                    </div>
+                    <div class="spawn-location-content">
+                        <div class="map-preview">
+                            <img src="<?= get_map_image($pngId) ?>" alt="<?= htmlspecialchars($mapName) ?>" class="map-image">
+                            <div class="spawn-marker" style="left: <?= ($locX / 32768) * 100 ?>%; top: <?= ($locY / 32768) * 100 ?>%"></div>
+                        </div>
+                        <div class="spawn-details">
+                            <p class="map-name"><?= htmlspecialchars($mapName) ?></p>
+                            <p class="coordinates">Coordinates: <?= $locX ?>, <?= $locY ?></p>
+                        </div>
+                    </div>
+                </div>
+            <?php 
+                    endforeach;
+                endif;
+            endforeach; 
+            ?>
         </div>
     </div>
     <?php endif; ?>

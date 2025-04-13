@@ -1400,8 +1400,8 @@ footer {
 }
 
 .monster-list-item .monster-sprite {
-    width: 32px;
-    height: 32px;
+    width: 64px;
+    height: 64px;
     object-fit: contain;
     image-rendering: pixelated;
 }
@@ -1414,4 +1414,116 @@ footer {
 .monster-list-item a:hover {
     color: var(--primary);
     text-decoration: underline;
+}
+
+/* Spawn Location Styles */
+.spawn-location-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.spawn-location-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.spawn-location-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.spawn-count {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+}
+
+.spawn-count.boss-spawn {
+    background: var(--danger);
+}
+
+.spawn-location-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.map-preview {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spawn-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.3);
+}
+
+.spawn-marker.boss-marker {
+    background: var(--danger);
+    width: 16px;
+    height: 16px;
+}
+
+.spawn-details {
+    padding: 0.5rem;
+}
+
+.spawn-details p {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.map-name {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.coordinates {
+    color: var(--text-muted) !important;
+    font-family: monospace;
+}
+
+.random-range {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+}
+
+.respawn-time {
+    color: var(--accent) !important;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .spawn-location-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-preview {
+        height: 250px;
+    }
 }

@@ -23,7 +23,12 @@ if($monsterId <= 0) {
 }
 
 // Get monster details
-$query = "SELECT * FROM npc WHERE npcid = ?";
+$query = "SELECT n.*, 
+          n.is_agro_poly, n.is_agro_invis, n.is_bravespeed, n.is_picupitem,
+          n.is_taming, n.can_turnundead, n.cant_resurrect,
+          n.atk_magic_speed, n.hprinterval, n.hpr, n.mprinterval, n.mpr
+          FROM npc n 
+          WHERE n.npcid = ?";
 $monster = $db->getRow($query, [$monsterId]);
 
 // If monster not found or is not a monster, show error
@@ -32,6 +37,26 @@ if(!$monster || (strpos($monster['impl'], 'L1Monster') === false && strpos($mons
     require_once '../../includes/footer.php';
     exit;
 }
+
+// Get mob group information
+$groupQuery = "SELECT mg.*,
+               n1.desc_en as leader_name,
+               n2.desc_en as minion1_name,
+               n3.desc_en as minion2_name,
+               n4.desc_en as minion3_name,
+               n5.desc_en as minion4_name
+               FROM mobgroup mg
+               LEFT JOIN npc n1 ON mg.leader_id = n1.npcid
+               LEFT JOIN npc n2 ON mg.minion1_id = n2.npcid
+               LEFT JOIN npc n3 ON mg.minion2_id = n3.npcid
+               LEFT JOIN npc n4 ON mg.minion3_id = n4.npcid
+               LEFT JOIN npc n5 ON mg.minion4_id = n5.npcid
+               WHERE mg.leader_id = ? OR 
+                     mg.minion1_id = ? OR 
+                     mg.minion2_id = ? OR 
+                     mg.minion3_id = ? OR 
+                     mg.minion4_id = ?";
+$mobGroup = $db->getRow($groupQuery, [$monsterId, $monsterId, $monsterId, $monsterId, $monsterId]);
 
 // Get monster drops
 $dropQuery = "SELECT d.*, 
@@ -59,10 +84,11 @@ $dropQuery = "SELECT d.*,
               
 $drops = $db->getRows($dropQuery, [$monsterId]);
 
-// Get monster skills
+// Get monster skills with enhanced information
 $skillQuery = "SELECT ms.*, 
                ms.SkillId as skillId,
-               ms.prob as probability,
+               ms.prob as activation_chance,
+               ms.Leverage as skill_power,
                ms.type as target,
                s.name as skill_name, 
                s.skill_level,
@@ -75,7 +101,8 @@ $skillQuery = "SELECT ms.*,
 $skills = $db->getRows($skillQuery, [$monsterId]);
 
 // Get spawn locations
-$spawnQuery = "SELECT s.*, m.locationname as map_name, m.mapid, m.pngId
+$spawnQuery = "SELECT s.*, s.count, s.locx, s.locy, s.randomx, s.randomy, 
+              s.min_respawn_delay as respawnDelay, m.locationname as map_name, m.mapid, m.pngId
               FROM spawnlist s
               LEFT JOIN mapids m ON s.mapid = m.mapid
               WHERE s.npc_templateid = ?";
@@ -84,7 +111,8 @@ $spawns = $db->getRows($spawnQuery, [$monsterId]);
 // Get boss spawns if this is a boss monster
 $bossSpawns = [];
 if($monster['is_bossmonster'] === 'true') {
-    $bossSpawnQuery = "SELECT sb.*, m.locationname as map_name, m.mapid, m.pngId
+    $bossSpawnQuery = "SELECT sb.*, sb.spawnX as locx, sb.spawnY as locy, sb.rndRange as randomx, sb.rndRange as randomy,
+                      sb.rndMinut as respawnDelay, m.locationname as map_name, m.mapid, m.pngId
                       FROM spawnlist_boss sb
                       LEFT JOIN mapids m ON sb.spawnMapId = m.mapid
                       WHERE sb.npcid = ?";
@@ -99,8 +127,13 @@ $monsterImagePath = get_monster_image($monster['spriteId']);
 
 // Format drop chance percentage
 function formatDropChance($chance) {
+    if ($chance <= 0) return '0%';
+    
     $percentage = ($chance / 10000) * 100;
-    return $percentage < 0.01 ? '< 0.01%' : number_format($percentage, 2) . '%';
+    if ($percentage >= 100) return '100%';
+    if ($percentage < 0.01) return '< 0.01%';
+    if ($percentage < 1) return number_format($percentage, 2) . '%';
+    return number_format($percentage, 1) . '%';
 }
 
 /**
@@ -188,30 +221,33 @@ function getMonsterTypeBadge($monster) {
 /**
  * Get map image path
  */
-function get_map_image($mapId, $pngId = null) {
-    $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
-    
+function get_map_image($pngId) {
     if ($pngId > 0) {
-        // Try different formats with pngId
-        $formats = ['jpeg', 'png', 'jpg'];
-        foreach ($formats as $format) {
-            $path = "/assets/img/maps/{$pngId}.{$format}";
-            if (file_exists($base_path . $path)) {
-                return SITE_URL . $path;
-            }
+        $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
+        
+        // Try jpeg format
+        $image_path = "/assets/img/maps/{$pngId}.jpeg";
+        $server_path = $base_path . $image_path;
+        
+        // Try png format if jpeg doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.png";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // Try jpg format if png doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.jpg";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // If any of the formats exist, return the URL
+        if (file_exists($server_path)) {
+            return SITE_URL . $image_path;
         }
     }
     
-    // Try with mapId if pngId doesn't exist or no image found
-    foreach (['jpeg', 'png', 'jpg'] as $format) {
-        $path = "/assets/img/maps/{$mapId}.{$format}";
-        if (file_exists($base_path . $path)) {
-            return SITE_URL . $path;
-        }
-    }
-    
-    // Return placeholder if no image found
-    return SITE_URL . "/assets/img/placeholders/map-placeholder.png";
+    return SITE_URL . '/assets/img/maps/default.jpg';
 }
 ?>
 
@@ -608,9 +644,8 @@ if($hasBehaviors):
                 <tr>
                     <th width="40">Icon</th>
                     <th>Item</th>
-                    <th>Drop Chance</th>
-                    <th>Min Count</th>
-                    <th>Max Count</th>
+                    <th width="100">Drop Rate</th>
+                    <th width="80">Amount</th>
                 </tr>
             </thead>
             <tbody>
@@ -639,8 +674,7 @@ if($hasBehaviors):
                         <?php endif; ?>
                     </td>
                     <td><?= formatDropChance($drop['chance']) ?></td>
-                    <td><?= $drop['min'] ?></td>
-                    <td><?= $drop['max'] ?></td>
+                    <td><?= $drop['max'] > 1 ? "1-{$drop['max']}" : "1" ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -650,102 +684,128 @@ if($hasBehaviors):
 <?php endif; ?>
 
 <!-- Spawn Locations Section -->
-<?php if(!empty($spawns) || !empty($bossSpawns)): ?>
-<div class="card">
-    <div class="card-header">
-        <h2>Spawn Locations</h2>
-    </div>
-    <div class="card-content">
-        <?php if(!empty($spawns)): ?>
-        <h3>Regular Spawns</h3>
-        <div class="spawn-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1rem;">
-            <?php foreach($spawns as $spawn): ?>
-                <a href="../maps/detail.php?id=<?= $spawn['mapid'] ?>" 
-                   class="spawn-card" 
-                   style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; background: var(--primary);">
-                    <div class="spawn-image-container" style="width: 100%; height: 100px; overflow: hidden; position: relative;">
-                        <img src="<?= get_map_image($spawn['mapid'], $spawn['pngId']) ?>" 
-                             alt="<?= sanitize($spawn['map_name']) ?>"
-                             style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
-                        <?php if($spawn['count'] > 1): ?>
-                            <span style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
-                                ×<?= $spawn['count'] ?>
-                            </span>
+<?php if (!empty($spawns)): ?>
+<div class="spawn-locations-grid">
+    <?php foreach($spawns as $spawn): ?>
+        <div class="spawn-location-card">
+            <div class="spawn-location-header">
+                <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
+                <span class="spawn-count"><?= $spawn['count'] ?> spawns</span>
+            </div>
+            <div class="map-container">
+                <img src="<?= get_map_image($spawn['pngId']) ?>" alt="<?= htmlspecialchars($spawn['map_name']) ?>" class="map-image">
+                <?php
+                // If we have a spawn area (locx1/locy1 to locx2/locy2)
+                if ($spawn['locx1'] > 0 && $spawn['locy1'] > 0 && $spawn['locx2'] > 0 && $spawn['locy2'] > 0): ?>
+                    <div class="spawn-area" style="
+                        left: <?= ($spawn['locx1'] / 32768) * 100 ?>%;
+                        top: <?= ($spawn['locy1'] / 32768) * 100 ?>%;
+                        width: <?= (($spawn['locx2'] - $spawn['locx1']) / 32768) * 100 ?>%;
+                        height: <?= (($spawn['locy2'] - $spawn['locy1']) / 32768) * 100 ?>%;">
+                    </div>
+                <?php else: ?>
+                    <!-- Single point spawn with random range -->
+                    <div class="spawn-marker" style="
+                        left: <?= ($spawn['locx'] / 32768) * 100 ?>%;
+                        top: <?= ($spawn['locy'] / 32768) * 100 ?>%;">
+                        <?php if ($spawn['randomx'] > 0 || $spawn['randomy'] > 0): ?>
+                            <div class="spawn-range" style="
+                                width: <?= ($spawn['randomx'] * 2 / 32768) * 100 ?>%;
+                                height: <?= ($spawn['randomy'] * 2 / 32768) * 100 ?>%;">
+                            </div>
                         <?php endif; ?>
                     </div>
-                    <div class="spawn-details" style="padding: 1rem;">
-                        <div style="font-weight: 500; margin-bottom: 0.5rem;"><?= sanitize($spawn['map_name']) ?></div>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);">
-                            <?php if($spawn['locx1'] > 0 && $spawn['locy1'] > 0): ?>
-                                Location: <?= $spawn['locx1'] ?>, <?= $spawn['locy1'] ?>
-                            <?php else: ?>
-                                Random Location
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </a>
-            <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
-        <?php endif; ?>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<!-- Boss Spawn Locations Section -->
+<?php if (!empty($bossSpawns)): ?>
+<div class="spawn-locations-grid">
+    <?php foreach($bossSpawns as $spawn): ?>
+        <div class="spawn-location-card boss-spawn-card">
+            <div class="spawn-location-header">
+                <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
+                <span class="spawn-count boss-spawn">Boss Spawn</span>
+            </div>
+            <div class="map-container">
+                <img src="<?= get_map_image($spawn['pngId']) ?>" alt="<?= htmlspecialchars($spawn['map_name']) ?>" class="map-image">
+                <div class="spawn-marker boss-marker" style="
+                    left: <?= ($spawn['spawnX'] / 32768) * 100 ?>%;
+                    top: <?= ($spawn['spawnY'] / 32768) * 100 ?>%;">
+                    <?php if ($spawn['rndRange'] > 0): ?>
+                        <div class="spawn-range" style="
+                            width: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;
+                            height: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;">
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<!-- Mob Group Section -->
+<?php if (!empty($mobGroup)): ?>
+<div class="card">
+    <div class="card-header">
+        <h2>Monster Group</h2>
+    </div>
+    <div class="card-content">
+        <div class="alert alert-info">
+            <i class="fas fa-users"></i>
+            This monster is part of a group that spawns together.
+            <?php if ($mobGroup['remove_group_if_leader_die']): ?>
+                <strong>The entire group will disappear if the leader is killed.</strong>
+            <?php endif; ?>
+        </div>
         
-        <?php if(!empty($bossSpawns)): ?>
-        <h3 style="margin-top: 1.5rem;">Boss Spawns</h3>
-        <div class="spawn-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1rem;">
-            <?php foreach($bossSpawns as $spawn): ?>
-                <a href="../maps/detail.php?id=<?= $spawn['spawnMapId'] ?>" 
-                   class="spawn-card" 
-                   style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; background: var(--primary);">
-                    <div class="spawn-image-container" style="width: 100%; height: 100px; overflow: hidden; position: relative;">
-                        <img src="<?= get_map_image($spawn['spawnMapId'], $spawn['pngId']) ?>" 
-                             alt="<?= sanitize($spawn['map_name']) ?>"
-                             style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
-                        <span class="badge badge-danger" style="position: absolute; top: 8px; right: 8px;">Boss</span>
+        <div class="group-members">
+            <?php if (!empty($mobGroup['leader_id']) && !empty($mobGroup['leader_name'])): ?>
+                <div class="group-member">
+                    <div class="member-header">
+                        <span class="badge badge-danger">Leader</span>
+                        <h4><?= htmlspecialchars($mobGroup['leader_name']) ?></h4>
+                        <?php if ($mobGroup['leader_id'] != $monsterId): ?>
+                            <a href="detail.php?id=<?= $mobGroup['leader_id'] ?>" class="view-details">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        <?php else: ?>
+                            <span class="current-monster">Current Monster</span>
+                        <?php endif; ?>
                     </div>
-                    <div class="spawn-details" style="padding: 1rem;">
-                        <div style="font-weight: 500; margin-bottom: 0.5rem;"><?= sanitize($spawn['map_name']) ?></div>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);">
-                            <?php if($spawn['locx'] > 0 && $spawn['locy'] > 0): ?>
-                                Location: <?= $spawn['locx'] ?>, <?= $spawn['locy'] ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php for ($i = 1; $i <= 4; $i++): ?>
+                <?php if (!empty($mobGroup["minion{$i}_id"]) && !empty($mobGroup["minion{$i}_name"])): ?>
+                    <div class="group-member">
+                        <div class="member-header">
+                            <span class="badge badge-secondary">Minion</span>
+                            <h4>
+                                <?= htmlspecialchars($mobGroup["minion{$i}_name"]) ?>
+                                <?php if (!empty($mobGroup["minion{$i}_count"]) && $mobGroup["minion{$i}_count"] > 1): ?>
+                                    <span class="badge badge-info">×<?= $mobGroup["minion{$i}_count"] ?></span>
+                                <?php endif; ?>
+                            </h4>
+                            <?php if ($mobGroup["minion{$i}_id"] != $monsterId): ?>
+                                <a href="detail.php?id=<?= $mobGroup["minion{$i}_id"] ?>" class="view-details">
+                                    View Details <i class="fas fa-arrow-right"></i>
+                                </a>
                             <?php else: ?>
-                                Random Location
+                                <span class="current-monster">Current Monster</span>
                             <?php endif; ?>
                         </div>
                     </div>
-                </a>
-            <?php endforeach; ?>
+                <?php endif; ?>
+            <?php endfor; ?>
         </div>
-        <?php endif; ?>
     </div>
 </div>
-
-<style>
-.spawn-card {
-    position: relative;
-    overflow: hidden;
-}
-
-.spawn-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 75, 31, 0.2);
-    border-color: var(--accent);
-}
-
-.spawn-card:hover .spawn-details {
-    background: rgba(249, 75, 31, 0.1);
-}
-
-.spawn-card:active {
-    transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-    .spawn-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-    }
-}
-</style>
 <?php endif; ?>
 
 <!-- Additional Notes -->
@@ -766,3 +826,143 @@ if($hasBehaviors):
 // Include footer
 require_once '../../includes/footer.php';
 ?>
+
+<style>
+.spawn-locations-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.spawn-location-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.spawn-location-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-header-bg);
+}
+
+.spawn-location-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.spawn-count {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+}
+
+.spawn-count.boss-spawn {
+    background: var(--danger);
+}
+
+.map-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* 4:3 aspect ratio */
+    overflow: hidden;
+}
+
+.map-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spawn-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border: 2px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.3);
+}
+
+.spawn-marker.boss-marker {
+    background: var(--danger);
+    width: 16px;
+    height: 16px;
+}
+
+.spawn-range {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.spawn-area {
+    position: absolute;
+    border: 2px solid var(--accent);
+    background: rgba(249, 75, 31, 0.2);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .spawn-locations-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.group-members {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.group-member {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.member-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.member-header h4 {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.view-details {
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-details:hover {
+    text-decoration: underline;
+}
+
+.current-monster {
+    color: var(--text-muted);
+    font-style: italic;
+}
+</style>

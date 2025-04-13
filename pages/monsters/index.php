@@ -84,36 +84,6 @@ function getPaginationUrl($newPage) {
     $params['page'] = $newPage;
     return htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($params);
 }
-
-/**
- * Get monster image path for display
- */
-function get_monster_image($spriteId) {
-    // Base URL path for images (for HTML src attribute)
-    $baseUrl = SITE_URL . '/assets/img/monsters/';
-    
-    // For debugging - let's see what paths we're checking
-    $debugInfo = '';
-    
-    // Simplified approach - just return the URL and let the browser handle fallback
-    return $baseUrl . "ms{$spriteId}.png";
-}
-
-// Helper function to get undead type display name
-function formatUndeadType($undeadType) {
-    switch($undeadType) {
-        case 'UNDEAD':
-            return 'Undead';
-        case 'DEMON':
-            return 'Demon';
-        case 'UNDEAD_BOSS':
-            return 'Undead Boss';
-        case 'DRANIUM':
-            return 'Dranium';
-        default:
-            return 'Normal';
-    }
-}
 ?>
 
 <div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/weapons-hero.jpg');">
@@ -221,8 +191,7 @@ function formatUndeadType($undeadType) {
                 <img src="<?= get_monster_image($monster['spriteId']) ?>" 
                      alt="<?= htmlspecialchars($monster['desc_en']) ?>" 
                      class="monster-list-icon"
-                     style="width: 64px; height: 64px;"
-                     onerror="this.onerror=null;this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
+                     style="width: 64px; height: 64px;">
             </div>
         </td>
         <td><?= htmlspecialchars($monster['desc_en']) ?></td>

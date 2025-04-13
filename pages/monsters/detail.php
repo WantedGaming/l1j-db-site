@@ -124,131 +124,6 @@ $pageTitle = $monster['desc_en'];
 
 // Get monster image path using the existing function
 $monsterImagePath = get_monster_image($monster['spriteId']);
-
-// Format drop chance percentage
-function formatDropChance($chance) {
-    if ($chance <= 0) return '0%';
-    
-    $percentage = ($chance / 10000) * 100;
-    if ($percentage >= 100) return '100%';
-    if ($percentage < 0.01) return '< 0.01%';
-    if ($percentage < 1) return number_format($percentage, 2) . '%';
-    return number_format($percentage, 1) . '%';
-}
-
-/**
- * Get monster image path for display
- */
-function get_monster_image($spriteId) {
-    // Base URL path for images (for HTML src attribute)
-    $baseUrl = SITE_URL . '/assets/img/monsters/';
-    
-    // For debugging - let's see what paths we're checking
-    $debugInfo = '';
-    
-    // Simplified approach - just return the URL and let the browser handle fallback
-    return $baseUrl . "ms{$spriteId}.png";
-}
-
-// Format undead type
-function formatUndeadType($undeadType) {
-    switch($undeadType) {
-        case 'UNDEAD':
-            return 'Undead';
-        case 'DEMON':
-            return 'Demon';
-        case 'UNDEAD_BOSS':
-            return 'Undead Boss';
-        case 'DRANIUM':
-            return 'Dranium';
-        default:
-            return 'Normal';
-    }
-}
-
-// Format attribute weakness
-function formatWeakAttr($attr) {
-    switch($attr) {
-        case 'EARTH':
-            return 'Earth';
-        case 'FIRE':
-            return 'Fire';
-        case 'WATER':
-            return 'Water';
-        case 'WIND':
-            return 'Wind';
-        default:
-            return 'None';
-    }
-}
-
-// Format poison attack type
-function formatPoisonAtk($poisonType) {
-    switch($poisonType) {
-        case 'DAMAGE':
-            return 'Damage';
-        case 'PARALYSIS':
-            return 'Paralysis';
-        case 'SILENCE':
-            return 'Silence';
-        default:
-            return 'None';
-    }
-}
-
-// Get badge class for monster type
-function getMonsterTypeBadge($monster) {
-    if($monster['is_bossmonster'] === 'true') {
-        return 'badge-danger';
-    } elseif($monster['undead'] !== 'NONE') {
-        switch($monster['undead']) {
-            case 'UNDEAD_BOSS':
-                return 'badge-danger';
-            case 'DEMON':
-                return 'badge-legend';
-            case 'UNDEAD':
-                return 'badge-rare';
-            case 'DRANIUM':
-                return 'badge-hero';
-            default:
-                return 'badge-normal';
-        }
-    } else {
-        return 'badge-normal';
-    }
-}
-
-/**
- * Get map image path
- */
-function get_map_image($pngId) {
-    if ($pngId > 0) {
-        $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
-        
-        // Try jpeg format
-        $image_path = "/assets/img/maps/{$pngId}.jpeg";
-        $server_path = $base_path . $image_path;
-        
-        // Try png format if jpeg doesn't exist
-        if (!file_exists($server_path)) {
-            $image_path = "/assets/img/maps/{$pngId}.png";
-            $server_path = $base_path . $image_path;
-        }
-        
-        // Try jpg format if png doesn't exist
-        if (!file_exists($server_path)) {
-            $image_path = "/assets/img/maps/{$pngId}.jpg";
-            $server_path = $base_path . $image_path;
-        }
-        
-        // If any of the formats exist, return the URL
-        if (file_exists($server_path)) {
-            return SITE_URL . $image_path;
-        }
-    }
-    
-    return SITE_URL . '/assets/img/maps/default.jpg';
-}
 ?>
 
 <!-- Hero Section with Monster Information -->
@@ -511,8 +386,8 @@ function get_map_image($pngId) {
         </div>
     </div>
 </div>
-    
-    <?php
+
+<?php
 // Check if any behavior is true
 $hasBehaviors = (
     $monster['is_agro'] === 'true' ||
@@ -685,67 +560,136 @@ if($hasBehaviors):
 
 <!-- Spawn Locations Section -->
 <?php if (!empty($spawns)): ?>
-<div class="spawn-locations-grid">
-    <?php foreach($spawns as $spawn): ?>
-        <div class="spawn-location-card">
-            <div class="spawn-location-header">
-                <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
-                <span class="spawn-count"><?= $spawn['count'] ?> spawns</span>
-            </div>
-            <div class="map-container">
-                <img src="<?= get_map_image($spawn['pngId']) ?>" alt="<?= htmlspecialchars($spawn['map_name']) ?>" class="map-image">
-                <?php
-                // If we have a spawn area (locx1/locy1 to locx2/locy2)
-                if ($spawn['locx1'] > 0 && $spawn['locy1'] > 0 && $spawn['locx2'] > 0 && $spawn['locy2'] > 0): ?>
-                    <div class="spawn-area" style="
-                        left: <?= ($spawn['locx1'] / 32768) * 100 ?>%;
-                        top: <?= ($spawn['locy1'] / 32768) * 100 ?>%;
-                        width: <?= (($spawn['locx2'] - $spawn['locx1']) / 32768) * 100 ?>%;
-                        height: <?= (($spawn['locy2'] - $spawn['locy1']) / 32768) * 100 ?>%;">
+<div class="card">
+    <div class="card-header">
+        <h2>Spawn Locations</h2>
+    </div>
+    <div class="card-content">
+        <div class="spawn-locations-grid">
+            <?php foreach($spawns as $spawn): ?>
+                <div class="spawn-location-card">
+                    <div class="spawn-location-header">
+                        <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
+                        <div class="spawn-meta">
+                            <span class="spawn-count"><?= $spawn['count'] ?> spawns</span>
+                            <?php if($spawn['respawnDelay'] > 0): ?>
+                                <span class="respawn-time">
+                                    <i class="fas fa-clock"></i>
+                                    <?= floor($spawn['respawnDelay'] / 60) ?>m <?= $spawn['respawnDelay'] % 60 ?>s
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                <?php else: ?>
-                    <!-- Single point spawn with random range -->
-                    <div class="spawn-marker" style="
-                        left: <?= ($spawn['locx'] / 32768) * 100 ?>%;
-                        top: <?= ($spawn['locy'] / 32768) * 100 ?>%;">
-                        <?php if ($spawn['randomx'] > 0 || $spawn['randomy'] > 0): ?>
-                            <div class="spawn-range" style="
-                                width: <?= ($spawn['randomx'] * 2 / 32768) * 100 ?>%;
-                                height: <?= ($spawn['randomy'] * 2 / 32768) * 100 ?>%;">
-                            </div>
-                        <?php endif; ?>
+                    <div class="spawn-location-content">
+                        <div class="map-container">
+                            <img src="<?= get_map_image($spawn['pngId']) ?>" 
+                                 alt="<?= htmlspecialchars($spawn['map_name']) ?>" 
+                                 class="map-image">
+                            <?php
+                            // If we have a spawn area (locx1/locy1 to locx2/locy2)
+                            if ($spawn['locx1'] > 0 && $spawn['locy1'] > 0 && $spawn['locx2'] > 0 && $spawn['locy2'] > 0): ?>
+                                <div class="spawn-area" style="
+                                    left: <?= ($spawn['locx1'] / 32768) * 100 ?>%;
+                                    top: <?= ($spawn['locy1'] / 32768) * 100 ?>%;
+                                    width: <?= (($spawn['locx2'] - $spawn['locx1']) / 32768) * 100 ?>%;
+                                    height: <?= (($spawn['locy2'] - $spawn['locy1']) / 32768) * 100 ?>%;">
+                                    <div class="spawn-area-label">Spawn Area</div>
+                                </div>
+                            <?php else: ?>
+                                <!-- Single point spawn with random range -->
+                                <div class="spawn-marker" style="
+                                    left: <?= ($spawn['locx'] / 32768) * 100 ?>%;
+                                    top: <?= ($spawn['locy'] / 32768) * 100 ?>%;">
+                                    <div class="spawn-point"></div>
+                                    <?php if ($spawn['randomx'] > 0 || $spawn['randomy'] > 0): ?>
+                                        <div class="spawn-range" style="
+                                            width: <?= ($spawn['randomx'] * 2 / 32768) * 100 ?>%;
+                                            height: <?= ($spawn['randomy'] * 2 / 32768) * 100 ?>%;">
+                                            <div class="spawn-range-label">Random Range</div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="spawn-details">
+                            <p class="coordinates">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <?php if ($spawn['locx1'] > 0): ?>
+                                    Area: (<?= $spawn['locx1'] ?>, <?= $spawn['locy1'] ?>) to (<?= $spawn['locx2'] ?>, <?= $spawn['locy2'] ?>)
+                                <?php else: ?>
+                                    Center: (<?= $spawn['locx'] ?>, <?= $spawn['locy'] ?>)
+                                    <?php if ($spawn['randomx'] > 0 || $spawn['randomy'] > 0): ?>
+                                        <br>
+                                        <i class="fas fa-arrows-alt"></i>
+                                        Range: ±<?= $spawn['randomx'] ?> x, ±<?= $spawn['randomy'] ?> y
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
+    </div>
 </div>
 <?php endif; ?>
 
 <!-- Boss Spawn Locations Section -->
 <?php if (!empty($bossSpawns)): ?>
-<div class="spawn-locations-grid">
-    <?php foreach($bossSpawns as $spawn): ?>
-        <div class="spawn-location-card boss-spawn-card">
-            <div class="spawn-location-header">
-                <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
-                <span class="spawn-count boss-spawn">Boss Spawn</span>
-            </div>
-            <div class="map-container">
-                <img src="<?= get_map_image($spawn['pngId']) ?>" alt="<?= htmlspecialchars($spawn['map_name']) ?>" class="map-image">
-                <div class="spawn-marker boss-marker" style="
-                    left: <?= ($spawn['spawnX'] / 32768) * 100 ?>%;
-                    top: <?= ($spawn['spawnY'] / 32768) * 100 ?>%;">
-                    <?php if ($spawn['rndRange'] > 0): ?>
-                        <div class="spawn-range" style="
-                            width: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;
-                            height: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;">
+<div class="card">
+    <div class="card-header">
+        <h2>Boss Spawn Locations</h2>
+    </div>
+    <div class="card-content">
+        <div class="spawn-locations-grid">
+            <?php foreach($bossSpawns as $spawn): ?>
+                <div class="spawn-location-card boss-spawn-card">
+                    <div class="spawn-location-header">
+                        <h3><?= htmlspecialchars($spawn['map_name']) ?></h3>
+                        <div class="spawn-meta">
+                            <span class="spawn-count boss-spawn">Boss Spawn</span>
+                            <?php if($spawn['respawnDelay'] > 0): ?>
+                                <span class="respawn-time">
+                                    <i class="fas fa-clock"></i>
+                                    <?= floor($spawn['respawnDelay'] / 60) ?>m <?= $spawn['respawnDelay'] % 60 ?>s
+                                </span>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    </div>
+                    <div class="spawn-location-content">
+                        <div class="map-container">
+                            <img src="<?= get_map_image($spawn['pngId']) ?>" 
+                                 alt="<?= htmlspecialchars($spawn['map_name']) ?>" 
+                                 class="map-image">
+                            <div class="spawn-marker boss-marker" style="
+                                left: <?= ($spawn['spawnX'] / 32768) * 100 ?>%;
+                                top: <?= ($spawn['spawnY'] / 32768) * 100 ?>%;">
+                                <div class="spawn-point"></div>
+                                <?php if ($spawn['rndRange'] > 0): ?>
+                                    <div class="spawn-range" style="
+                                        width: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;
+                                        height: <?= ($spawn['rndRange'] * 2 / 32768) * 100 ?>%;">
+                                        <div class="spawn-range-label">Random Range</div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="spawn-details">
+                            <p class="coordinates">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Center: (<?= $spawn['spawnX'] ?>, <?= $spawn['spawnY'] ?>)
+                                <?php if ($spawn['rndRange'] > 0): ?>
+                                    <br>
+                                    <i class="fas fa-arrows-alt"></i>
+                                    Range: ±<?= $spawn['rndRange'] ?> in all directions
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
+    </div>
 </div>
 <?php endif; ?>
 

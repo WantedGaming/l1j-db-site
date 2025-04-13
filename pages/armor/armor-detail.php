@@ -46,54 +46,20 @@ $armorSet = $db->getRow($setQuery, [$armor['Set_Id']]);
 // Get monsters that drop this armor with spawn information
 $dropQuery = "SELECT d.*, n.desc_kr as monster_name, n.lvl as monster_level, 
               n.spriteId as monster_sprite_id, n.npcid,
-              GROUP_CONCAT(DISTINCT CONCAT(m.locationname, ':', s.count, ':', m.pngId, ':', s.locx, ':', s.locy) SEPARATOR '|') as spawn_data
+              s.count, s.locx, s.locy, s.randomx, s.randomy,
+              s.min_respawn_delay as respawnDelay,
+              s.locx1, s.locy1, s.locx2, s.locy2,
+              m.locationname as map_name, m.mapid, m.pngId
               FROM droplist d
               JOIN npc n ON d.mobId = n.npcid
               LEFT JOIN spawnlist s ON n.npcid = s.npc_templateid
               LEFT JOIN mapids m ON s.mapid = m.mapid
               WHERE d.itemId = ? AND n.impl LIKE '%L1Monster%'
-              GROUP BY d.mobId, d.itemId, d.chance, d.min, d.max
               ORDER BY d.chance DESC";
 $dropMonsters = $db->getRows($dropQuery, [$armorId]);
 
 // Set page title to armor name
 $pageTitle = $armor['desc_en'];
-
-// Function to format drop chance (imported from functions.php)
-function formatDropChance($chance) {
-    $percentage = ($chance / 100000) * 100;
-    return $percentage < 0.01 ? '< 0.01%' : number_format($percentage, 2) . '%';
-}
-
-// Function to get map image path
-function get_map_image($pngId) {
-    if ($pngId > 0) {
-        $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
-        
-        // Try jpeg format
-        $image_path = "/assets/img/maps/{$pngId}.jpeg";
-        $server_path = $base_path . $image_path;
-        
-        // Try png format if jpeg doesn't exist
-        if (!file_exists($server_path)) {
-            $image_path = "/assets/img/maps/{$pngId}.png";
-            $server_path = $base_path . $image_path;
-        }
-        
-        // Try jpg format if png doesn't exist
-        if (!file_exists($server_path)) {
-            $image_path = "/assets/img/maps/{$pngId}.jpg";
-            $server_path = $base_path . $image_path;
-        }
-        
-        // If any of the formats exist, return the URL
-        if (file_exists($server_path)) {
-            return SITE_URL . $image_path;
-        }
-    }
-    
-    return SITE_URL . '/assets/img/maps/default.jpg';
-}
 
 ?>
 
@@ -785,33 +751,77 @@ function get_map_image($pngId) {
             <h2>Spawn Locations</h2>
         </div>
         <div class="card-content">
-            <?php foreach($dropMonsters as $drop):
-                if (!empty($drop['spawn_data'])):
-                    $locations = explode('|', $drop['spawn_data']);
-                    foreach($locations as $location):
-                        list($mapName, $count, $pngId, $locX, $locY) = explode(':', $location);
-            ?>
-                <div class="spawn-location-card">
-                    <div class="spawn-location-header">
-                        <h3><?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?></h3>
-                        <span class="spawn-count"><?= $count ?> spawns</span>
-                    </div>
-                    <div class="spawn-location-content">
-                        <div class="map-preview">
-                            <img src="<?= get_map_image($pngId) ?>" alt="<?= htmlspecialchars($mapName) ?>" class="map-image">
-                            <div class="spawn-marker" style="left: <?= ($locX / 32768) * 100 ?>%; top: <?= ($locY / 32768) * 100 ?>%"></div>
+            <div class="spawn-locations-grid">
+                <?php foreach($dropMonsters as $drop):
+                    if (!empty($drop['map_name'])):
+                ?>
+                    <div class="spawn-location-card">
+                        <div class="spawn-location-header">
+                            <h3><?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?></h3>
+                            <div class="spawn-meta">
+                                <span class="spawn-count"><?= $drop['count'] ?> spawns</span>
+                                <?php if($drop['respawnDelay'] > 0): ?>
+                                    <span class="respawn-time">
+                                        <i class="fas fa-clock"></i>
+                                        <?= floor($drop['respawnDelay'] / 60) ?>m <?= $drop['respawnDelay'] % 60 ?>s
+                                    </span>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        <div class="spawn-details">
-                            <p class="map-name"><?= htmlspecialchars($mapName) ?></p>
-                            <p class="coordinates">Coordinates: <?= $locX ?>, <?= $locY ?></p>
+                        <div class="spawn-location-content">
+                            <div class="map-container">
+                                <img src="<?= get_map_image($drop['pngId']) ?>" 
+                                     alt="<?= htmlspecialchars($drop['map_name']) ?>" 
+                                     class="map-image">
+                                <?php
+                                // If we have a spawn area (locx1/locy1 to locx2/locy2)
+                                if ($drop['locx1'] > 0 && $drop['locy1'] > 0 && $drop['locx2'] > 0 && $drop['locy2'] > 0): ?>
+                                    <div class="spawn-area" style="
+                                        left: <?= ($drop['locx1'] / 32768) * 100 ?>%;
+                                        top: <?= ($drop['locy1'] / 32768) * 100 ?>%;
+                                        width: <?= (($drop['locx2'] - $drop['locx1']) / 32768) * 100 ?>%;
+                                        height: <?= (($drop['locy2'] - $drop['locy1']) / 32768) * 100 ?>%;">
+                                        <div class="spawn-area-label">Spawn Area</div>
+                                    </div>
+                                <?php else: ?>
+                                    <!-- Single point spawn with random range -->
+                                    <div class="spawn-marker" style="
+                                        left: <?= ($drop['locx'] / 32768) * 100 ?>%;
+                                        top: <?= ($drop['locy'] / 32768) * 100 ?>%;">
+                                        <div class="spawn-point"></div>
+                                        <?php if ($drop['randomx'] > 0 || $drop['randomy'] > 0): ?>
+                                            <div class="spawn-range" style="
+                                                width: <?= ($drop['randomx'] * 2 / 32768) * 100 ?>%;
+                                                height: <?= ($drop['randomy'] * 2 / 32768) * 100 ?>%;">
+                                                <div class="spawn-range-label">Random Range</div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="spawn-details">
+                                <p class="map-name"><?= htmlspecialchars($drop['map_name']) ?></p>
+                                <p class="coordinates">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <?php if ($drop['locx1'] > 0): ?>
+                                        Area: (<?= $drop['locx1'] ?>, <?= $drop['locy1'] ?>) to (<?= $drop['locx2'] ?>, <?= $drop['locy2'] ?>)
+                                    <?php else: ?>
+                                        Center: (<?= $drop['locx'] ?>, <?= $drop['locy'] ?>)
+                                        <?php if ($drop['randomx'] > 0 || $drop['randomy'] > 0): ?>
+                                            <br>
+                                            <i class="fas fa-arrows-alt"></i>
+                                            Range: ±<?= $drop['randomx'] ?> x, ±<?= $drop['randomy'] ?> y
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php 
-                    endforeach;
-                endif;
-            endforeach; 
-            ?>
+                <?php 
+                    endif;
+                endforeach; 
+                ?>
+            </div>
         </div>
     </div>
     <?php endif; ?>

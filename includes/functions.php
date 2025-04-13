@@ -322,7 +322,8 @@ function debug($data, $die = false) {
     if ($die) {
         die();
     }
-	
+}
+
 /**
  * Calculate drop rates for a specific monster
  * @param int $npcId Monster NPC ID
@@ -421,6 +422,146 @@ function getBulkMonsterDrops($npcIds) {
     
     return $result;
 }
-	
+
+/**
+ * Get monster image path (legacy wrapper for backward compatibility)
+ */
+function get_monster_image($spriteId) {
+    // Define possible image paths
+    $paths = [
+        ROOT_PATH . "/assets/img/monsters/ms{$spriteId}.png",
+        ROOT_PATH . "/assets/img/monsters/ms{$spriteId}.gif",
+        ROOT_PATH . "/assets/img/monsters/ms{$spriteId}.jpg",
+        ROOT_PATH . "/assets/img/placeholders/monster-placeholder.png"
+    ];
+
+    // Find the first existing image
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            // Convert server path to URL path by removing ROOT_PATH and adding SITE_URL
+            return SITE_URL . str_replace(ROOT_PATH, '', $path);
+        }
+    }
+
+    // Fallback to placeholder if no image found
+    return SITE_URL . "/assets/img/placeholders/monster-placeholder.png";
+}
+
+/**
+ * Format undead type display name
+ * @param string $undeadType The undead type code
+ * @return string The formatted display name
+ */
+function formatUndeadType($undeadType) {
+    switch($undeadType) {
+        case 'UNDEAD':
+            return 'Undead';
+        case 'DEMON':
+            return 'Demon';
+        case 'UNDEAD_BOSS':
+            return 'Undead Boss';
+        case 'DRANIUM':
+            return 'Dranium';
+        default:
+            return 'Normal';
+    }
+}
+
+/**
+ * Format attribute weakness
+ * @param string $attr The attribute code
+ * @return string The formatted attribute name
+ */
+function formatWeakAttr($attr) {
+    switch($attr) {
+        case 'EARTH':
+            return 'Earth';
+        case 'FIRE':
+            return 'Fire';
+        case 'WATER':
+            return 'Water';
+        case 'WIND':
+            return 'Wind';
+        default:
+            return 'None';
+    }
+}
+
+/**
+ * Format poison attack type
+ * @param string $poisonType The poison type code
+ * @return string The formatted poison type name
+ */
+function formatPoisonAtk($poisonType) {
+    switch($poisonType) {
+        case 'DAMAGE':
+            return 'Damage';
+        case 'PARALYSIS':
+            return 'Paralysis';
+        case 'SILENCE':
+            return 'Silence';
+        default:
+            return 'None';
+    }
+}
+
+/**
+ * Get badge class for monster type
+ * @param array $monster The monster data array
+ * @return string The CSS class for the badge
+ */
+function getMonsterTypeBadge($monster) {
+    if($monster['is_bossmonster'] === 'true') {
+        return 'badge-danger';
+    } elseif($monster['undead'] !== 'NONE') {
+        switch($monster['undead']) {
+            case 'UNDEAD_BOSS':
+                return 'badge-danger';
+            case 'DEMON':
+                return 'badge-legend';
+            case 'UNDEAD':
+                return 'badge-rare';
+            case 'DRANIUM':
+                return 'badge-hero';
+            default:
+                return 'badge-normal';
+        }
+    } else {
+        return 'badge-normal';
+    }
+}
+
+/**
+ * Get map image path
+ * @param int $pngId The PNG ID of the map
+ * @return string The URL path to the map image
+ */
+function get_map_image($pngId) {
+    if ($pngId > 0) {
+        $base_path = ROOT_PATH;
+        
+        // Try jpeg format
+        $image_path = "/assets/img/maps/{$pngId}.jpeg";
+        $server_path = $base_path . $image_path;
+        
+        // Try png format if jpeg doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.png";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // Try jpg format if png doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$pngId}.jpg";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // If any of the formats exist, return the URL
+        if (file_exists($server_path)) {
+            return SITE_URL . $image_path;
+        }
+    }
+    
+    return SITE_URL . '/assets/img/maps/default.jpg';
 }
 

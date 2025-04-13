@@ -24,32 +24,6 @@ if($mapId <= 0) {
 $query = "SELECT * FROM mapids WHERE mapid = ?";
 $map = $db->getRow($query, [$mapId]);
 
-/**
- * Get monster image path for display
- */
-function get_monster_image($spriteId) {
-    // Base URL path for images (for HTML src attribute)
-    $baseUrl = SITE_URL . '/assets/img/monsters/';
-    
-    // First try PNG format
-    $pngPath = $baseUrl . "ms{$spriteId}.png";
-    $serverPngPath = dirname(dirname(dirname(__FILE__))) . "/assets/img/monsters/ms{$spriteId}.png";
-    
-    // Then try GIF format
-    $gifPath = $baseUrl . "ms{$spriteId}.gif";
-    $serverGifPath = dirname(dirname(dirname(__FILE__))) . "/assets/img/monsters/ms{$spriteId}.gif";
-    
-    // Return PNG if it exists, otherwise GIF
-    if (file_exists($serverPngPath)) {
-        return $pngPath;
-    } elseif (file_exists($serverGifPath)) {
-        return $gifPath;
-    }
-    
-    // Default to PNG and let the onerror handle the fallback
-    return $pngPath;
-}
-
 // If map not found, show error
 if(!$map) {
     // Set page title and include header

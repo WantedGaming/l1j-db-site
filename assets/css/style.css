@@ -1417,33 +1417,51 @@ footer {
 }
 
 /* Spawn Location Styles */
+.spawn-locations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
 .spawn-location-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--primary);
     border-radius: 8px;
-    margin-bottom: 1.5rem;
     overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.spawn-location-card:hover {
+    transform: translateY(-5px);
 }
 
 .spawn-location-header {
     padding: 1rem;
+    background: var(--secondary);
     border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .spawn-location-header h3 {
     margin: 0;
-    font-size: 1.1rem;
-    color: var(--text-primary);
+    font-size: 1.2rem;
+    color: var(--text);
+}
+
+.spawn-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
 }
 
 .spawn-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
     background: var(--accent);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
+    color: var(--text);
+    border-radius: 4px;
     font-size: 0.9rem;
 }
 
@@ -1451,22 +1469,35 @@ footer {
     background: var(--danger);
 }
 
+.respawn-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.respawn-time i {
+    font-size: 0.8rem;
+}
+
 .spawn-location-content {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 1rem;
     padding: 1rem;
 }
 
-.map-preview {
+.map-container {
     position: relative;
     width: 100%;
-    height: 200px;
+    padding-top: 75%; /* 4:3 Aspect Ratio */
+    margin-bottom: 1rem;
     border-radius: 4px;
     overflow: hidden;
 }
 
 .map-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1474,56 +1505,103 @@ footer {
 
 .spawn-marker {
     position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.spawn-point {
     width: 12px;
     height: 12px;
     background: var(--accent);
-    border: 2px solid white;
+    border: 2px solid var(--text);
     border-radius: 50%;
-    transform: translate(-50%, -50%);
     box-shadow: 0 0 0 2px rgba(0,0,0,0.3);
 }
 
-.spawn-marker.boss-marker {
+.boss-marker .spawn-point {
     background: var(--danger);
     width: 16px;
     height: 16px;
 }
 
+.spawn-range {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.spawn-range-label,
+.spawn-area-label {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    background: rgba(0,0,0,0.7);
+    color: var(--text);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.spawn-marker:hover .spawn-range-label,
+.spawn-area:hover .spawn-area-label {
+    opacity: 1;
+}
+
+.spawn-area {
+    position: absolute;
+    border: 2px solid rgba(255,75,31,0.5);
+    background: rgba(255,75,31,0.1);
+    pointer-events: all;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.spawn-area:hover {
+    background: rgba(255,75,31,0.2);
+}
+
 .spawn-details {
-    padding: 0.5rem;
-}
-
-.spawn-details p {
-    margin: 0.5rem 0;
-    color: var(--text-primary);
-}
-
-.map-name {
-    font-weight: 500;
-    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .coordinates {
-    color: var(--text-muted) !important;
-    font-family: monospace;
-}
-
-.random-range {
-    color: var(--text-muted) !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #888;
     font-size: 0.9rem;
+    margin: 0;
 }
 
-.respawn-time {
-    color: var(--accent) !important;
-    font-weight: 500;
+.coordinates i {
+    width: 16px;
+    color: var(--accent);
+    margin-right: 0.5rem;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .spawn-location-content {
+    .spawn-locations-grid {
         grid-template-columns: 1fr;
     }
     
-    .map-preview {
-        height: 250px;
+    .spawn-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .map-container {
+        padding-top: 56.25%; /* 16:9 Aspect Ratio for mobile */
     }
 }

@@ -13,17 +13,6 @@ require_once '../../includes/header.php';
 // Get database instance
 $db = Database::getInstance();
 
-/**
- * Get monster image path for display
- */
-function get_monster_image($spriteId) {
-    // Base URL path for images (for HTML src attribute)
-    $baseUrl = SITE_URL . '/assets/img/monsters/';
-    
-    // Return the URL and let the browser handle fallback
-    return $baseUrl . "ms{$spriteId}.png";
-}
-
 // Pagination settings
 $itemsPerPage = 12;
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;

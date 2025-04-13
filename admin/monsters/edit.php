@@ -27,32 +27,6 @@ if($monsterId <= 0) {
     exit;
 }
 
-// Helper functions
-function formatUndeadType($undeadType) {
-    switch($undeadType) {
-        case 'UNDEAD': return 'Undead';
-        case 'DEMON': return 'Demon';
-        case 'UNDEAD_BOSS': return 'Undead Boss';
-        case 'DRANIUM': return 'Dranium';
-        default: return 'Normal';
-    }
-}
-
-function formatWeakAttr($attr) {
-    switch($attr) {
-        case 'EARTH': return 'Earth';
-        case 'FIRE': return 'Fire';
-        case 'WATER': return 'Water';
-        case 'WIND': return 'Wind';
-        default: return 'None';
-    }
-}
-
-function get_monster_image($spriteId) {
-    $baseUrl = SITE_URL . '/assets/img/monsters/';
-    return $baseUrl . "ms{$spriteId}.png";
-}
-
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect monster data from form

@@ -280,10 +280,6 @@ tr:hover {
     border-bottom: 1px solid var(--border-color);
 }
 
-.detail-table tr:last-child td {
-    border-bottom: none;
-}
-
 .detail-table tr:hover td {
     background-color: rgba(255, 255, 255, 0.05);
 }
@@ -1313,4 +1309,85 @@ footer {
     .monster-combat-value {
         font-size: 1rem;
     }
+}
+
+/* Bonus and Resistance Grids */
+.bonus-grid,
+.resistance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+.bonus-item,
+.resistance-item {
+    background: linear-gradient(45deg, rgba(249, 75, 31, 0.1), rgba(249, 75, 31, 0.05));
+    border: 1px solid rgba(249, 75, 31, 0.2);
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.bonus-item:hover,
+.resistance-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(249, 75, 31, 0.2);
+    border-color: rgba(249, 75, 31, 0.4);
+}
+
+.bonus-label,
+.resistance-label {
+    font-size: 0.9rem;
+    color: #cccccc;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bonus-value,
+.resistance-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Stat Grid */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+.stat-item {
+    background-color: var(--secondary);
+    border-radius: 6px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #cccccc;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
 }

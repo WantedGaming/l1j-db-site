@@ -75,7 +75,7 @@ $skillQuery = "SELECT ms.*,
 $skills = $db->getRows($skillQuery, [$monsterId]);
 
 // Get spawn locations
-$spawnQuery = "SELECT s.*, m.locationname as map_name
+$spawnQuery = "SELECT s.*, m.locationname as map_name, m.mapid, m.pngId
               FROM spawnlist s
               LEFT JOIN mapids m ON s.mapid = m.mapid
               WHERE s.npc_templateid = ?";
@@ -84,7 +84,7 @@ $spawns = $db->getRows($spawnQuery, [$monsterId]);
 // Get boss spawns if this is a boss monster
 $bossSpawns = [];
 if($monster['is_bossmonster'] === 'true') {
-    $bossSpawnQuery = "SELECT sb.*, m.locationname as map_name
+    $bossSpawnQuery = "SELECT sb.*, m.locationname as map_name, m.mapid, m.pngId
                       FROM spawnlist_boss sb
                       LEFT JOIN mapids m ON sb.spawnMapId = m.mapid
                       WHERE sb.npcid = ?";
@@ -183,6 +183,35 @@ function getMonsterTypeBadge($monster) {
     } else {
         return 'badge-normal';
     }
+}
+
+/**
+ * Get map image path
+ */
+function get_map_image($mapId, $pngId = null) {
+    $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
+    
+    if ($pngId > 0) {
+        // Try different formats with pngId
+        $formats = ['jpeg', 'png', 'jpg'];
+        foreach ($formats as $format) {
+            $path = "/assets/img/maps/{$pngId}.{$format}";
+            if (file_exists($base_path . $path)) {
+                return SITE_URL . $path;
+            }
+        }
+    }
+    
+    // Try with mapId if pngId doesn't exist or no image found
+    foreach (['jpeg', 'png', 'jpg'] as $format) {
+        $path = "/assets/img/maps/{$mapId}.{$format}";
+        if (file_exists($base_path . $path)) {
+            return SITE_URL . $path;
+        }
+    }
+    
+    // Return placeholder if no image found
+    return SITE_URL . "/assets/img/placeholders/map-placeholder.png";
 }
 ?>
 
@@ -629,98 +658,94 @@ if($hasBehaviors):
     <div class="card-content">
         <?php if(!empty($spawns)): ?>
         <h3>Regular Spawns</h3>
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    <th>Map</th>
-                    <th>Location</th>
-                    <th>Count</th>
-                    <th>Respawn Time</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="spawn-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1rem;">
             <?php foreach($spawns as $spawn): ?>
-                <tr>
-                    <td><?= htmlspecialchars($spawn['map_name'] ?? 'Unknown Map') ?></td>
-                    <td>
-                        <?php if($spawn['locx1'] > 0 && $spawn['locy1'] > 0): ?>
-                            <?= $spawn['locx1'] ?>, <?= $spawn['locy1'] ?>
-                            <?php if($spawn['locx2'] > 0 && $spawn['locy2'] > 0): ?>
-                                to <?= $spawn['locx2'] ?>, <?= $spawn['locy2'] ?>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            Random
+                <a href="../maps/detail.php?id=<?= $spawn['mapid'] ?>" 
+                   class="spawn-card" 
+                   style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; background: var(--primary);">
+                    <div class="spawn-image-container" style="width: 100%; height: 100px; overflow: hidden; position: relative;">
+                        <img src="<?= get_map_image($spawn['mapid'], $spawn['pngId']) ?>" 
+                             alt="<?= sanitize($spawn['map_name']) ?>"
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
+                        <?php if($spawn['count'] > 1): ?>
+                            <span style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                                ×<?= $spawn['count'] ?>
+                            </span>
                         <?php endif; ?>
-                    </td>
-                    <td><?= $spawn['count'] ?></td>
-                    <td>
-                        <?php 
-                        // Format respawn time
-                        $minSec = $spawn['min_respawn_delay'];
-                        $maxSec = $spawn['max_respawn_delay'];
-                        
-                        if($minSec === $maxSec) {
-                            echo ceil($minSec / 60) . ' minutes';
-                        } else {
-                            echo ceil($minSec / 60) . '-' . ceil($maxSec / 60) . ' minutes';
-                        }
-                        ?>
-                    </td>
-                </tr>
+                    </div>
+                    <div class="spawn-details" style="padding: 1rem;">
+                        <div style="font-weight: 500; margin-bottom: 0.5rem;"><?= sanitize($spawn['map_name']) ?></div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">
+                            <?php if($spawn['locx1'] > 0 && $spawn['locy1'] > 0): ?>
+                                Location: <?= $spawn['locx1'] ?>, <?= $spawn['locy1'] ?>
+                            <?php else: ?>
+                                Random Location
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </a>
             <?php endforeach; ?>
-            </tbody>
-        </table>
+        </div>
         <?php endif; ?>
         
         <?php if(!empty($bossSpawns)): ?>
-        <h3>Boss Spawns</h3>
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    <th>Map</th>
-                    <th>Location</th>
-                    <th>Respawn Time</th>
-                </tr>
-            </thead>
-            <tbody>
+        <h3 style="margin-top: 1.5rem;">Boss Spawns</h3>
+        <div class="spawn-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1rem;">
             <?php foreach($bossSpawns as $spawn): ?>
-                <tr>
-                    <td><?= htmlspecialchars($spawn['map_name'] ?? 'Unknown Map') ?></td>
-                    <td>
-                        <?php if($spawn['locx'] > 0 && $spawn['locy'] > 0): ?>
-                            <?= $spawn['locx'] ?>, <?= $spawn['locy'] ?>
-                        <?php else: ?>
-                            Random
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php 
-                        // Format respawn time (for boss spawns)
-                        $spawnTime = $spawn['SpawnTime'] ?? 0;
-                        if($spawnTime > 0) {
-                            $hours = floor($spawnTime / 3600);
-                            $minutes = floor(($spawnTime % 3600) / 60);
-                            
-                            if($hours > 0) {
-                                echo $hours . ' hours';
-                                if($minutes > 0) {
-                                    echo ' ' . $minutes . ' minutes';
-                                }
-                            } else {
-                                echo $minutes . ' minutes';
-                            }
-                        } else {
-                            echo 'Random';
-                        }
-                        ?>
-                    </td>
-                </tr>
+                <a href="../maps/detail.php?id=<?= $spawn['spawnMapId'] ?>" 
+                   class="spawn-card" 
+                   style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; background: var(--primary);">
+                    <div class="spawn-image-container" style="width: 100%; height: 100px; overflow: hidden; position: relative;">
+                        <img src="<?= get_map_image($spawn['spawnMapId'], $spawn['pngId']) ?>" 
+                             alt="<?= sanitize($spawn['map_name']) ?>"
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
+                        <span class="badge badge-danger" style="position: absolute; top: 8px; right: 8px;">Boss</span>
+                    </div>
+                    <div class="spawn-details" style="padding: 1rem;">
+                        <div style="font-weight: 500; margin-bottom: 0.5rem;"><?= sanitize($spawn['map_name']) ?></div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">
+                            <?php if($spawn['locx'] > 0 && $spawn['locy'] > 0): ?>
+                                Location: <?= $spawn['locx'] ?>, <?= $spawn['locy'] ?>
+                            <?php else: ?>
+                                Random Location
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </a>
             <?php endforeach; ?>
-            </tbody>
-        </table>
+        </div>
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+.spawn-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.spawn-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(249, 75, 31, 0.2);
+    border-color: var(--accent);
+}
+
+.spawn-card:hover .spawn-details {
+    background: rgba(249, 75, 31, 0.1);
+}
+
+.spawn-card:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .spawn-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    }
+}
+</style>
 <?php endif; ?>
 
 <!-- Additional Notes -->

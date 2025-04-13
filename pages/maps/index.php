@@ -1,6 +1,6 @@
 <?php
 /**
- * Maps listing page for L1J Database Website
+ * Monster listing page for L1J Database Website
  */
 
 // Set page title and description
@@ -12,6 +12,17 @@ require_once '../../includes/header.php';
 
 // Get database instance
 $db = Database::getInstance();
+
+/**
+ * Get monster image path for display
+ */
+function get_monster_image($spriteId) {
+    // Base URL path for images (for HTML src attribute)
+    $baseUrl = SITE_URL . '/assets/img/monsters/';
+    
+    // Return the URL and let the browser handle fallback
+    return $baseUrl . "ms{$spriteId}.png";
+}
 
 // Pagination settings
 $itemsPerPage = 12;
@@ -292,15 +303,68 @@ function getPaginationUrl($newPage) {
                 <?php foreach ($maps as $map): ?>
                     <div class="card" onclick="window.location='detail.php?id=<?= $map['mapid'] ?? 0 ?>';" style="cursor: pointer;">
                         <?php 
-                        // Modified image path to use the correct folder structure
-                        // Look directly in the maps folder with the mapid
-                        $mapImage = "assets/img/maps/{$map['mapid']}.jpeg";
-                        $defaultImage = "assets/img/placeholders/map-placeholder.png";
-                        
-                        // Check if the image file exists (normally done server-side)
-                        $imageSrc = file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $mapImage) ? SITE_URL . '/' . $mapImage : SITE_URL . '/' . $defaultImage;
+                        // Check for map image using mapId
+                        $map_id = $map['mapid'];
+
+                        // First try the maps directory with the map ID
+                        $base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
+                        $image_path = "/assets/img/maps/{$map_id}.jpeg";
+                        $server_path = $base_path . $image_path;
+
+                        // Check for map image prioritizing pngId if available
+if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+    // First try using pngId
+    $png_id = $map['pngId'];
+    $image_path = "/assets/img/maps/{$png_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format if jpeg doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format if png doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+} else {
+    // Fall back to using mapId if pngId isn't available
+    $map_id = $map['mapid'];
+    $image_path = "/assets/img/maps/{$map_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+}
+
+// Use placeholder if no image found
+if (!file_exists($server_path)) {
+    $image_path = "/assets/img/placeholders/map-placeholder.png";
+}
+
+// Final image source for HTML
+$imageSrc = SITE_URL . $image_path;
+
+                        // Use placeholder if no image found
+                        if (!file_exists($server_path)) {
+                            $image_path = "/assets/img/placeholders/map-placeholder.png";
+                        }
+
+                        // Final image source for HTML
+                        $imageSrc = SITE_URL . $image_path;
                         ?>
-                        <img src="<?= $imageSrc ?>" alt="<?= htmlspecialchars($map['locationname'] ?? 'Map') ?>" class="card-image" style="object-fit: cover;">
+                        <img src="<?= $imageSrc ?>" alt="<?= htmlspecialchars($map['locationname'] ?? 'Map') ?>" class="card-image" style="object-fit: cover;" onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
                         <div class="card-content">
                             <h3 class="card-title"><?= htmlspecialchars($map['locationname'] ?? 'Unknown Map') ?></h3>
                             <div class="card-text">

@@ -182,6 +182,13 @@ function formatDropChance($chance) {
     </div>
 
     <!-- Requirements Section -->
+    <?php 
+    $hasClassRequirements = $armor['use_royal'] || $armor['use_knight'] || $armor['use_elf'] || 
+                           $armor['use_mage'] || $armor['use_darkelf'] || $armor['use_dragonknight'] || 
+                           $armor['use_illusionist'] || $armor['use_warrior'] || $armor['use_fencer'] || 
+                           $armor['use_lancer'];
+    if ($hasClassRequirements): 
+    ?>
     <div class="card">
         <div class="card-header">
             <h2>Class</h2>
@@ -191,72 +198,73 @@ function formatDropChance($chance) {
                 <!-- Class Requirements -->
                 <div class="requirement-item">
                     <div class="requirements-grid">
+                        <?php if ($armor['use_royal']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_royal'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_royal'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Royal
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_knight']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_knight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_knight'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Knight
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_elf']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_elf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_elf'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Elf
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_mage']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_mage'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_mage'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Mage
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_darkelf']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_darkelf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_darkelf'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Dark Elf
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_dragonknight']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_dragonknight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_dragonknight'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Dragon Knight
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_illusionist']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_illusionist'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_illusionist'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Illusionist
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_warrior']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_warrior'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_warrior'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Warrior
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_fencer']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_fencer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_fencer'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Fencer
                         </span>
+                        <?php endif; ?>
+                        <?php if ($armor['use_lancer']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $armor['use_lancer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $armor['use_lancer'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Lancer
                         </span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+    <?php endif; ?>
+
     <!-- Item Properties Section -->
     <?php
     // Define all properties grouped by category
@@ -312,13 +320,70 @@ function formatDropChance($chance) {
     </div>
     <?php endif; ?>
     
-    <!-- Stats Bonuses Section -->
+    <!-- Combat Stats Section -->
     <?php
-    $hasBonuses = $armor['add_str'] != 0 || $armor['add_con'] != 0 || $armor['add_dex'] != 0 ||
-                 $armor['add_int'] != 0 || $armor['add_wis'] != 0 || $armor['add_cha'] != 0 ||
-                 $armor['add_hp'] != 0 || $armor['add_mp'] != 0 || $armor['add_hpr'] != 0 ||
-                 $armor['add_mpr'] != 0 || $armor['add_sp'] != 0;
+    $hasCombatStats = (isset($armor['str']) && $armor['str'] != 0) || 
+                      (isset($armor['dex']) && $armor['dex'] != 0) || 
+                      (isset($armor['con']) && $armor['con'] != 0) || 
+                      (isset($armor['wis']) && $armor['wis'] != 0) || 
+                      (isset($armor['int']) && $armor['int'] != 0) || 
+                      (isset($armor['cha']) && $armor['cha'] != 0);
+    if ($hasCombatStats):
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2>Combat Stats</h2>
+        </div>
+        <div class="card-content">
+            <div class="stat-grid">
+                <?php if (isset($armor['str']) && $armor['str'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">STR</span>
+                    <span class="stat-value"><?= $armor['str'] > 0 ? '+' . $armor['str'] : $armor['str'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($armor['dex']) && $armor['dex'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">DEX</span>
+                    <span class="stat-value"><?= $armor['dex'] > 0 ? '+' . $armor['dex'] : $armor['dex'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($armor['con']) && $armor['con'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">CON</span>
+                    <span class="stat-value"><?= $armor['con'] > 0 ? '+' . $armor['con'] : $armor['con'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($armor['wis']) && $armor['wis'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">WIS</span>
+                    <span class="stat-value"><?= $armor['wis'] > 0 ? '+' . $armor['wis'] : $armor['wis'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($armor['int']) && $armor['int'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">INT</span>
+                    <span class="stat-value"><?= $armor['int'] > 0 ? '+' . $armor['int'] : $armor['int'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($armor['cha']) && $armor['cha'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">CHA</span>
+                    <span class="stat-value"><?= $armor['cha'] > 0 ? '+' . $armor['cha'] : $armor['cha'] ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
     
+    <!-- Bonuses Section -->
+    <?php
+    $hasBonuses = (isset($armor['hp']) && $armor['hp'] != 0) || 
+                  (isset($armor['mp']) && $armor['mp'] != 0) || 
+                  (isset($armor['hpr']) && $armor['hpr'] != 0) || 
+                  (isset($armor['mpr']) && $armor['mpr'] != 0) || 
+                  (isset($armor['sp']) && $armor['sp'] != 0);
     if ($hasBonuses):
     ?>
     <div class="card">
@@ -326,109 +391,35 @@ function formatDropChance($chance) {
             <h2>Bonuses</h2>
         </div>
         <div class="card-content">
-            <div class="stat-grid">
-                <?php if ($armor['add_str'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">STR</div>
-                    <div class="stat-value"><?= $armor['add_str'] > 0 ? '+' . $armor['add_str'] : $armor['add_str'] ?></div>
+            <div class="bonus-grid">
+                <?php if (isset($armor['hp']) && $armor['hp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">HP</span>
+                    <span class="bonus-value"><?= $armor['hp'] > 0 ? '+' . $armor['hp'] : $armor['hp'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['add_con'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">CON</div>
-                    <div class="stat-value"><?= $armor['add_con'] > 0 ? '+' . $armor['add_con'] : $armor['add_con'] ?></div>
+                <?php if (isset($armor['mp']) && $armor['mp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">MP</span>
+                    <span class="bonus-value"><?= $armor['mp'] > 0 ? '+' . $armor['mp'] : $armor['mp'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['add_dex'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">DEX</div>
-                    <div class="stat-value"><?= $armor['add_dex'] > 0 ? '+' . $armor['add_dex'] : $armor['add_dex'] ?></div>
+                <?php if (isset($armor['hpr']) && $armor['hpr'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">HP Regen</span>
+                    <span class="bonus-value"><?= $armor['hpr'] > 0 ? '+' . $armor['hpr'] : $armor['hpr'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['add_int'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">INT</div>
-                    <div class="stat-value"><?= $armor['add_int'] > 0 ? '+' . $armor['add_int'] : $armor['add_int'] ?></div>
+                <?php if (isset($armor['mpr']) && $armor['mpr'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">MP Regen</span>
+                    <span class="bonus-value"><?= $armor['mpr'] > 0 ? '+' . $armor['mpr'] : $armor['mpr'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['add_wis'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">WIS</div>
-                    <div class="stat-value"><?= $armor['add_wis'] > 0 ? '+' . $armor['add_wis'] : $armor['add_wis'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_cha'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">CHA</div>
-                    <div class="stat-value"><?= $armor['add_cha'] > 0 ? '+' . $armor['add_cha'] : $armor['add_cha'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_hp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">HP</div>
-                    <div class="stat-value"><?= $armor['add_hp'] > 0 ? '+' . $armor['add_hp'] : $armor['add_hp'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_mp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">MP</div>
-                    <div class="stat-value"><?= $armor['add_mp'] > 0 ? '+' . $armor['add_mp'] : $armor['add_mp'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_hpr'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">HP Regen</div>
-                    <div class="stat-value"><?= $armor['add_hpr'] > 0 ? '+' . $armor['add_hpr'] : $armor['add_hpr'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_mpr'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">MP Regen</div>
-                    <div class="stat-value"><?= $armor['add_mpr'] > 0 ? '+' . $armor['add_mpr'] : $armor['add_mpr'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['add_sp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">SP</div>
-                    <div class="stat-value"><?= $armor['add_sp'] > 0 ? '+' . $armor['add_sp'] : $armor['add_sp'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['hit_rate'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Hit Rate</div>
-                    <div class="stat-value"><?= $armor['hit_rate'] > 0 ? '+' . $armor['hit_rate'] : $armor['hit_rate'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['dmg_rate'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Damage Rate</div>
-                    <div class="stat-value"><?= $armor['dmg_rate'] > 0 ? '+' . $armor['dmg_rate'] : $armor['dmg_rate'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['bow_hit_rate'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Bow Hit Rate</div>
-                    <div class="stat-value"><?= $armor['bow_hit_rate'] > 0 ? '+' . $armor['bow_hit_rate'] : $armor['bow_hit_rate'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['bow_dmg_rate'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Bow Damage Rate</div>
-                    <div class="stat-value"><?= $armor['bow_dmg_rate'] > 0 ? '+' . $armor['bow_dmg_rate'] : $armor['bow_dmg_rate'] ?></div>
+                <?php if (isset($armor['sp']) && $armor['sp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">SP</span>
+                    <span class="bonus-value"><?= $armor['sp'] > 0 ? '+' . $armor['sp'] : $armor['sp'] ?></span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -438,14 +429,11 @@ function formatDropChance($chance) {
     
     <!-- Resistances Section -->
     <?php
-    $hasResistances = $armor['defense_water'] != 0 || $armor['defense_wind'] != 0 || 
-                     $armor['defense_fire'] != 0 || $armor['defense_earth'] != 0 || 
-                     $armor['attr_all'] != 0 || $armor['regist_stone'] != 0 ||
-                     $armor['regist_sleep'] != 0 || $armor['regist_freeze'] != 0 ||
-                     $armor['regist_blind'] != 0 || $armor['regist_skill'] != 0 ||
-                     $armor['regist_spirit'] != 0 || $armor['regist_dragon'] != 0 ||
-                     $armor['regist_fear'] != 0 || $armor['regist_all'] != 0;
-    
+    $hasResistances = (isset($armor['mr']) && $armor['mr'] != 0) || 
+                      (isset($armor['fire_resist']) && $armor['fire_resist'] != 0) || 
+                      (isset($armor['water_resist']) && $armor['water_resist'] != 0) || 
+                      (isset($armor['wind_resist']) && $armor['wind_resist'] != 0) || 
+                      (isset($armor['earth_resist']) && $armor['earth_resist'] != 0);
     if ($hasResistances):
     ?>
     <div class="card">
@@ -453,102 +441,35 @@ function formatDropChance($chance) {
             <h2>Resistances</h2>
         </div>
         <div class="card-content">
-            <div class="stat-grid">
-                <?php if ($armor['defense_water'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Water</div>
-                    <div class="stat-value"><?= $armor['defense_water'] > 0 ? '+' . $armor['defense_water'] : $armor['defense_water'] ?></div>
+            <div class="resistance-grid">
+                <?php if (isset($armor['mr']) && $armor['mr'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Magic</span>
+                    <span class="resistance-value"><?= $armor['mr'] > 0 ? '+' . $armor['mr'] : $armor['mr'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['defense_wind'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Wind</div>
-                    <div class="stat-value"><?= $armor['defense_wind'] > 0 ? '+' . $armor['defense_wind'] : $armor['defense_wind'] ?></div>
+                <?php if (isset($armor['fire_resist']) && $armor['fire_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Fire</span>
+                    <span class="resistance-value"><?= $armor['fire_resist'] > 0 ? '+' . $armor['fire_resist'] : $armor['fire_resist'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['defense_fire'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Fire</div>
-                    <div class="stat-value"><?= $armor['defense_fire'] > 0 ? '+' . $armor['defense_fire'] : $armor['defense_fire'] ?></div>
+                <?php if (isset($armor['water_resist']) && $armor['water_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Water</span>
+                    <span class="resistance-value"><?= $armor['water_resist'] > 0 ? '+' . $armor['water_resist'] : $armor['water_resist'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['defense_earth'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Earth</div>
-                    <div class="stat-value"><?= $armor['defense_earth'] > 0 ? '+' . $armor['defense_earth'] : $armor['defense_earth'] ?></div>
+                <?php if (isset($armor['wind_resist']) && $armor['wind_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Wind</span>
+                    <span class="resistance-value"><?= $armor['wind_resist'] > 0 ? '+' . $armor['wind_resist'] : $armor['wind_resist'] ?></span>
                 </div>
                 <?php endif; ?>
-                
-                <?php if ($armor['attr_all'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">All Elements</div>
-                    <div class="stat-value"><?= $armor['attr_all'] > 0 ? '+' . $armor['attr_all'] : $armor['attr_all'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_stone'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Stone</div>
-                    <div class="stat-value"><?= $armor['regist_stone'] > 0 ? '+' . $armor['regist_stone'] : $armor['regist_stone'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_sleep'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Sleep</div>
-                    <div class="stat-value"><?= $armor['regist_sleep'] > 0 ? '+' . $armor['regist_sleep'] : $armor['regist_sleep'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_freeze'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Freeze</div>
-                    <div class="stat-value"><?= $armor['regist_freeze'] > 0 ? '+' . $armor['regist_freeze'] : $armor['regist_freeze'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_blind'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Blind</div>
-                    <div class="stat-value"><?= $armor['regist_blind'] > 0 ? '+' . $armor['regist_blind'] : $armor['regist_blind'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_skill'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Skills</div>
-                    <div class="stat-value"><?= $armor['regist_skill'] > 0 ? '+' . $armor['regist_skill'] : $armor['regist_skill'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_spirit'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Spirit</div>
-                    <div class="stat-value"><?= $armor['regist_spirit'] > 0 ? '+' . $armor['regist_spirit'] : $armor['regist_spirit'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_dragon'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Dragon</div>
-                    <div class="stat-value"><?= $armor['regist_dragon'] > 0 ? '+' . $armor['regist_dragon'] : $armor['regist_dragon'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_fear'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">Fear</div>
-                    <div class="stat-value"><?= $armor['regist_fear'] > 0 ? '+' . $armor['regist_fear'] : $armor['regist_fear'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($armor['regist_all'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">All Resistances</div>
-                    <div class="stat-value"><?= $armor['regist_all'] > 0 ? '+' . $armor['regist_all'] : $armor['regist_all'] ?></div>
+                <?php if (isset($armor['earth_resist']) && $armor['earth_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Earth</span>
+                    <span class="resistance-value"><?= $armor['earth_resist'] > 0 ? '+' . $armor['earth_resist'] : $armor['earth_resist'] ?></span>
                 </div>
                 <?php endif; ?>
             </div>

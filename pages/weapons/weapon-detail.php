@@ -181,6 +181,13 @@ function formatDropChance($chance) {
     </div>
 
     <!-- Requirements Section -->
+    <?php 
+    $hasClassRequirements = $weapon['use_royal'] || $weapon['use_knight'] || $weapon['use_elf'] || 
+                           $weapon['use_mage'] || $weapon['use_darkelf'] || $weapon['use_dragonknight'] || 
+                           $weapon['use_illusionist'] || $weapon['use_warrior'] || $weapon['use_fencer'] || 
+                           $weapon['use_lancer'];
+    if ($hasClassRequirements): 
+    ?>
     <div class="card">
         <div class="card-header">
             <h2>Class</h2>
@@ -190,72 +197,230 @@ function formatDropChance($chance) {
                 <!-- Class Requirements -->
                 <div class="requirement-item">
                     <div class="requirements-grid">
+                        <?php if ($weapon['use_royal']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_royal'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_royal'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Royal
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_knight']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_knight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_knight'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Knight
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_elf']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_elf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_elf'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Elf
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_mage']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_mage'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_mage'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Mage
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_darkelf']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_darkelf'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_darkelf'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Dark Elf
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_dragonknight']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_dragonknight'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_dragonknight'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Dragon Knight
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_illusionist']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_illusionist'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_illusionist'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Illusionist
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_warrior']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_warrior'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_warrior'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Warrior
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_fencer']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_fencer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_fencer'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Fencer
                         </span>
+                        <?php endif; ?>
+                        <?php if ($weapon['use_lancer']): ?>
                         <span class="requirement-switch">
-                            <span class="requirement-switch-icon <?= $weapon['use_lancer'] ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                                <?= $weapon['use_lancer'] ? '✓' : '✗' ?>
-                            </span>
+                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
                             Lancer
                         </span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+    <?php endif; ?>
+
+    <!-- Combat Stats Section -->
+    <?php
+    $hasCombatStats = (isset($weapon['str']) && $weapon['str'] != 0) || 
+                      (isset($weapon['dex']) && $weapon['dex'] != 0) || 
+                      (isset($weapon['con']) && $weapon['con'] != 0) || 
+                      (isset($weapon['wis']) && $weapon['wis'] != 0) || 
+                      (isset($weapon['int']) && $weapon['int'] != 0) || 
+                      (isset($weapon['cha']) && $weapon['cha'] != 0);
+    if ($hasCombatStats):
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2>Combat Stats</h2>
+        </div>
+        <div class="card-content">
+            <div class="stat-grid">
+                <?php if (isset($weapon['str']) && $weapon['str'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">STR</span>
+                    <span class="stat-value"><?= $weapon['str'] > 0 ? '+' . $weapon['str'] : $weapon['str'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['dex']) && $weapon['dex'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">DEX</span>
+                    <span class="stat-value"><?= $weapon['dex'] > 0 ? '+' . $weapon['dex'] : $weapon['dex'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['con']) && $weapon['con'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">CON</span>
+                    <span class="stat-value"><?= $weapon['con'] > 0 ? '+' . $weapon['con'] : $weapon['con'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['wis']) && $weapon['wis'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">WIS</span>
+                    <span class="stat-value"><?= $weapon['wis'] > 0 ? '+' . $weapon['wis'] : $weapon['wis'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['int']) && $weapon['int'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">INT</span>
+                    <span class="stat-value"><?= $weapon['int'] > 0 ? '+' . $weapon['int'] : $weapon['int'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['cha']) && $weapon['cha'] != 0): ?>
+                <div class="stat-item">
+                    <span class="stat-label">CHA</span>
+                    <span class="stat-value"><?= $weapon['cha'] > 0 ? '+' . $weapon['cha'] : $weapon['cha'] ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Bonuses Section -->
+    <?php
+    $hasBonuses = (isset($weapon['hp']) && $weapon['hp'] != 0) || 
+                  (isset($weapon['mp']) && $weapon['mp'] != 0) || 
+                  (isset($weapon['hpr']) && $weapon['hpr'] != 0) || 
+                  (isset($weapon['mpr']) && $weapon['mpr'] != 0) || 
+                  (isset($weapon['sp']) && $weapon['sp'] != 0);
+    if ($hasBonuses):
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2>Bonuses</h2>
+        </div>
+        <div class="card-content">
+            <div class="bonus-grid">
+                <?php if (isset($weapon['hp']) && $weapon['hp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">HP</span>
+                    <span class="bonus-value"><?= $weapon['hp'] > 0 ? '+' . $weapon['hp'] : $weapon['hp'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['mp']) && $weapon['mp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">MP</span>
+                    <span class="bonus-value"><?= $weapon['mp'] > 0 ? '+' . $weapon['mp'] : $weapon['mp'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['hpr']) && $weapon['hpr'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">HP Regen</span>
+                    <span class="bonus-value"><?= $weapon['hpr'] > 0 ? '+' . $weapon['hpr'] : $weapon['hpr'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['mpr']) && $weapon['mpr'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">MP Regen</span>
+                    <span class="bonus-value"><?= $weapon['mpr'] > 0 ? '+' . $weapon['mpr'] : $weapon['mpr'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['sp']) && $weapon['sp'] != 0): ?>
+                <div class="bonus-item">
+                    <span class="bonus-label">SP</span>
+                    <span class="bonus-value"><?= $weapon['sp'] > 0 ? '+' . $weapon['sp'] : $weapon['sp'] ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Resistances Section -->
+    <?php
+    $hasResistances = (isset($weapon['mr']) && $weapon['mr'] != 0) || 
+                      (isset($weapon['fire_resist']) && $weapon['fire_resist'] != 0) || 
+                      (isset($weapon['water_resist']) && $weapon['water_resist'] != 0) || 
+                      (isset($weapon['wind_resist']) && $weapon['wind_resist'] != 0) || 
+                      (isset($weapon['earth_resist']) && $weapon['earth_resist'] != 0);
+    if ($hasResistances):
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2>Resistances</h2>
+        </div>
+        <div class="card-content">
+            <div class="resistance-grid">
+                <?php if (isset($weapon['mr']) && $weapon['mr'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Magic</span>
+                    <span class="resistance-value"><?= $weapon['mr'] > 0 ? '+' . $weapon['mr'] : $weapon['mr'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['fire_resist']) && $weapon['fire_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Fire</span>
+                    <span class="resistance-value"><?= $weapon['fire_resist'] > 0 ? '+' . $weapon['fire_resist'] : $weapon['fire_resist'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['water_resist']) && $weapon['water_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Water</span>
+                    <span class="resistance-value"><?= $weapon['water_resist'] > 0 ? '+' . $weapon['water_resist'] : $weapon['water_resist'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['wind_resist']) && $weapon['wind_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Wind</span>
+                    <span class="resistance-value"><?= $weapon['wind_resist'] > 0 ? '+' . $weapon['wind_resist'] : $weapon['wind_resist'] ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (isset($weapon['earth_resist']) && $weapon['earth_resist'] != 0): ?>
+                <div class="resistance-item">
+                    <span class="resistance-label">Earth</span>
+                    <span class="resistance-value"><?= $weapon['earth_resist'] > 0 ? '+' . $weapon['earth_resist'] : $weapon['earth_resist'] ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Item Properties Section -->
     <?php
     // Define all properties grouped by category
@@ -312,102 +477,6 @@ function formatDropChance($chance) {
     </div>
     <?php endif; ?>
     
-    <!-- Stats Bonuses Section -->
-    <?php
-    $hasBonuses = $weapon['add_str'] != 0 || $weapon['add_con'] != 0 || $weapon['add_dex'] != 0 ||
-                 $weapon['add_int'] != 0 || $weapon['add_wis'] != 0 || $weapon['add_cha'] != 0 ||
-                 $weapon['add_hp'] != 0 || $weapon['add_mp'] != 0 || $weapon['add_hpr'] != 0 ||
-                 $weapon['add_mpr'] != 0 || $weapon['add_sp'] != 0;
-    
-    if ($hasBonuses):
-    ?>
-    <div class="card">
-        <div class="card-header">
-            <h2>Bonuses</h2>
-        </div>
-        <div class="card-content">
-            <div class="stat-grid">
-                <?php if ($weapon['add_str'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">STR</div>
-                    <div class="stat-value"><?= $weapon['add_str'] > 0 ? '+' . $weapon['add_str'] : $weapon['add_str'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_con'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">CON</div>
-                    <div class="stat-value"><?= $weapon['add_con'] > 0 ? '+' . $weapon['add_con'] : $weapon['add_con'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_dex'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">DEX</div>
-                    <div class="stat-value"><?= $weapon['add_dex'] > 0 ? '+' . $weapon['add_dex'] : $weapon['add_dex'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_int'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">INT</div>
-                    <div class="stat-value"><?= $weapon['add_int'] > 0 ? '+' . $weapon['add_int'] : $weapon['add_int'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_wis'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">WIS</div>
-                    <div class="stat-value"><?= $weapon['add_wis'] > 0 ? '+' . $weapon['add_wis'] : $weapon['add_wis'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_cha'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">CHA</div>
-                    <div class="stat-value"><?= $weapon['add_cha'] > 0 ? '+' . $weapon['add_cha'] : $weapon['add_cha'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_hp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">HP</div>
-                    <div class="stat-value"><?= $weapon['add_hp'] > 0 ? '+' . $weapon['add_hp'] : $weapon['add_hp'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_mp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">MP</div>
-                    <div class="stat-value"><?= $weapon['add_mp'] > 0 ? '+' . $weapon['add_mp'] : $weapon['add_mp'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_hpr'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">HP Regen</div>
-                    <div class="stat-value"><?= $weapon['add_hpr'] > 0 ? '+' . $weapon['add_hpr'] : $weapon['add_hpr'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_mpr'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">MP Regen</div>
-                    <div class="stat-value"><?= $weapon['add_mpr'] > 0 ? '+' . $weapon['add_mpr'] : $weapon['add_mpr'] ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($weapon['add_sp'] != 0): ?>
-                <div class="stat-item">
-                    <div class="stat-label">SP</div>
-                    <div class="stat-value"><?= $weapon['add_sp'] > 0 ? '+' . $weapon['add_sp'] : $weapon['add_sp'] ?></div>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
     <!-- Weapon Skills Section -->
     <?php if (!empty($weaponSkills) || !empty($weaponSkillModels)): ?>
     <div class="card">

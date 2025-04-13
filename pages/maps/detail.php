@@ -24,6 +24,32 @@ if($mapId <= 0) {
 $query = "SELECT * FROM mapids WHERE mapid = ?";
 $map = $db->getRow($query, [$mapId]);
 
+/**
+ * Get monster image path for display
+ */
+function get_monster_image($spriteId) {
+    // Base URL path for images (for HTML src attribute)
+    $baseUrl = SITE_URL . '/assets/img/monsters/';
+    
+    // First try PNG format
+    $pngPath = $baseUrl . "ms{$spriteId}.png";
+    $serverPngPath = dirname(dirname(dirname(__FILE__))) . "/assets/img/monsters/ms{$spriteId}.png";
+    
+    // Then try GIF format
+    $gifPath = $baseUrl . "ms{$spriteId}.gif";
+    $serverGifPath = dirname(dirname(dirname(__FILE__))) . "/assets/img/monsters/ms{$spriteId}.gif";
+    
+    // Return PNG if it exists, otherwise GIF
+    if (file_exists($serverPngPath)) {
+        return $pngPath;
+    } elseif (file_exists($serverGifPath)) {
+        return $gifPath;
+    }
+    
+    // Default to PNG and let the onerror handle the fallback
+    return $pngPath;
+}
+
 // If map not found, show error
 if(!$map) {
     // Set page title and include header
@@ -102,13 +128,58 @@ try {
 // Set page title to map name
 $pageTitle = $map['locationname'];
 
-// Check for map image using pngId
-$map_image = isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0
-    ? "assets/img/icons/maps/{$map['pngId']}.jpeg" 
-    : "assets/img/placeholders/map-placeholder.png";
+// Check for map image using mapId
+$map_id = $map['mapid'];
 
-// Check if the image file exists
-$image_src = file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $map_image) ? $map_image : "assets/img/placeholders/map-placeholder.png";
+// First try the maps directory with the map ID
+$base_path = dirname(dirname(dirname(__FILE__))); // Go up three levels to get to root
+$image_path = "/assets/img/maps/{$map_id}.jpeg";
+$server_path = $base_path . $image_path;
+
+// Check for map image using pngId first
+if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+    // First try using pngId
+    $png_id = $map['pngId'];
+    $image_path = "/assets/img/maps/{$png_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format if jpeg doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format if png doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+} else {
+    // Fall back to using mapId if pngId isn't available
+    $map_id = $map['mapid'];
+    $image_path = "/assets/img/maps/{$map_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+}
+
+// Use placeholder if no image found
+if (!file_exists($server_path)) {
+    $image_path = "/assets/img/placeholders/map-placeholder.png";
+}
+
+// Final image source for HTML
+$image_src = SITE_URL . $image_path;
 
 // Initialize variables for spawn markers
 $placed_markers = [];
@@ -140,7 +211,8 @@ require_once '../../includes/header.php';
             <div class="detail-image-container">
                 <img src="<?= $image_src ?>" 
                      alt="<?= sanitize($map['locationname']) ?>" 
-                     class="detail-image-large">
+                     class="detail-image-large"
+                     onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
             </div>
             <div class="card-content">
                 <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
@@ -327,7 +399,7 @@ require_once '../../includes/header.php';
                     <h2 class="card-title">Map View with Spawn Points</h2>
                     <div style="position: relative; min-height: 300px; overflow: hidden;">
                         <!-- Map Image -->
-                        <img src="<?= $image_src ?>" alt="<?= sanitize($map['locationname']) ?>" style="width: 100%; height: 100%; object-fit: cover; min-height: 300px;">
+                        <img src="<?= $image_src ?>" alt="<?= sanitize($map['locationname']) ?>" style="width: 100%; height: 100%; object-fit: cover; min-height: 300px;" onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
                         
                         <!-- Monster Spawn Markers -->
                         <?php if (!empty($spawn_points)): ?>
@@ -538,50 +610,66 @@ require_once '../../includes/header.php';
     <!-- Monsters Section -->
     <?php if (!empty($monsters)): ?>
     <div class="card mt-4">
+        <div class="card-header">
+            <h2>Monsters</h2>
+        </div>
         <div class="card-content">
-            <h2 class="card-title">Monsters</h2>
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Level</th>
-                        <th>HP</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($monsters as $monster): ?>
-                    <tr>
-                        <td style="width: 60px; text-align: center;">
-                            <?php
-                            // Determine monster image path
-                            $monsterImage = "assets/img/icons/monsters/ms{$monster['spriteId']}.png";
-                            if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $monsterImage)) {
-                                $monsterImage = "assets/img/icons/monsters/ms{$monster['spriteId']}.gif";
-                                if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $monsterImage)) {
-                                    $monsterImage = "assets/img/placeholders/monster-placeholder.png";
-                                }
-                            }
-                            ?>
-                            <img src="<?= $monsterImage ?>" alt="<?= sanitize($monster['name']) ?>" style="width: 32px; height: 32px;">
-                        </td>
-                        <td>
-                            <a href="../monsters/detail.php?id=<?= $monster['npcid'] ?>">
-                                <?= sanitize($monster['name']) ?>
-                            </a>
-                        </td>
-                        <td><?= $monster['lvl'] ?></td>
-                        <td><?= formatMoney($monster['hp']) ?></td>
-                        <td>
-                            <a href="../monsters/detail.php?id=<?= $monster['npcid'] ?>" class="btn btn-sm btn-secondary">Details</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="monster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; padding: 1rem;">
+                <?php foreach ($monsters as $monster): ?>
+                <a href="../monsters/detail.php?id=<?= $monster['npcid'] ?>" 
+                   class="monster-card" 
+                   style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.3s ease; background: var(--primary);">
+                    <div class="monster-icon-container" style="width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <img src="<?= get_monster_image($monster['spriteId']) ?>" 
+                             alt="<?= sanitize($monster['name']) ?>" 
+                             class="monster-list-icon"
+                             style="width: 100%; height: 100%; object-fit: contain;"
+                             onerror="if(this.src.endsWith('.png')){this.src=this.src.replace('.png','.gif');}else{this.src='<?= SITE_URL ?>/assets/img/monsters/default.png';}">
+                    </div>
+                    <div class="monster-name" style="font-size: 1rem; font-weight: 500; text-align: center; color: var(--text); line-height: 1.3;">
+                        <?= sanitize($monster['name']) ?>
+                    </div>
+                </a>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
+
+    <style>
+    .monster-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .monster-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(249, 75, 31, 0.2);
+        border-color: var(--accent);
+    }
+    
+    .monster-card:hover .monster-name {
+        color: var(--accent) !important;
+    }
+    
+    .monster-card:active {
+        transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+        .monster-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        }
+        
+        .monster-icon-container {
+            width: 72px !important;
+            height: 72px !important;
+        }
+        
+        .monster-name {
+            font-size: 0.9rem !important;
+        }
+    }
+    </style>
     <?php endif; ?>
 
     <!-- Clone Map Information (if applicable) -->
@@ -631,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (title.includes(`(${x},${y})`)) {
                     // Highlight effect
                     marker.style.color = '#FFEB3B';
-					marker.style.fontSize = '1.8rem';
+                    marker.style.fontSize = '1.8rem';
                     
                     // Scroll map to view
                     marker.scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -647,6 +735,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<style>
+.monster-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: var(--card-hover-bg, rgba(255,255,255,0.05));
+}
+
+@media (max-width: 768px) {
+    .monster-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+    }
+}
+</style>
 
 <?php
 // Include footer

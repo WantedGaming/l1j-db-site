@@ -31,7 +31,7 @@ a {
 }
 
 a:hover {
-    color: #ff6b43; /* Lighter version of accent */
+    color: #ff6b43;
     text-decoration: underline;
 }
 
@@ -96,24 +96,42 @@ nav {
 
 /* Hero Section */
 .hero {
+    padding: 5rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('../img/backgrounds/hero-bg.jpg');
     background-size: cover;
     background-position: center;
-    padding: 5rem 0;
-    text-align: center;
+}
+
+.hero:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(249, 75, 31, 0.2), rgba(249, 75, 31, 0));
+    z-index: -1;
 }
 
 .hero h1 {
-    font-size: 3rem;
+    font-size: 3.2rem;
     margin-bottom: 1rem;
+    letter-spacing: -0.5px;
 }
 
 .hero p {
-    font-size: 1.2rem;
-    max-width: 800px;
-    margin: 0 auto 2rem;
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.8;
 }
 
+/* Buttons */
 .btn {
     display: inline-block;
     background-color: var(--accent);
@@ -149,6 +167,9 @@ nav {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     margin-bottom: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .card:hover {
@@ -163,7 +184,15 @@ nav {
 }
 
 .card-content {
-    padding: 1.5rem;
+    flex: 1;
+    display: flex; /* Add this */
+    flex-direction: column; /* Add this */
+	padding: 20px;
+}
+
+.card-header h2 {
+    padding: 10px 20px;
+    margin: 0;
 }
 
 .card-title {
@@ -211,6 +240,54 @@ tr:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.data-table th, 
+.data-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.data-table tbody tr:active {
+    transform: translateY(0);
+    background-color: rgba(249, 75, 31, 0.1);
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detail-table th {
+    background-color: var(--secondary);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #ccc;
+}
+
+.detail-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+.detail-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
 /* Form Styles */
 .form-group {
     margin-bottom: 1.5rem;
@@ -247,21 +324,31 @@ textarea:focus {
 /* Search Bar */
 .search-container {
     margin: 2rem 0;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .search-bar {
     display: flex;
     max-width: 600px;
     margin: 0 auto;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .search-bar input {
     flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    font-size: 1rem;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
 .search-bar button {
+    padding: 1rem 2rem;
+    border-radius: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
@@ -323,6 +410,42 @@ textarea:focus {
     margin-bottom: 2rem;
 }
 
+/* Detail Content Grid */
+.detail-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-monster-image-container,
+.detail-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    height: 100%;
+    min-height: 350px;
+	width: 100%;
+}
+
+.detail-monster-image-large,
+.detail-image-large {
+    max-width: 100%;
+    max-height: 100%; /* Changed from fixed px to 100% */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.detail-monster-image-large:hover,
+.detail-image-large:hover {
+    transform: scale(1.05);
+}
+
 /* Footer Styles */
 footer {
     background-color: var(--primary);
@@ -331,7 +454,7 @@ footer {
 }
 
 .footer-image {
-    max-width: 400px; /* Adjust as needed */
+    max-width: 400px;
     height: auto;
     display: block;
     margin: 0 auto;
@@ -380,132 +503,6 @@ footer {
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
     color: #999;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-    
-    .nav-links {
-        display: none; /* Mobile menu will be handled via JavaScript */
-    }
-    
-    .detail-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-}
-
-/* Data Badge for Items & Skills */
-.badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-right: 0.5rem;
-}
-
-.badge-normal {
-    background-color: #6c757d;
-}
-
-.badge-rare {
-    background-color: #0d6efd;
-}
-
-.badge-hero {
-    background-color: #6f42c1;
-}
-
-.badge-legend {
-    background-color: #fd7e14;
-}
-
-.badge-myth {
-    background-color: #dc3545;
-}
-
-.badge-only {
-    background-color: #20c997;
-}
-
-/* Stat Bars */
-.stat-bar {
-    width: 100%;
-    height: 8px;
-    background-color: var(--secondary);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 0.25rem;
-}
-
-.stat-fill {
-    height: 100%;
-    background-color: var(--accent);
-    width: 0; /* Will be set via JavaScript */
-}
-/* Modern clean styles for homepage */
-
-/* Hero Section Enhancements */
-.hero {
-    padding: 5rem 0;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.hero:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(249, 75, 31, 0.2), rgba(249, 75, 31, 0));
-    z-index: -1;
-}
-
-.hero h1 {
-    font-size: 3.2rem;
-    margin-bottom: 1rem;
-    letter-spacing: -0.5px;
-}
-
-.hero p {
-    font-size: 1.3rem;
-    margin-bottom: 2.5rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    opacity: 0.8;
-}
-
-.search-container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.search-bar {
-    display: flex;
-    border-radius: 50px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.search-bar input {
-    flex: 1;
-    padding: 1rem 1.5rem;
-    border: none;
-    font-size: 1rem;
-}
-
-.search-bar button {
-    padding: 1rem 2rem;
-    border-radius: 0;
 }
 
 /* Quick Links Section */
@@ -840,51 +837,6 @@ footer {
     margin-top: 1rem;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-    .link-cards {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .link-card {
-        flex: 0 0 calc(50% - 1rem);
-        max-width: calc(50% - 1rem);
-    }
-}
-
-@media (max-width: 768px) {
-    .main-content-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stats-container {
-        flex-wrap: wrap;
-    }
-    
-    .stat-item {
-        flex: 0 0 calc(50% - 0.5rem);
-        margin-bottom: 1rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-    
-    .link-card {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-    
-    .stat-item {
-        flex: 0 0 100%;
-    }
-}
-
-/* Weapon List Page */
-
 /* Filter Container Styles */
 .filter-container {
     background-color: var(--primary);
@@ -909,7 +861,7 @@ footer {
     text-align: right;
 }
 
-/* Improved Pagination Styles */
+/* Pagination Styles */
 .pagination {
     background-color: var(--primary);
     border-radius: 8px;
@@ -987,30 +939,7 @@ footer {
     color: var(--text);
 }
 
-/* Clickable Table Rows */
-.data-table tbody tr {
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.data-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.data-table tbody tr:active {
-    transform: translateY(0);
-    background-color: rgba(249, 75, 31, 0.1);
-}
-
-/* Data Table Styles */
-.data-table th, 
-.data-table td {
-    text-align: center;
-    vertical-align: middle;
-}
-
+/* Item Styles */
 .item-icon {
     width: 64px;
     height: 64px;
@@ -1023,117 +952,7 @@ footer {
     background-color: rgba(244, 67, 54, 0.05) !important;
 }
 
-.badge-danger {
-    background-color: #f44336;
-}
-
-.badge-success {
-    background-color: #4caf50;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .pagination {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .pagination-links {
-        margin: 0.5rem 0;
-        justify-content: center;
-    }
-    
-    .page-jump-form {
-        justify-content: center;
-    }
-    
-    .filter-actions {
-        display: flex;
-        justify-content: space-between;
-    }
-}
-
-/* Weapon Detail */
-
-/* Add these to your style.css file */
-
-/* Weapon Detail Layout */
-.detail-content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.detail-image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--secondary);
-    border-radius: 8px;
-    padding: 1rem;
-    height: 100%;
-}
-
-.detail-image-large {
-    max-width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-}
-
-/* Requirements Switch Styles */
-.requirement-switch {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.requirement-switch-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 0.5rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
-
-.requirement-switch-yes {
-    background-color: var(--success);
-    color: white;
-}
-
-.requirement-switch-no {
-    background-color: var(--danger);
-    color: white;
-}
-
-.requirements-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-/* Adjust card height to match */
-.card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.card-content {
-    flex: 1;
-}
-
-.card-header h2 {
-    padding: 10px 20px;
-    margin: 0; /* removes default margin if needed */
-}
-
-
-/* Weapon Detail Page Specific Styles */
+/* Weapon Hero Styles */
 .weapon-hero {
     position: relative;
     min-height: 300px;
@@ -1176,33 +995,6 @@ footer {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
-.detail-content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.detail-image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--secondary);
-    border-radius: 8px 8px 0 0;
-    padding: 2rem;
-    min-height: 300px; /* Add fixed height */
-}
-
-.detail-image-large {
-    max-width: 100%;
-    max-height: 280px; /* Increased from 200px */
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    transition: transform 0.3s ease; /* Add smooth hover effect */
-}
-
-
 .weapon-grade {
     text-align: center;
     margin: 1rem 0;
@@ -1218,6 +1010,7 @@ footer {
     margin: 0.5rem 0;
 }
 
+/* Requirements Switch Styles */
 .requirement-switch {
     display: inline-flex;
     align-items: center;
@@ -1258,25 +1051,226 @@ footer {
     gap: 1rem;
 }
 
-.stat-item {
+/* Monster Styles */
+.monster-icon-container {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.monster-list-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.monster-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.monster-stat-item {
     background-color: var(--secondary);
-    padding: 0.75rem;
-    border-radius: 4px;
+    border-radius: 8px;
+    padding: 1rem;
     text-align: center;
+    transition: transform 0.2s ease;
 }
 
-.stat-label {
-    font-size: 0.9rem;
+.monster-stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.monster-stat-icon {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    background-color: rgba(249, 75, 31, 0.1);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+}
+
+.monster-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.monster-combat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.monster-combat-stat {
+    display: flex;
+    align-items: center;
+    background-color: var(--secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.monster-combat-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.monster-combat-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(249, 75, 31, 0.1);
+    color: var(--accent);
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.monster-combat-details {
+    flex: 1;
+}
+
+.monster-combat-label {
+    font-size: 0.85rem;
     color: #ccc;
+    margin-bottom: 0.25rem;
 }
 
-.stat-value {
-    font-weight: bold;
-    font-size: 1.1rem;
+.monster-combat-value {
+    font-weight: 600;
+    font-size: 1.2rem;
 }
 
-/* Responsive adjustments */
+/* Badge Styles */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.badge-normal {
+    background-color: #6c757d;
+}
+
+.badge-rare {
+    background-color: #0d6efd;
+}
+
+.badge-hero {
+    background-color: #6f42c1;
+}
+
+.badge-legend {
+    background-color: #fd7e14;
+}
+
+.badge-myth {
+    background-color: #dc3545;
+}
+
+.badge-only {
+    background-color: #20c997;
+}
+
+.badge-danger {
+    background-color: #f44336;
+}
+
+.badge-success {
+    background-color: #4caf50;
+}
+
+/* Stat Bars */
+.stat-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+.stat-fill {
+    height: 100%;
+    background-color: var(--accent);
+    width: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .link-cards {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .link-card {
+        flex: 0 0 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
+    }
+}
+
 @media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .nav-links {
+        display: none;
+    }
+    
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .main-content-grid,
+    .detail-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-container {
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        flex: 0 0 calc(50% - 0.5rem);
+        margin-bottom: 1rem;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .pagination-links {
+        margin: 0.5rem 0;
+        justify-content: center;
+    }
+    
+    .page-jump-form {
+        justify-content: center;
+    }
+    
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+    
     .weapon-hero {
         min-height: 200px;
     }
@@ -1290,7 +1284,33 @@ footer {
         font-size: 2rem;
     }
     
-    .detail-content-grid {
-        grid-template-columns: 1fr;
+    .monster-stat-grid,
+    .monster-combat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .link-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .stat-item {
+        flex: 0 0 100%;
+    }
+    
+    .monster-combat-stat {
+        padding: 0.75rem;
+    }
+    
+    .monster-combat-icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.75rem;
+    }
+    
+    .monster-combat-value {
+        font-size: 1rem;
     }
 }

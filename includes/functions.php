@@ -3,6 +3,9 @@
  * Helper functions for L1J Database Website
  */
 
+require_once 'config.php';
+require_once 'database.php';
+
 /**
  * Sanitize user input
  * @param string $input
@@ -319,5 +322,105 @@ function debug($data, $die = false) {
     if ($die) {
         die();
     }
+	
+/**
+ * Calculate drop rates for a specific monster
+ * @param int $npcId Monster NPC ID
+ * @return array Array of drop items with details
+ */
+function calculateMonsterDrops($npcId) {
+    $db = Database::getInstance();
+    
+    // Query to get all drops for this monster with item details
+    $query = "SELECT d.itemId, d.min, d.max, d.chance, 
+                     COALESCE(a.desc_en, w.desc_en, e.desc_en) as item_name,
+                     COALESCE(a.iconId, w.iconId, e.iconId) as iconId
+              FROM droplist d
+              LEFT JOIN armor a ON d.itemId = a.item_id
+              LEFT JOIN weapon w ON d.itemId = w.item_id
+              LEFT JOIN etcitem e ON d.itemId = e.item_id
+              WHERE d.mobId = ?
+              ORDER BY d.chance DESC";
+    
+    $drops = $db->getRows($query, [$npcId]);
+    
+    $result = [];
+    foreach ($drops as $drop) {
+        $result[] = [
+            'item_id' => $drop['itemId'],
+            'item_name' => $drop['item_name'] ?? 'Unknown Item',
+            'icon_id' => $drop['iconId'] ?? $drop['itemId'],
+            'min' => $drop['min'],
+            'max' => $drop['max'],
+            'chance' => formatDropChance($drop['chance']),
+            'raw_chance' => $drop['chance']
+        ];
+    }
+    
+    return $result;
+}
+
+/**
+ * Format drop chance for display
+ * @param int $chance Raw chance value (typically 1-1000000)
+ * @return string Formatted percentage
+ */
+function formatDropChance($chance) {
+    if ($chance >= 1000000) return '100%';
+    
+    $percentage = ($chance / 10000); // Convert to percentage (10000 = 1%)
+    
+    if ($percentage < 0.01) {
+        return '<0.01%';
+    } elseif ($percentage < 1) {
+        return number_format($percentage, 2) . '%';
+    } else {
+        return number_format($percentage, 1) . '%';
+    }
+}
+
+/**
+ * Get drop rates for multiple monsters at once
+ * @param array $npcIds Array of monster NPC IDs
+ * @return array Multi-dimensional array of drops keyed by NPC ID
+ */
+function getBulkMonsterDrops($npcIds) {
+    if (empty($npcIds)) return [];
+    
+    $db = Database::getInstance();
+    $placeholders = implode(',', array_fill(0, count($npcIds), '?'));
+    
+    $query = "SELECT d.mobId, d.itemId, d.min, d.max, d.chance, 
+                     COALESCE(a.desc_en, w.desc_en, e.desc_en) as item_name,
+                     COALESCE(a.iconId, w.iconId, e.iconId) as iconId
+              FROM droplist d
+              LEFT JOIN armor a ON d.itemId = a.item_id
+              LEFT JOIN weapon w ON d.itemId = w.item_id
+              LEFT JOIN etcitem e ON d.itemId = e.item_id
+              WHERE d.mobId IN ($placeholders)
+              ORDER BY d.mobId, d.chance DESC";
+    
+    $allDrops = $db->getRows($query, $npcIds);
+    
+    $result = [];
+    foreach ($allDrops as $drop) {
+        if (!isset($result[$drop['mobId']])) {
+            $result[$drop['mobId']] = [];
+        }
+        
+        $result[$drop['mobId']][] = [
+            'item_id' => $drop['itemId'],
+            'item_name' => $drop['item_name'] ?? 'Unknown Item',
+            'icon_id' => $drop['iconId'] ?? $drop['itemId'],
+            'min' => $drop['min'],
+            'max' => $drop['max'],
+            'chance' => formatDropChance($drop['chance']),
+            'raw_chance' => $drop['chance']
+        ];
+    }
+    
+    return $result;
+}
+	
 }
 

@@ -47,7 +47,7 @@ require_once __DIR__ . '/auth.php';
                     <li><a href="<?php echo SITE_URL; ?>/pages/maps/"> Maps</a></li>
                     <li><a href="<?php echo SITE_URL; ?>/pages/characters/"> Characters</a></li>
 					<li><a href="<?php echo SITE_URL; ?>/admin/login.php">Admin Login</a></li>
-					<li><a href="<?php echo SITE_URL; ?>/phphelp/table_extractor.php">Extract Table</a></li>
+					<li><a href="<?php echo SITE_URL; ?>/phphelp/index.php">Explorer</a></li>
                 </ul>
             </nav>
         </div>

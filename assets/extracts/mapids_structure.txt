@@ -1,0 +1,45 @@
+Table: mapids
+Database: l1j_remastered
+
+Columns:
+--------------------------------------------------------------------------------
+• mapid (int(10)) [Default: 0]
+• locationname (varchar(45)) [Nullable]
+• desc_kr (varchar(45))
+• startX (int(10) unsigned) [Default: 0]
+• endX (int(10) unsigned) [Default: 0]
+• startY (int(10) unsigned) [Default: 0]
+• endY (int(10) unsigned) [Default: 0]
+• monster_amount (float unsigned) [Default: 0]
+• drop_rate (float unsigned) [Default: 0]
+• underwater (tinyint(1) unsigned) [Default: 0]
+• markable (tinyint(1) unsigned) [Default: 0]
+• teleportable (tinyint(1) unsigned) [Default: 0]
+• escapable (tinyint(1) unsigned) [Default: 0]
+• resurrection (tinyint(1) unsigned) [Default: 0]
+• painwand (tinyint(1) unsigned) [Default: 0]
+• penalty (tinyint(1) unsigned) [Default: 0]
+• take_pets (tinyint(1) unsigned) [Default: 0]
+• recall_pets (tinyint(1) unsigned) [Default: 0]
+• usable_item (tinyint(1) unsigned) [Default: 0]
+• usable_skill (tinyint(1) unsigned) [Default: 0]
+• dungeon (tinyint(1) unsigned) [Default: 0]
+• dmgModiPc2Npc (int(3)) [Default: 0]
+• dmgModiNpc2Pc (int(3)) [Default: 0]
+• decreaseHp (tinyint(1) unsigned) [Default: 0]
+• dominationTeleport (tinyint(1) unsigned) [Default: 0]
+• beginZone (tinyint(1) unsigned) [Default: 0]
+• redKnightZone (tinyint(1) unsigned) [Default: 0]
+• ruunCastleZone (tinyint(1) unsigned) [Default: 0]
+• interWarZone (tinyint(1) unsigned) [Default: 0]
+• geradBuffZone (tinyint(1) unsigned) [Default: 0]
+• growBuffZone (tinyint(1) unsigned) [Default: 0]
+• interKind (int(3)) [Default: 0]
+• script (varchar(50)) [Nullable]
+• cloneStart (int(6)) [Default: 0]
+• cloneEnd (int(6)) [Default: 0]
+• pngId (int(11)) [Nullable] [Default: 0]
+
+Indexes:
+--------------------------------------------------------------------------------
+• PRIMARY (PRIMARY KEY): mapid

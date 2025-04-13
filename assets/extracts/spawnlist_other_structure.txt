@@ -1,0 +1,21 @@
+Table: spawnlist_other
+
+Column: id | Type: int(5) unsigned
+Column: type | Type: int(5) unsigned | Comment: with type 999: manually created not linked with this table.
+Column: name | Type: varchar(45)
+Column: npc_id | Type: int(10) unsigned
+Column: locx | Type: int(6) unsigned
+Column: locy | Type: int(6) unsigned
+Column: heading | Type: int(2)
+Column: randomRange | Type: int(3)
+Column: timeMillisToDelete | Type: int(6)
+Column: gfxId | Type: int(6)
+Column: actionStatus | Type: int(3)
+Column: leftEdge | Type: int(6)
+Column: rightEdge | Type: int(6)
+Column: direction | Type: int(3)
+Column: targetPlayer | Type: tinyint(1)
+Column: paralysisTime | Type: int(3)
+Column: count | Type: int(3)
+Column: mapId | Type: int(10)
+Column: location | Type: varchar(150)

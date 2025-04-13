@@ -1,424 +1,360 @@
 <?php
 /**
- * Monster model for L1J Database Website
+ * Monster listing page for L1J Database Website
  */
-class Monster {
-    private $db;
+
+// Set page title and description
+$pageTitle = 'Monsters';
+$pageDescription = 'Browse all monsters in L1J Remastered including regular monsters, bosses, and special creatures.';
+
+// Include header
+require_once '../../includes/header.php';
+// Include drop calculation functions
+require_once '../../includes/functions.php';
+
+// Get database instance
+$db = Database::getInstance();
+
+// Build base query
+$query = "SELECT n.npcid, n.desc_en, n.desc_kr, n.lvl, n.spriteId, n.is_bossmonster, 
+                 n.exp, n.impl, n.hp, n.undead
+          FROM npc n";
+
+// Handle search and filters
+$whereConditions = [];
+$params = [];
+
+// Base condition for monsters
+$whereConditions[] = "(n.impl LIKE '%L1Monster%' OR n.impl LIKE '%L1Doppelganger%')";
+
+if(isset($_GET['q']) && !empty($_GET['q'])) {
+    $whereConditions[] = "(n.desc_en LIKE ? OR n.desc_kr LIKE ?)";
+    $params[] = '%' . $_GET['q'] . '%';
+    $params[] = '%' . $_GET['q'] . '%';
+}
+
+if(isset($_GET['level_min']) && !empty($_GET['level_min'])) {
+    $whereConditions[] = "n.lvl >= ?";
+    $params[] = intval($_GET['level_min']);
+}
+
+if(isset($_GET['level_max']) && !empty($_GET['level_max'])) {
+    $whereConditions[] = "n.lvl <= ?";
+    $params[] = intval($_GET['level_max']);
+}
+
+if(isset($_GET['boss']) && $_GET['boss'] === 'true') {
+    $whereConditions[] = "n.is_bossmonster = 'true'";
+}
+
+if(isset($_GET['undead']) && !empty($_GET['undead']) && $_GET['undead'] !== 'NONE') {
+    $whereConditions[] = "n.undead = ?";
+    $params[] = $_GET['undead'];
+}
+
+// Add WHERE clause if we have any conditions
+if(!empty($whereConditions)) {
+    $query .= " WHERE " . implode(" AND ", $whereConditions);
+}
+
+// Add order by
+$query .= " ORDER BY n.lvl ASC, n.desc_en ASC";
+
+// Pagination
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$itemsPerPage = 20; // Changed from 20 to 10
+$offset = ($page - 1) * $itemsPerPage;
+
+// Execute query to get all results for filtering
+$allMonsters = $db->getRows($query, $params);
+
+// Calculate pagination
+$totalItems = count($allMonsters);
+$totalPages = ceil($totalItems / $itemsPerPage);
+
+// Get the portion of items for this page
+$monsters = array_slice($allMonsters, $offset, $itemsPerPage);
+
+// Current URL path (without query string)
+$currentPath = $_SERVER['PHP_SELF'];
+
+// Create a function to build pagination URLs
+function getPaginationUrl($newPage) {
+    $params = $_GET;
+    $params['page'] = $newPage;
+    return htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($params);
+}
+
+/**
+ * Get monster image path for display
+ */
+function get_monster_image($spriteId) {
+    // Base URL path for images (for HTML src attribute)
+    $baseUrl = SITE_URL . '/assets/img/monsters/';
     
-    public function __construct() {
-        $this->db = Database::getInstance();
-    }
+    // For debugging - let's see what paths we're checking
+    $debugInfo = '';
     
-    /**
-     * Get all monsters with pagination
-     * @param int $page
-     * @param int $limit
-     * @param string $sort
-     * @param string $order
-     * @return array
-     */
-    public function getAllMonsters($page = 1, $limit = DEFAULT_LIMIT, $sort = 'npcid', $order = 'ASC') {
-        $offset = ($page - 1) * $limit;
-        
-        $sql = "SELECT * FROM npc 
-                WHERE impl LIKE '%L1Monster%' 
-                ORDER BY $sort $order
-                LIMIT :limit OFFSET :offset";
-        
-        $monsters = $this->db->getRows($sql, [
-            'limit' => $limit,
-            'offset' => $offset
-        ]);
-        
-        $totalSql = "SELECT COUNT(*) FROM npc WHERE impl LIKE '%L1Monster%'";
-        $total = $this->db->getColumn($totalSql);
-        
-        return [
-            'monsters' => $monsters,
-            'total' => $total,
-            'pages' => ceil($total / $limit),
-            'current_page' => $page
-        ];
-    }
-    
-    /**
-     * Get monster by ID
-     * @param int $id
-     * @return array|null
-     */
-    public function getMonsterById($id) {
-        $sql = "SELECT * FROM npc WHERE npcid = :id";
-        
-        $monster = $this->db->getRow($sql, ['id' => $id]);
-        
-        if ($monster) {
-            // Get monster drops
-            $dropsSql = "SELECT d.*, 
-                         CASE 
-                            WHEN w.item_id IS NOT NULL THEN w.desc_kr
-                            WHEN a.item_id IS NOT NULL THEN a.desc_kr
-                            ELSE e.desc_kr
-                         END as item_name
-                         FROM droplist d
-                         LEFT JOIN weapon w ON d.itemId = w.item_id
-                         LEFT JOIN armor a ON d.itemId = a.item_id
-                         LEFT JOIN etcitem e ON d.itemId = e.item_id
-                         WHERE d.mobId = :id
-                         ORDER BY d.chance DESC";
-            $monster['drops'] = $this->db->getRows($dropsSql, ['id' => $id]);
-            
-            // Get monster skills
-            $skillsSql = "SELECT * FROM mobskill WHERE mobid = :id ORDER BY actNo ASC";
-            $monster['skills'] = $this->db->getRows($skillsSql, ['id' => $id]);
-            
-            // Get spawn locations
-            $spawnsSql = "SELECT s.*, m.locationname 
-                          FROM spawnlist s
-                          LEFT JOIN mapids m ON s.mapid = m.mapid
-                          WHERE s.npc_templateid = :id";
-            $monster['spawns'] = $this->db->getRows($spawnsSql, ['id' => $id]);
-            
-            // Get boss spawns if applicable
-            if ($monster['is_bossmonster'] === 'true') {
-                $bossSql = "SELECT sb.*, m.locationname 
-                            FROM spawnlist_boss sb
-                            LEFT JOIN mapids m ON sb.spawnMapId = m.mapid
-                            WHERE sb.npcid = :id";
-                $monster['boss_spawns'] = $this->db->getRows($bossSql, ['id' => $id]);
-            }
-        }
-        
-        return $monster;
-    }
-    
-    /**
-     * Search monsters by name or description
-     * @param string $keyword
-     * @param int $page
-     * @param int $limit
-     * @return array
-     */
-    public function searchMonsters($keyword, $page = 1, $limit = DEFAULT_LIMIT) {
-        $offset = ($page - 1) * $limit;
-        $searchTerm = "%$keyword%";
-        
-        $sql = "SELECT * FROM npc 
-                WHERE (desc_kr LIKE :keyword OR desc_en LIKE :keyword) 
-                AND impl LIKE '%L1Monster%'
-                ORDER BY npcid ASC
-                LIMIT :limit OFFSET :offset";
-        
-        $monsters = $this->db->getRows($sql, [
-            'keyword' => $searchTerm,
-            'limit' => $limit,
-            'offset' => $offset
-        ]);
-        
-        $totalSql = "SELECT COUNT(*) FROM npc 
-                     WHERE (desc_kr LIKE :keyword OR desc_en LIKE :keyword) 
-                     AND impl LIKE '%L1Monster%'";
-        $total = $this->db->getColumn($totalSql, ['keyword' => $searchTerm]);
-        
-        return [
-            'monsters' => $monsters,
-            'total' => $total,
-            'pages' => ceil($total / $limit),
-            'current_page' => $page
-        ];
-    }
-    
-    /**
-     * Get monsters by level range
-     * @param int $minLevel
-     * @param int $maxLevel
-     * @param int $page
-     * @param int $limit
-     * @return array
-     */
-    public function getMonstersByLevel($minLevel, $maxLevel, $page = 1, $limit = DEFAULT_LIMIT) {
-        $offset = ($page - 1) * $limit;
-        
-        $sql = "SELECT * FROM npc 
-                WHERE lvl BETWEEN :minLevel AND :maxLevel 
-                AND impl LIKE '%L1Monster%'
-                ORDER BY lvl ASC, npcid ASC
-                LIMIT :limit OFFSET :offset";
-        
-        $monsters = $this->db->getRows($sql, [
-            'minLevel' => $minLevel,
-            'maxLevel' => $maxLevel,
-            'limit' => $limit,
-            'offset' => $offset
-        ]);
-        
-        $totalSql = "SELECT COUNT(*) FROM npc 
-                     WHERE lvl BETWEEN :minLevel AND :maxLevel 
-                     AND impl LIKE '%L1Monster%'";
-        $total = $this->db->getColumn($totalSql, [
-            'minLevel' => $minLevel,
-            'maxLevel' => $maxLevel
-        ]);
-        
-        return [
-            'monsters' => $monsters,
-            'total' => $total,
-            'pages' => ceil($total / $limit),
-            'current_page' => $page
-        ];
-    }
-    
-    /**
-     * Get boss monsters
-     * @param int $page
-     * @param int $limit
-     * @return array
-     */
-    public function getBossMonsters($page = 1, $limit = DEFAULT_LIMIT) {
-        $offset = ($page - 1) * $limit;
-        
-        $sql = "SELECT * FROM npc 
-                WHERE is_bossmonster = 'true' 
-                AND impl LIKE '%L1Monster%'
-                ORDER BY lvl DESC, npcid ASC
-                LIMIT :limit OFFSET :offset";
-        
-        $monsters = $this->db->getRows($sql, [
-            'limit' => $limit,
-            'offset' => $offset
-        ]);
-        
-        $totalSql = "SELECT COUNT(*) FROM npc 
-                     WHERE is_bossmonster = 'true' 
-                     AND impl LIKE '%L1Monster%'";
-        $total = $this->db->getColumn($totalSql);
-        
-        return [
-            'monsters' => $monsters,
-            'total' => $total,
-            'pages' => ceil($total / $limit),
-            'current_page' => $page
-        ];
-    }
-    
-    /**
-     * Create a new monster
-     * @param array $data
-     * @return int|bool
-     */
-    public function createMonster($data) {
-        try {
-            $this->db->beginTransaction();
-            
-            $result = $this->db->insert('npc', $data);
-            
-            $this->db->commit();
-            return $result;
-        } catch (Exception $e) {
-            $this->db->rollback();
-            return false;
-        }
-    }
-    
-    /**
-     * Update a monster
-     * @param int $id
-     * @param array $data
-     * @return bool
-     */
-    public function updateMonster($id, $data) {
-        try {
-            $this->db->beginTransaction();
-            
-            $result = $this->db->update('npc', $data, 'npcid = :id', ['id' => $id]);
-            
-            $this->db->commit();
-            return $result > 0;
-        } catch (Exception $e) {
-            $this->db->rollback();
-            return false;
-        }
-    }
-    
-    /**
-     * Delete a monster
-     * @param int $id
-     * @return bool
-     */
-    public function deleteMonster($id) {
-        try {
-            $this->db->beginTransaction();
-            
-            // Delete monster
-            $this->db->delete('npc', 'npcid = :id', ['id' => $id]);
-            
-            // Delete related data
-            $this->db->delete('droplist', 'mobId = :id', ['id' => $id]);
-            $this->db->delete('mobskill', 'mobid = :id', ['id' => $id]);
-            $this->db->delete('spawnlist', 'npc_templateid = :id', ['id' => $id]);
-            $this->db->delete('spawnlist_boss', 'npcid = :id', ['id' => $id]);
-            
-            $this->db->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->db->rollback();
-            return false;
-        }
-    }
-    
-    /**
-     * Add a drop to a monster
-     * @param int $monsterId
-     * @param int $itemId
-     * @param int $min
-     * @param int $max
-     * @param int $chance
-     * @return bool
-     */
-    public function addDrop($monsterId, $itemId, $min, $max, $chance) {
-        try {
-            // Get monster and item info for the drop table
-            $monsterSql = "SELECT * FROM npc WHERE npcid = :id";
-            $monster = $this->db->getRow($monsterSql, ['id' => $monsterId]);
-            
-            $itemSql = "SELECT 
-                        CASE 
-                            WHEN w.item_id IS NOT NULL THEN w.desc_kr
-                            WHEN a.item_id IS NOT NULL THEN a.desc_kr
-                            ELSE e.desc_kr
-                        END as item_name,
-                        CASE 
-                            WHEN w.item_id IS NOT NULL THEN w.desc_en
-                            WHEN a.item_id IS NOT NULL THEN a.desc_en
-                            ELSE e.desc_en
-                        END as item_name_en
-                        FROM (
-                            SELECT :itemId as id
-                        ) as i
-                        LEFT JOIN weapon w ON i.id = w.item_id
-                        LEFT JOIN armor a ON i.id = a.item_id
-                        LEFT JOIN etcitem e ON i.id = e.item_id";
-            $item = $this->db->getRow($itemSql, ['itemId' => $itemId]);
-            
-            if (!$monster || !$item) {
-                return false;
-            }
-            
-            $data = [
-                'mobId' => $monsterId,
-                'mobname_kr' => $monster['desc_kr'],
-                'mobname_en' => $monster['desc_en'],
-                'moblevel' => $monster['lvl'],
-                'itemId' => $itemId,
-                'itemname_kr' => $item['item_name'],
-                'itemname_en' => $item['item_name_en'],
-                'min' => $min,
-                'max' => $max,
-                'chance' => $chance,
-                'Enchant' => 0
-            ];
-            
-            $this->db->insert('droplist', $data);
-            
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Update a monster drop
-     * @param int $monsterId
-     * @param int $itemId
-     * @param int $min
-     * @param int $max
-     * @param int $chance
-     * @return bool
-     */
-    public function updateDrop($monsterId, $itemId, $min, $max, $chance) {
-        try {
-            $data = [
-                'min' => $min,
-                'max' => $max,
-                'chance' => $chance
-            ];
-            
-            $this->db->update('droplist', $data, 'mobId = :mobId AND itemId = :itemId', [
-                'mobId' => $monsterId,
-                'itemId' => $itemId
-            ]);
-            
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Delete a monster drop
-     * @param int $monsterId
-     * @param int $itemId
-     * @return bool
-     */
-    public function deleteDrop($monsterId, $itemId) {
-        try {
-            $this->db->delete('droplist', 'mobId = :mobId AND itemId = :itemId', [
-                'mobId' => $monsterId,
-                'itemId' => $itemId
-            ]);
-            
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Get monster stats for admin dashboard
-     * @return array
-     */
-    public function getMonsterStats() {
-        $stats = [];
-        
-        // Total monsters
-        $totalSql = "SELECT COUNT(*) FROM npc WHERE impl LIKE '%L1Monster%'";
-        $stats['total'] = $this->db->getColumn($totalSql);
-        
-        // Total boss monsters
-        $bossSql = "SELECT COUNT(*) FROM npc WHERE is_bossmonster = 'true' AND impl LIKE '%L1Monster%'";
-        $stats['bosses'] = $this->db->getColumn($bossSql);
-        
-        // Monster count by level range
-        $levelRanges = [
-            '1-10' => [1, 10],
-            '11-20' => [11, 20],
-            '21-40' => [21, 40],
-            '41-60' => [41, 60],
-            '61-80' => [61, 80],
-            '81+' => [81, 999]
-        ];
-        
-        $stats['level_ranges'] = [];
-        
-        foreach ($levelRanges as $label => $range) {
-            $sql = "SELECT COUNT(*) FROM npc 
-                    WHERE lvl BETWEEN :min AND :max 
-                    AND impl LIKE '%L1Monster%'";
-            $count = $this->db->getColumn($sql, ['min' => $range[0], 'max' => $range[1]]);
-            
-            $stats['level_ranges'][$label] = $count;
-        }
-        
-        return $stats;
-    }
-    
-    /**
-     * Get the next available NPC ID
-     * @return int
-     */
-    public function getNextNpcId() {
-        $sql = "SELECT MAX(npcid) FROM npc";
-        $maxId = $this->db->getColumn($sql);
-        
-        return $maxId ? $maxId + 1 : 1;
+    // Simplified approach - just return the URL and let the browser handle fallback
+    return $baseUrl . "ms{$spriteId}.png";
+}
+
+// Helper function to get undead type display name
+function formatUndeadType($undeadType) {
+    switch($undeadType) {
+        case 'UNDEAD':
+            return 'Undead';
+        case 'DEMON':
+            return 'Demon';
+        case 'UNDEAD_BOSS':
+            return 'Undead Boss';
+        case 'DRANIUM':
+            return 'Dranium';
+        default:
+            return 'Normal';
     }
 }
+?>
+
+<div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/weapons-hero.jpg');">
+    <div class="container">
+        <h1>Monster Database</h1>
+        <p>Explore the complete collection of monsters in L1J Remastered. From common creatures to legendary bosses, find detailed information about all monsters in the game.</p>
+        
+        <!-- Search Bar in Hero Section -->
+        <div class="search-container">
+            <form action="<?= $currentPath ?>" method="GET" class="search-bar">
+                <input type="text" name="q" placeholder="Search monsters by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <button type="submit" class="btn">Search</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <section class="page-section">
+        <!-- Filter System with Global Styles -->
+        <div class="filter-container">
+            <form action="<?= $currentPath ?>" method="GET" class="filters-form">
+                <!-- Preserve search query if present -->
+                <?php if(isset($_GET['q']) && !empty($_GET['q'])): ?>
+                    <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
+                <?php endif; ?>
+                
+                <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;">
+                    <!-- Level Range Filter -->
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px;">
+                        <label for="level_min">Min Level:</label>
+                        <select name="level_min" id="level_min" class="form-control">
+                            <option value="">Any</option>
+                            <?php for($i = 1; $i <= 100; $i += 5): ?>
+                                <option value="<?= $i ?>" <?= (isset($_GET['level_min']) && $_GET['level_min'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px;">
+                        <label for="level_max">Max Level:</label>
+                        <select name="level_max" id="level_max" class="form-control">
+                            <option value="">Any</option>
+                            <?php for($i = 5; $i <= 100; $i += 5): ?>
+                                <option value="<?= $i ?>" <?= (isset($_GET['level_max']) && $_GET['level_max'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label for="boss">Monster Type:</label>
+                        <select name="boss" id="boss" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="true" <?= (isset($_GET['boss']) && $_GET['boss'] === 'true') ? 'selected' : '' ?>>Bosses Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label for="undead">Undead Type:</label>
+                        <select name="undead" id="undead" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="NONE" <?= (isset($_GET['undead']) && $_GET['undead'] === 'NONE') ? 'selected' : '' ?>>Normal</option>
+                            <option value="UNDEAD" <?= (isset($_GET['undead']) && $_GET['undead'] === 'UNDEAD') ? 'selected' : '' ?>>Undead</option>
+                            <option value="DEMON" <?= (isset($_GET['undead']) && $_GET['undead'] === 'DEMON') ? 'selected' : '' ?>>Demon</option>
+                            <option value="UNDEAD_BOSS" <?= (isset($_GET['undead']) && $_GET['undead'] === 'UNDEAD_BOSS') ? 'selected' : '' ?>>Undead Boss</option>
+                            <option value="DRANIUM" <?= (isset($_GET['undead']) && $_GET['undead'] === 'DRANIUM') ? 'selected' : '' ?>>Dranium</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="<?= $currentPath ?>" class="btn btn-secondary">Reset</a>
+                        <button type="submit" class="btn">Apply</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Monster List -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="80">Icon</th> <!-- Increased width for larger images -->
+                        <th>Name</th>
+                        <th>Level</th>
+                        <th>HP</th>
+                        <th>Exp</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(empty($monsters)): ?>
+                        <tr>
+                            <td colspan="7" class="text-center">No monsters found matching your criteria.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach($monsters as $monster): 
+    $isBoss = $monster['is_bossmonster'] === 'true';
+    $monsterId = $monster['npcid'];
+?>
+    <tr id="monster-<?= $monsterId ?>" onclick="window.location.href='detail.php?id=<?= $monsterId ?>'" class="monster-row">
+        <td>
+            <div class="monster-icon-container">
+                <img src="<?= get_monster_image($monster['spriteId']) ?>" 
+                     alt="<?= htmlspecialchars($monster['desc_en']) ?>" 
+                     class="monster-list-icon"
+                     style="width: 64px; height: 64px;"
+                     onerror="this.onerror=null;this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
+            </div>
+        </td>
+        <td><?= htmlspecialchars($monster['desc_en']) ?></td>
+        <td><?= $monster['lvl'] ?></td>
+        <td><?= number_format($monster['hp']) ?></td>
+        <td><?= number_format($monster['exp']) ?></td>
+        <td><?= formatUndeadType($monster['undead']) ?></td>
+        <td>
+            <?php if($isBoss): ?>
+                <span class="badge badge-danger">Boss</span>
+            <?php else: ?>
+                <span class="badge badge-success">Normal</span>
+            <?php endif; ?>
+        </td>
+    </tr>
+<?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <?php if($totalPages > 1): ?>
+            <div class="pagination">
+                <span class="pagination-info">
+                    Showing <?= $offset + 1 ?>-<?= min($offset + $itemsPerPage, $totalItems) ?> of <?= $totalItems ?> monsters
+                </span>
+                
+                <div class="pagination-links">
+                    <?php
+                    // First page link
+                    if($page > 1):
+                    ?>
+                        <a href="<?= getPaginationUrl(1) ?>" class="pagination-link">«« First</a>
+                    <?php endif; ?>
+                    
+                    <?php
+                    // Previous page link
+                    if($page > 1):
+                    ?>
+                        <a href="<?= getPaginationUrl($page - 1) ?>" class="pagination-link">« Prev</a>
+                    <?php else: ?>
+                        <span class="pagination-link disabled">« Prev</span>
+                    <?php endif; ?>
+                    
+                    <?php
+                    // Page links - improved algorithm
+                    if ($totalPages <= 7) {
+                        // Show all pages if 7 or fewer
+                        $startPage = 1;
+                        $endPage = $totalPages;
+                    } else {
+                        // Show pages around current page with ellipsis
+                        if ($page <= 3) {
+                            // Near start
+                            $startPage = 1;
+                            $endPage = 5;
+                        } elseif ($page >= $totalPages - 2) {
+                            // Near end
+                            $startPage = $totalPages - 4;
+                            $endPage = $totalPages;
+                        } else {
+                            // Middle
+                            $startPage = $page - 2;
+                            $endPage = $page + 2;
+                        }
+                    }
+                    
+                    // Display ellipsis for start if needed
+                    if ($startPage > 1):
+                    ?>
+                        <span class="pagination-ellipsis">...</span>
+                    <?php endif; ?>
+                    
+                    <?php
+                    // Page number links
+                    for($i = $startPage; $i <= $endPage; $i++):
+                        $isActive = $i === $page;
+                    ?>
+                        <a href="<?= getPaginationUrl($i) ?>" class="pagination-link <?= $isActive ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+                    
+                    <?php
+                    // Display ellipsis for end if needed
+                    if ($endPage < $totalPages):
+                    ?>
+                        <span class="pagination-ellipsis">...</span>
+                    <?php endif; ?>
+                    
+                    <?php
+                    // Next page link
+                    if($page < $totalPages):
+                    ?>
+                        <a href="<?= getPaginationUrl($page + 1) ?>" class="pagination-link">Next »</a>
+                    <?php else: ?>
+                        <span class="pagination-link disabled">Next »</span>
+                    <?php endif; ?>
+                    
+                    <?php
+                    // Last page link
+                    if($page < $totalPages):
+                    ?>
+                        <a href="<?= getPaginationUrl($totalPages) ?>" class="pagination-link">Last »»</a>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Page Jump Form -->
+                <div class="page-jump-form">
+                    <form action="<?= $_SERVER['PHP_SELF'] ?>" method="GET" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <?php
+                        // Preserve all current GET parameters except page
+                        foreach ($_GET as $key => $value) {
+                            if ($key !== 'page' && $value !== '') {
+                                echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                            }
+                        }
+                        ?>
+                        <span>Go to page:</span>
+                        <div style="display: flex;">
+                            <input type="number" name="page" min="1" max="<?= $totalPages ?>" value="<?= $page ?>" class="page-jump-input" style="border-top-right-radius: 0; border-bottom-right-radius: 0; width: 70px;">
+                            <button type="submit" class="btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.8rem 1rem; margin: 0;">
+                                <span style="font-size: 1.2rem;">→</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+    </section>
+</div>
+
+<?php
+// Include footer
+require_once '../../includes/footer.php';
+?>

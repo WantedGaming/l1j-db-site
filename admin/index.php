@@ -189,7 +189,7 @@ $recentActivity = [
 				<div class="action-label">Armor</div>
 			</a>
 
-			<a href="<?php echo SITE_URL; ?>/admin/monsters/create.php" class="action-card">
+			<a href="<?php echo SITE_URL; ?>/admin/monsters/index.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/monsters.png" alt="Monster icon" class="action-icon">
 				<div class="action-label">Monster</div>
 			</a>
@@ -234,9 +234,9 @@ $recentActivity = [
 				<div class="action-label">Backup Database</div>
 			</a>
 
-			<a href="<?php echo SITE_URL; ?>/admin/settings.php" class="action-card">
+			<a href="<?php echo SITE_URL; ?>/admin/tools/index.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/settings.png" alt="Settings icon" class="action-icon">
-				<div class="action-label">Settings</div>
+				<div class="action-label">Tools</div>
 			</a>
 		</div>
 	</section>

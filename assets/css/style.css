@@ -1391,3 +1391,27 @@ footer {
     font-weight: 600;
     color: var(--text);
 }
+
+/* Monster List Item in Drop Tables */
+.monster-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.monster-list-item .monster-sprite {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.monster-list-item a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.monster-list-item a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}

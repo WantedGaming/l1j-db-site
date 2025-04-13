@@ -72,7 +72,7 @@ $pageTitle = $weapon['desc_en'];
 
 // Function to format drop chance (imported from functions.php)
 function formatDropChance($chance) {
-    $percentage = ($chance / 10000) * 100;
+    $percentage = ($chance / 100000) * 100;
     return $percentage < 0.01 ? '< 0.01%' : number_format($percentage, 2) . '%';
 }
 
@@ -620,9 +620,15 @@ function formatDropChance($chance) {
                 <?php foreach($dropMonsters as $drop): ?>
                     <tr>
                         <td>
-                            <a href="<?= SITE_URL ?>/pages/monsters/monster-detail.php?id=<?= $drop['mobId'] ?>">
-                                <?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?>
-                            </a>
+                            <div class="monster-list-item">
+                                <img src="<?= SITE_URL ?>/assets/img/monsters/ms<?= $drop['monster_sprite_id'] ?>.png" 
+                                     alt="<?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?>"
+                                     class="monster-sprite"
+                                     onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
+                                <a href="<?= SITE_URL ?>/pages/monsters/detail.php?id=<?= $drop['mobId'] ?>">
+                                    <?= htmlspecialchars($drop['mobname_en'] ?? $drop['monster_name']) ?>
+                                </a>
+                            </div>
                         </td>
                         <td><?= $drop['monster_level'] ?></td>
                         <td><?= formatDropChance($drop['chance']) ?></td>

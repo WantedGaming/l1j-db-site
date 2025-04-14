@@ -101,15 +101,12 @@ switch ($sort) {
 $sql = "$baseSql $whereSql ORDER BY $orderBy LIMIT $offset, $itemsPerPage";
 $maps = $db->getRows($sql, $params);
 
+// Get the portion of maps for this page
+$filteredMaps = array_slice($maps, $offset, $itemsPerPage);
+
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
 
-// Create a function to build pagination URLs
-function getPaginationUrl($newPage) {
-    $params = $_GET;
-    $params['page'] = $newPage;
-    return htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($params);
-}
 ?>
 
 <!-- Add custom CSS for 5 cards per row -->
@@ -288,8 +285,8 @@ function getPaginationUrl($newPage) {
         
         <!-- Maps Grid Display -->
         <div class="card-grid">
-            <?php if (!empty($maps)): ?>
-                <?php foreach ($maps as $map): ?>
+            <?php if (!empty($filteredMaps)): ?>
+                <?php foreach ($filteredMaps as $map): ?>
                     <div class="card" onclick="window.location='detail.php?id=<?= $map['mapid'] ?? 0 ?>';" style="cursor: pointer;">
                         <?php 
                         // Check for map image using mapId

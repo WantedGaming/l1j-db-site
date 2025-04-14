@@ -92,13 +92,6 @@ $weapons = array_slice($filteredWeapons, $offset, $itemsPerPage);
 
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
-
-// Create a function to build pagination URLs
-function getPaginationUrl($newPage) {
-    $params = $_GET;
-    $params['page'] = $newPage;
-    return htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($params);
-}
 ?>
 
 <div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/weapons-hero.jpg');">
@@ -262,17 +255,8 @@ function getPaginationUrl($newPage) {
                 </span>
                 
                 <div class="pagination-links">
-                    <?php
-                    // First page link
-                    if($page > 1):
-                    ?>
+                    <?php if($page > 1): ?>
                         <a href="<?= getPaginationUrl(1) ?>" class="pagination-link">«« First</a>
-                    <?php endif; ?>
-                    
-                    <?php
-                    // Previous page link
-                    if($page > 1):
-                    ?>
                         <a href="<?= getPaginationUrl($page - 1) ?>" class="pagination-link">« Prev</a>
                     <?php else: ?>
                         <span class="pagination-link disabled">« Prev</span>
@@ -322,42 +306,12 @@ function getPaginationUrl($newPage) {
                         <span class="pagination-ellipsis">...</span>
                     <?php endif; ?>
                     
-                    <?php
-                    // Next page link
-                    if($page < $totalPages):
-                    ?>
+                    <?php if($page < $totalPages): ?>
                         <a href="<?= getPaginationUrl($page + 1) ?>" class="pagination-link">Next »</a>
+                        <a href="<?= getPaginationUrl($totalPages) ?>" class="pagination-link">Last »»</a>
                     <?php else: ?>
                         <span class="pagination-link disabled">Next »</span>
                     <?php endif; ?>
-                    
-                    <?php
-                    // Last page link
-                    if($page < $totalPages):
-                    ?>
-                        <a href="<?= getPaginationUrl($totalPages) ?>" class="pagination-link">Last »»</a>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Page Jump Form -->
-                <div class="page-jump-form">
-                    <form action="<?= $_SERVER['PHP_SELF'] ?>" method="GET" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <?php
-                        // Preserve all current GET parameters except page
-                        foreach ($_GET as $key => $value) {
-                            if ($key !== 'page' && $value !== '') {
-                                echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
-                            }
-                        }
-                        ?>
-                        <span>Go to page:</span>
-                        <div style="display: flex;">
-                            <input type="number" name="page" min="1" max="<?= $totalPages ?>" value="<?= $page ?>" class="page-jump-input" style="border-top-right-radius: 0; border-bottom-right-radius: 0; width: 70px;">
-                            <button type="submit" class="btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.8rem 1rem; margin: 0;">
-                                <span style="font-size: 1.2rem;">→</span>
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         <?php endif; ?>

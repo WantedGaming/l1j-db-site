@@ -1,11 +1,11 @@
 <?php
 /**
- * Armor listing page for L1J Database Website
+ * Accessories listing page for L1J Database Website
  */
 
 // Set page title and description
-$pageTitle = 'Armor';
-$pageDescription = 'Browse all armor in L1J Remastered including helmets, armors, cloaks, and more.';
+$pageTitle = 'Accessories';
+$pageDescription = 'Browse all accessories in L1J Remastered including rings, earrings, belts, and more.';
 
 // Include header
 require_once '../../includes/header.php';
@@ -22,7 +22,7 @@ $query = "SELECT a.item_id, a.desc_en, a.type,
                  a.ac, a.safenchant, a.itemGrade, 
                  a.iconId 
           FROM armor a 
-          WHERE a.type IN ('HELMET', 'ARMOR', 'T_SHIRT', 'CLOAK', 'GLOVE', 'BOOTS', 'SHIELD', 'GARDER', 'PAIR', 'SHOULDER')";
+          WHERE a.type IN ('BELT', 'RING_2', 'EARRING', 'RON', 'BADGE', 'PENDANT', 'RING', 'AMULET', 'SENTENCE')";
 
 // Handle search and filters
 $whereConditions = [];
@@ -72,24 +72,24 @@ $itemsPerPage = 20;
 $offset = ($page - 1) * $itemsPerPage;
 
 // Execute query to get all results for filtering
-$allArmor = $db->getRows($query, $params);
+$allAccessories = $db->getRows($query, $params);
 
 // Filter for available items if requested
-$filteredArmor = $allArmor;
+$filteredAccessories = $allAccessories;
 // Default to showing only available items unless explicitly set to "all"
 if(!isset($_GET['availability']) || $_GET['availability'] !== 'all') {
     // By default or if explicitly set to "available", filter out unavailable items
-    $filteredArmor = array_filter($allArmor, function($armor) {
-        return isItemAvailable($armor['iconId'], SITE_URL);
+    $filteredAccessories = array_filter($allAccessories, function($accessory) {
+        return isItemAvailable($accessory['iconId'], SITE_URL);
     });
 }
 
 // Calculate pagination based on filtered results
-$totalItems = count($filteredArmor);
+$totalItems = count($filteredAccessories);
 $totalPages = ceil($totalItems / $itemsPerPage);
 
-// Get the portion of armor for this page
-$armor = array_slice($filteredArmor, $offset, $itemsPerPage);
+// Get the portion of accessories for this page
+$accessories = array_slice($filteredAccessories, $offset, $itemsPerPage);
 
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
@@ -98,13 +98,13 @@ $currentPath = $_SERVER['PHP_SELF'];
 
 <div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/weapons-hero.jpg');">
     <div class="container">
-        <h1>Armor Database</h1>
-        <p>Explore the complete collection of armor in L1J Remastered. From common equipment to legendary artifacts, find detailed information about all armor in the game.</p>
+        <h1>Accessories Database</h1>
+        <p>Explore the complete collection of accessories in L1J Remastered. From common items to legendary artifacts, find detailed information about all accessories in the game.</p>
         
         <!-- Search Bar in Hero Section -->
         <div class="search-container">
             <form action="<?= $currentPath ?>" method="GET" class="search-bar">
-                <input type="text" name="q" placeholder="Search armor by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <input type="text" name="q" placeholder="Search accessories by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button type="submit" class="btn">Search</button>
             </form>
         </div>
@@ -149,40 +149,28 @@ $currentPath = $_SERVER['PHP_SELF'];
                         <label for="material">Material:</label>
                         <select name="material" id="material" class="form-control">
                             <option value="">All Materials</option>
-                            <option value="IRON" <?= isset($_GET['material']) && $_GET['material'] === 'IRON' ? 'selected' : '' ?>>Iron</option>
-                            <option value="WOOD" <?= isset($_GET['material']) && $_GET['material'] === 'WOOD' ? 'selected' : '' ?>>Wood</option>
-                            <option value="MITHRIL" <?= isset($_GET['material']) && $_GET['material'] === 'MITHRIL' ? 'selected' : '' ?>>Mithril</option>
-                            <option value="DRAGON_HIDE" <?= isset($_GET['material']) && $_GET['material'] === 'DRAGON_HIDE' ? 'selected' : '' ?>>Dragon Hide</option>
-                            <option value="ORIHARUKON" <?= isset($_GET['material']) && $_GET['material'] === 'ORIHARUKON' ? 'selected' : '' ?>>Oriharukon</option>
-                            <option value="DRANIUM" <?= isset($_GET['material']) && $_GET['material'] === 'DRANIUM' ? 'selected' : '' ?>>Dranium</option>
-                            <option value="SILVER" <?= isset($_GET['material']) && $_GET['material'] === 'SILVER' ? 'selected' : '' ?>>Silver</option>
-                            <option value="STEEL" <?= isset($_GET['material']) && $_GET['material'] === 'STEEL' ? 'selected' : '' ?>>Steel</option>
-                            <option value="CRYSTAL" <?= isset($_GET['material']) && $_GET['material'] === 'CRYSTAL' ? 'selected' : '' ?>>Crystal</option>
-                            <option value="COPPER" <?= isset($_GET['material']) && $_GET['material'] === 'COPPER' ? 'selected' : '' ?>>Copper</option>
                             <option value="GOLD" <?= isset($_GET['material']) && $_GET['material'] === 'GOLD' ? 'selected' : '' ?>>Gold</option>
-                            <option value="BONE" <?= isset($_GET['material']) && $_GET['material'] === 'BONE' ? 'selected' : '' ?>>Bone</option>
+                            <option value="SILVER" <?= isset($_GET['material']) && $_GET['material'] === 'SILVER' ? 'selected' : '' ?>>Silver</option>
+                            <option value="CRYSTAL" <?= isset($_GET['material']) && $_GET['material'] === 'CRYSTAL' ? 'selected' : '' ?>>Crystal</option>
+                            <option value="GEMSTONE" <?= isset($_GET['material']) && $_GET['material'] === 'GEMSTONE' ? 'selected' : '' ?>>Gemstone</option>
                             <option value="LEATHER" <?= isset($_GET['material']) && $_GET['material'] === 'LEATHER' ? 'selected' : '' ?>>Leather</option>
                             <option value="CLOTH" <?= isset($_GET['material']) && $_GET['material'] === 'CLOTH' ? 'selected' : '' ?>>Cloth</option>
-                            <option value="LIQUID" <?= isset($_GET['material']) && $_GET['material'] === 'LIQUID' ? 'selected' : '' ?>>Liquid</option>
-                            <option value="PAPER" <?= isset($_GET['material']) && $_GET['material'] === 'PAPER' ? 'selected' : '' ?>>Paper</option>
-                            <option value="STONE" <?= isset($_GET['material']) && $_GET['material'] === 'STONE' ? 'selected' : '' ?>>Stone</option>
                         </select>
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
-						<label for="type">Armor Type:</label>
+						<label for="type">Accessory Type:</label>
 						<select name="type" id="type" class="form-control">
 							<option value="">All Types</option>
-							<option value="HELMET" <?= isset($_GET['type']) && $_GET['type'] === 'HELMET' ? 'selected' : '' ?>>Helmet</option>
-							<option value="ARMOR" <?= isset($_GET['type']) && $_GET['type'] === 'ARMOR' ? 'selected' : '' ?>>Armor</option>
-							<option value="T_SHIRT" <?= isset($_GET['type']) && $_GET['type'] === 'T_SHIRT' ? 'selected' : '' ?>>T-Shirt</option>
-							<option value="CLOAK" <?= isset($_GET['type']) && $_GET['type'] === 'CLOAK' ? 'selected' : '' ?>>Cloak</option>
-							<option value="GLOVE" <?= isset($_GET['type']) && $_GET['type'] === 'GLOVE' ? 'selected' : '' ?>>Glove</option>
-							<option value="BOOTS" <?= isset($_GET['type']) && $_GET['type'] === 'BOOTS' ? 'selected' : '' ?>>Boots</option>
-							<option value="SHIELD" <?= isset($_GET['type']) && $_GET['type'] === 'SHIELD' ? 'selected' : '' ?>>Shield</option>
-                            <option value="GARDER" <?= isset($_GET['type']) && $_GET['type'] === 'GARDER' ? 'selected' : '' ?>>Garder</option>
-                            <option value="PAIR" <?= isset($_GET['type']) && $_GET['type'] === 'PAIR' ? 'selected' : '' ?>>Pair</option>
-                            <option value="SHOULDER" <?= isset($_GET['type']) && $_GET['type'] === 'SHOULDER' ? 'selected' : '' ?>>Shoulder</option>
+							<option value="BELT" <?= isset($_GET['type']) && $_GET['type'] === 'BELT' ? 'selected' : '' ?>>Belt</option>
+							<option value="RING_2" <?= isset($_GET['type']) && $_GET['type'] === 'RING_2' ? 'selected' : '' ?>>Ring 2</option>
+							<option value="EARRING" <?= isset($_GET['type']) && $_GET['type'] === 'EARRING' ? 'selected' : '' ?>>Earring</option>
+							<option value="RON" <?= isset($_GET['type']) && $_GET['type'] === 'RON' ? 'selected' : '' ?>>Ron</option>
+							<option value="BADGE" <?= isset($_GET['type']) && $_GET['type'] === 'BADGE' ? 'selected' : '' ?>>Badge</option>
+							<option value="PENDANT" <?= isset($_GET['type']) && $_GET['type'] === 'PENDANT' ? 'selected' : '' ?>>Pendant</option>
+							<option value="RING" <?= isset($_GET['type']) && $_GET['type'] === 'RING' ? 'selected' : '' ?>>Ring</option>
+							<option value="AMULET" <?= isset($_GET['type']) && $_GET['type'] === 'AMULET' ? 'selected' : '' ?>>Amulet</option>
+							<option value="SENTENCE" <?= isset($_GET['type']) && $_GET['type'] === 'SENTENCE' ? 'selected' : '' ?>>Sentence</option>
 						</select>
 					</div>
                     
@@ -193,8 +181,8 @@ $currentPath = $_SERVER['PHP_SELF'];
                 </div>
             </form>
         </div>
-        
-        <!-- Armor List -->
+
+        <!-- Results Section -->
         <div class="table-container">
             <table class="data-table">
                 <thead>
@@ -209,31 +197,31 @@ $currentPath = $_SERVER['PHP_SELF'];
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(empty($armor)): ?>
+                    <?php if(empty($accessories)): ?>
                         <tr>
-                            <td colspan="9" class="text-center">No armor found matching your criteria.</td>
+                            <td colspan="9" class="text-center">No accessories found matching your criteria.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach($armor as $armor): 
+                        <?php foreach($accessories as $item): 
                             // Determine if item has an image and is available in-game
                             $isAvailable = true; // Default to true for client-side
                             
                             // Add onerror attribute to img that will set a flag to mark this as unavailable
-                            $armorId = $armor['item_id'];
+                            $itemId = $item['item_id'];
                         ?>
-                            <tr id="armor-<?= $armorId ?>" onclick="window.location.href='armor-detail.php?id=<?= $armorId ?>'" class="armor-row">
+                            <tr id="accessory-<?= $itemId ?>" onclick="window.location.href='accessories-detail.php?id=<?= $itemId ?>'" class="armor-row">
                                 <td>
-                                    <img src="<?= SITE_URL ?>/assets/img/items/<?= $armor['iconId'] ?>.png" 
-                                         alt="<?= htmlspecialchars(cleanItemName($armor['desc_en'])) ?>" 
+                                    <img src="<?= SITE_URL ?>/assets/img/items/<?= $item['iconId'] ?>.png" 
+                                         alt="<?= htmlspecialchars(cleanItemName($item['desc_en'])) ?>" 
                                          class="item-icon"
-                                         onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'; document.getElementById('armor-<?= $armorId ?>').classList.add('unavailable-item'); document.getElementById('status-<?= $armorId ?>').innerHTML = '<span class=\'badge badge-danger\'>Not In-Game</span>';">
+                                         onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'; document.getElementById('accessory-<?= $itemId ?>').classList.add('unavailable-item'); document.getElementById('status-<?= $itemId ?>').innerHTML = '<span class=\'badge badge-danger\'>Not In-Game</span>';">
                                 </td>
-                                <td><?= htmlspecialchars(cleanItemName($armor['desc_en'])) ?></td>
-                                <td><?= formatArmorType($armor['type']) ?></td>
-                                <td><?= formatMaterial($armor['material_name']) ?></td>
-                                <td><?= $armor['ac'] ?></td>
-                                <td>+<?= $armor['safenchant'] ?></td>
-                                <td><span class="badge <?= getGradeBadgeClass($armor['itemGrade']) ?>"><?= formatGrade($armor['itemGrade']) ?></span></td>
+                                <td><?= htmlspecialchars(cleanItemName($item['desc_en'])) ?></td>
+                                <td><?= formatArmorType($item['type']) ?></td>
+                                <td><?= formatMaterial($item['material_name']) ?></td>
+                                <td><?= $item['ac'] ?></td>
+                                <td>+<?= $item['safenchant'] ?></td>
+                                <td><span class="badge <?= getGradeBadgeClass($item['itemGrade']) ?>"><?= formatGrade($item['itemGrade']) ?></span></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -351,7 +339,114 @@ $currentPath = $_SERVER['PHP_SELF'];
     </section>
 </div>
 
+<style>
+/* Additional Styles */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.item-card {
+    background-color: var(--primary);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.item-image {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--secondary);
+}
+
+.item-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.item-info {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-name {
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--text);
+}
+
+.item-type {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.item-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    background-color: var(--secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-normal { background-color: #6c757d; }
+.badge-advanc { background-color: #28a745; }
+.badge-rare { background-color: #17a2b8; }
+.badge-hero { background-color: #ffc107; color: #000; }
+.badge-legend { background-color: #dc3545; }
+.badge-myth { background-color: #6f42c1; }
+.badge-only { background-color: #fd7e14; }
+
+.unavailable-item {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 <?php
 // Include footer
 require_once '../../includes/footer.php';
-?>
+?> 

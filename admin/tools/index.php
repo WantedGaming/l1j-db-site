@@ -310,43 +310,125 @@ function formatBytes($bytes, $precision = 2) {
                     </form>
                 </div>
             </div>
-            
+
+            <!-- SQL Query Tool moved up -->
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-12">
+                    <div class="data-card">
+                        <div class="data-card-header">
+                            <h3>SQL Query Tool</h3>
+                        </div>
+                        <div class="data-card-body">
+                            <form method="POST">
+                                <input type="hidden" name="action" value="execute_query">
+                                <input type="hidden" name="database" value="<?= htmlspecialchars($selected_db) ?>">
+                                
+                                <div class="form-group">
+                                    <label for="sql_query">SQL Query:</label>
+                                    <textarea name="sql_query" id="sql_query" class="form-control" rows="4" 
+                                              placeholder="SELECT * FROM <?= $selected_table ? $selected_table : 'table_name' ?>"><?= htmlspecialchars($sql_query) ?></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-play"></i> Execute
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <?php if ($error_message): ?>
+                                <div class="alert alert-danger mt-3">
+                                    <strong>Error:</strong> <?= htmlspecialchars($error_message) ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($query_result !== null): ?>
+                                <div class="mt-4">
+                                    <h4>Query Results</h4>
+                                    
+                                    <?php if (is_array($query_result) && !empty($query_result)): ?>
+                                        <div class="table-responsive">
+                                            <table class="admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <?php foreach (array_keys($query_result[0]) as $column): ?>
+                                                            <th><?= htmlspecialchars($column) ?></th>
+                                                        <?php endforeach; ?>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($query_result as $row): ?>
+                                                        <tr>
+                                                            <?php foreach ($row as $value): ?>
+                                                                <td><?= htmlspecialchars($value) ?></td>
+                                                            <?php endforeach; ?>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php elseif (is_array($query_result)): ?>
+                                        <div class="alert alert-info">Query executed successfully but returned no results.</div>
+                                    <?php else: ?>
+                                        <div class="alert alert-success">
+                                            Query executed successfully. <?= $query_result->rowCount() ?> rows affected.
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Information (full width) -->
+            <div class="row mt-4">
+                <div class="col-12">
                     <div class="data-card">
                         <div class="data-card-header">
                             <h3>Table Information</h3>
                         </div>
                         <div class="data-card-body">
                             <?php if ($table_info): ?>
-                                <dl class="dl-horizontal">
-                                    <dt>Engine</dt>
-                                    <dd><?= htmlspecialchars($table_info['Engine']) ?></dd>
-                                    
-                                    <dt>Rows</dt>
-                                    <dd><?= number_format($table_info['Rows']) ?></dd>
-                                    
-                                    <dt>Data Size</dt>
-                                    <dd><?= formatBytes($table_info['Data_length']) ?></dd>
-                                    
-                                    <dt>Created</dt>
-                                    <dd><?= htmlspecialchars($table_info['Create_time']) ?></dd>
-                                    
-                                    <dt>Collation</dt>
-                                    <dd><?= htmlspecialchars($table_info['Collation']) ?></dd>
+                                <dl class="dl-horizontal row" style="padding: 15px;">
+                                    <div class="col-md-3">
+                                        <dt>Engine</dt>
+                                        <dd><?= htmlspecialchars($table_info['Engine']) ?></dd>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <dt>Rows</dt>
+                                        <dd><?= number_format($table_info['Rows']) ?></dd>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <dt>Data Size</dt>
+                                        <dd><?= formatBytes($table_info['Data_length']) ?></dd>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <dt>Created</dt>
+                                        <dd><?= htmlspecialchars($table_info['Create_time']) ?></dd>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <dt>Collation</dt>
+                                        <dd><?= htmlspecialchars($table_info['Collation']) ?></dd>
+                                    </div>
                                 </dl>
                             <?php endif; ?>
                         </div>
                     </div>
-                    
-                    <div class="data-card mt-4">
+                </div>
+            </div>
+
+            <!-- Table Structure (full width) -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="data-card">
                         <div class="data-card-header">
                             <h3>Table Structure</h3>
                         </div>
                         <div class="data-card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive custom-scrollbar">
                                 <table class="admin-table">
-                                    <thead>
+                                    <thead style="position: sticky; top: 0; background-color: var(--secondary); z-index: 1;">
                                         <tr>
                                             <th>Column</th>
                                             <th>Type</th>
@@ -369,8 +451,11 @@ function formatBytes($bytes, $precision = 2) {
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-md-6">
+            </div>
+
+            <!-- Data Preview (full width) -->
+            <div class="row mt-4">
+                <div class="col-12">
                     <div class="data-card">
                         <div class="data-card-header d-flex justify-content-between align-items-center">
                             <h3>Data Preview (First 5 Rows)</h3>
@@ -387,12 +472,12 @@ function formatBytes($bytes, $precision = 2) {
                         </div>
                         <div class="data-card-body">
                             <?php if (!empty($preview_data)): ?>
-                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="admin-table" style="table-layout: fixed; width: 100%;">
+                                <div class="table-responsive custom-scrollbar" style="max-height: 400px; overflow: auto;">
+                                    <table class="admin-table" style="min-width: 100%; width: max-content;">
                                         <thead style="position: sticky; top: 0; background-color: var(--secondary); z-index: 1;">
                                             <tr>
                                                 <?php foreach (array_keys($preview_data[0]) as $column): ?>
-                                                    <th style="padding: 8px; word-wrap: break-word;">
+                                                    <th style="padding: 8px; min-width: 120px; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
                                                         <?= htmlspecialchars($column) ?>
                                                     </th>
                                                 <?php endforeach; ?>
@@ -402,8 +487,16 @@ function formatBytes($bytes, $precision = 2) {
                                             <?php foreach ($preview_data as $row): ?>
                                                 <tr>
                                                     <?php foreach ($row as $value): ?>
-                                                        <td style="padding: 8px; word-wrap: break-word; vertical-align: top;">
-                                                            <?= htmlspecialchars($value) ?>
+                                                        <td style="padding: 8px; min-width: 120px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlspecialchars($value ?? 'NULL') ?>">
+                                                            <?php
+                                                            if ($value === null) {
+                                                                echo '<span style="color: #999; font-style: italic;">NULL</span>';
+                                                            } elseif (strlen($value) > 50) {
+                                                                echo htmlspecialchars(substr($value, 0, 47) . '...');
+                                                            } else {
+                                                                echo htmlspecialchars($value);
+                                                            }
+                                                            ?>
                                                         </td>
                                                     <?php endforeach; ?>
                                                 </tr>
@@ -421,74 +514,6 @@ function formatBytes($bytes, $precision = 2) {
         </div>
     <?php endif; ?>
 
-    <div class="dashboard-section">
-        <div class="section-header">
-            <h2>SQL Query Tool</h2>
-        </div>
-        
-        <div class="data-card">
-            <div class="data-card-body">
-                <form method="POST">
-                    <input type="hidden" name="action" value="execute_query">
-                    <input type="hidden" name="database" value="<?= htmlspecialchars($selected_db) ?>">
-                    
-                    <div class="form-group">
-                        <label for="sql_query">SQL Query:</label>
-                        <textarea name="sql_query" id="sql_query" class="form-control" rows="4" 
-                                  placeholder="SELECT * FROM <?= $selected_table ? $selected_table : 'table_name' ?>"><?= htmlspecialchars($sql_query) ?></textarea>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-play"></i> Execute
-                        </button>
-                    </div>
-                </form>
-                
-                <?php if ($error_message): ?>
-                    <div class="alert alert-danger mt-3">
-                        <strong>Error:</strong> <?= htmlspecialchars($error_message) ?>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if ($query_result !== null): ?>
-                    <div class="mt-4">
-                        <h4>Query Results</h4>
-                        
-                        <?php if (is_array($query_result) && !empty($query_result)): ?>
-                            <div class="table-responsive">
-                                <table class="admin-table">
-                                    <thead>
-                                        <tr>
-                                            <?php foreach (array_keys($query_result[0]) as $column): ?>
-                                                <th><?= htmlspecialchars($column) ?></th>
-                                            <?php endforeach; ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($query_result as $row): ?>
-                                            <tr>
-                                                <?php foreach ($row as $value): ?>
-                                                    <td><?= htmlspecialchars($value) ?></td>
-                                                <?php endforeach; ?>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php elseif (is_array($query_result)): ?>
-                            <div class="alert alert-info">Query executed successfully but returned no results.</div>
-                        <?php else: ?>
-                            <div class="alert alert-success">
-                                Query executed successfully. <?= $query_result->rowCount() ?> rows affected.
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    
     <?php if ($output && $filename): ?>
         <div class="dashboard-section">
             <div class="section-header">
@@ -531,6 +556,51 @@ function formatBytes($bytes, $precision = 2) {
         </div>
     <?php endif; ?>
 </div>
+
+<style>
+/* Custom Scrollbar Styles */
+.custom-scrollbar {
+    overflow: auto !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* For Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--bg-secondary);
+}
+
+/* Table Responsive Enhancements */
+.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-width: 100%;
+}
+
+.admin-table {
+    white-space: nowrap;
+    width: max-content;
+    min-width: 100%;
+}
+</style>
 
 <?php
 // Include admin footer

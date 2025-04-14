@@ -151,7 +151,7 @@ function generatePagination($currentPage, $totalPages, $urlPattern) {
 }
 
 /**
- * Get item grade CSS class
+ * Get the CSS class for a grade
  * @param string $grade
  * @return string
  */
@@ -160,6 +160,7 @@ function getGradeClass($grade) {
         case 'NORMAL':
             return 'badge-normal';
         case 'ADVANC':
+            return 'badge-advanced';
         case 'RARE':
             return 'badge-rare';
         case 'HERO':
@@ -173,6 +174,89 @@ function getGradeClass($grade) {
         default:
             return 'badge-normal';
     }
+}
+
+/**
+ * Get the CSS class for a grade badge
+ * @param string $grade
+ * @return string
+ */
+function getGradeBadgeClass($grade) {
+    switch (strtoupper($grade)) {
+        case 'NORMAL':
+            return 'badge-normal';
+        case 'ADVANC':
+            return 'badge-advanced';
+        case 'RARE':
+            return 'badge-rare';
+        case 'HERO':
+            return 'badge-hero';
+        case 'LEGEND':
+            return 'badge-legend';
+        case 'MYTH':
+            return 'badge-myth';
+        case 'ONLY':
+            return 'badge-only';
+        default:
+            return 'badge-normal';
+    }
+}
+
+/**
+ * Format the grade of an item for display
+ * @param string $grade
+ * @return string
+ */
+function formatGrade($grade) {
+    switch(strtoupper($grade)) {
+        case 'NORMAL':
+            return 'Normal';
+        case 'ADVANC':
+            return 'Advanced';
+        case 'RARE':
+            return 'Rare';
+        case 'HERO':
+            return 'Hero';
+        case 'LEGEND':
+            return 'Legend';
+        case 'MYTH':
+            return 'Myth';
+        case 'ONLY':
+            return 'Only';
+        default:
+            return $grade;
+    }
+}
+
+/**
+ * Format material name for display
+ * @param string|null $material
+ * @return string
+ */
+function formatMaterial($material) {
+    if ($material === null) {
+        return '';
+    }
+    
+    // Remove any text in parentheses (including Korean text)
+    $material = preg_replace('/\([^)]+\)/', '', $material);
+    
+    // Convert underscores to spaces and trim
+    $material = trim(str_replace('_', ' ', $material));
+    
+    // Capitalize first letter of each word
+    return ucwords(strtolower($material));
+}
+
+/**
+ * Check if an item's icon file exists in the assets directory
+ * @param int $iconId
+ * @param string $siteUrl
+ * @return bool
+ */
+function isItemAvailable($iconId, $siteUrl) {
+    $iconPath = $_SERVER['DOCUMENT_ROOT'] . parse_url($siteUrl, PHP_URL_PATH) . '/assets/img/items/' . $iconId . '.png';
+    return file_exists($iconPath);
 }
 
 /**
@@ -563,5 +647,56 @@ function get_map_image($pngId) {
     }
     
     return SITE_URL . '/assets/img/maps/default.jpg';
+}
+
+/**
+ * Generate URL for pagination with updated page number
+ * @param int $newPage The page number to generate URL for
+ * @return string The URL with updated page parameter
+ */
+function getPaginationUrl($newPage) {
+    $params = $_GET;
+    $params['page'] = $newPage;
+    return '?' . http_build_query($params);
+}
+
+/**
+ * Clean item names by removing special prefixes
+ * @param string $name The item name to clean
+ * @return string Cleaned item name
+ */
+function cleanItemName($name) {
+    return preg_replace('/\\\\a[a-zA-Z]/', '', $name);
+}
+
+/**
+ * Get availability status text for an item
+ * @param bool $isAvailable Whether the item is available
+ * @return string Status text
+ */
+function getAvailabilityStatus($isAvailable) {
+    return $isAvailable ? 'Available' : 'Not Available In-Game';
+}
+
+/**
+ * Get availability status HTML for an item with appropriate styling
+ * @param bool $isAvailable Whether the item is available
+ * @return string Status HTML with badge
+ */
+function getAvailabilityStatusHTML($isAvailable) {
+    if ($isAvailable) {
+        return '<span class="badge badge-success">Available</span>';
+    } else {
+        return '<span class="badge badge-danger">Not Available In-Game</span>';
+    }
+}
+
+/**
+ * Apply row styling for unavailable items
+ * @param bool $isAvailable Whether the item is available
+ * @return string CSS class name or empty string
+ */
+function getUnavailableItemRowClass($isAvailable) {
+    return $isAvailable ? '' : 'unavailable-item';
 }
 

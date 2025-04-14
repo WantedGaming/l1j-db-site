@@ -72,18 +72,12 @@ $allMonsters = $db->getRows($query, $params);
 $totalItems = count($allMonsters);
 $totalPages = ceil($totalItems / $itemsPerPage);
 
-// Get the portion of items for this page
+// Get the portion of monsters for this page
 $monsters = array_slice($allMonsters, $offset, $itemsPerPage);
 
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
 
-// Create a function to build pagination URLs
-function getPaginationUrl($newPage) {
-    $params = $_GET;
-    $params['page'] = $newPage;
-    return htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($params);
-}
 ?>
 
 <div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/weapons-hero.jpg');">

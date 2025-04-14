@@ -136,7 +136,7 @@ $recentUpdates = [
                 <h3>Accessory</h3>
                 <img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
                 <p>Find information necklace, rings, and other jewelry you can utilize.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/monsters/bosses.php" class="resource-link">View Accessories</a>
+                <a href="<?= SITE_URL ?>/pages/accessories/accessories-list.php" class="resource-link">View Accessories</a>
             </div>
             
             <div class="resource-card">
@@ -157,7 +157,7 @@ $recentUpdates = [
                 <h3>Dolls</h3>
                 <img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
                 <p>Your ingame compaion to help you along your adventures.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/maps/world.php" class="resource-link">View Dolls</a>
+                <a href="<?= SITE_URL ?>/pages/dolls/dolls-list.php" class="resource-link">View Dolls</a>
             </div>
         </div>
     </section>

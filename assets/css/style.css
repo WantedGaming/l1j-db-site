@@ -1604,4 +1604,51 @@ footer {
     .map-container {
         padding-top: 56.25%; /* 16:9 Aspect Ratio for mobile */
     }
+	
+/* Doll List Page */	
+
+.grade-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.grade-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-decoration: none;
+    color: white;
+}
+
+.grade-button.active {
+    border-color: white;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+.grade-button.badge-normal { background-color: #6c757d; }
+.grade-button.badge-normal:hover { background-color: #5a6268; }
+
+.grade-button.badge-advanced { background-color: #0d6efd; }
+.grade-button.badge-advanced:hover { background-color: #0b5ed7; }
+
+.grade-button.badge-rare { background-color: #0d6efd; }
+.grade-button.badge-rare:hover { background-color: #0b5ed7; }
+
+.grade-button.badge-hero { background-color: #6f42c1; }
+.grade-button.badge-hero:hover { background-color: #5e37a6; }
+
+.grade-button.badge-legend { background-color: #fd7e14; }
+.grade-button.badge-legend:hover { background-color: #d66a0a; }
+
+.grade-button.badge-myth { background-color: #dc3545; }
+.grade-button.badge-myth:hover { background-color: #bb2d3b; }
+
+.grade-button.badge-only { background-color: #20c997; }
+.grade-button.badge-only:hover { background-color: #1aa179; }
+	
 }

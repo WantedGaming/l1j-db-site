@@ -224,18 +224,15 @@ $recentUpdates = [
                 <div class="guide-step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>Read Game Guides</h3>
+                        <h3>Dolls Guide</h3>
                         <p>Access comprehensive guides to enhance your gameplay experience.</p>
                     </div>
                 </div>
             </div>
             
             <div class="section-action">
-                <a href="<?php echo SITE_URL; ?>/pages/guides/beginners.php" class="btn">Beginner's Guide</a>
+                <a href="<?php echo SITE_URL; ?>/pages/guides/doll-guide.php" class="btn">Beginner's Guide</a>
             </div>
-        </section>
-    </div>
-</div>
 
 <?php
 // Include footer

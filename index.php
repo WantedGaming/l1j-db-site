@@ -115,52 +115,74 @@ $recentUpdates = [
 
     <!-- Popular Resources Section -->
     <section class="resources-section">
-        <h2>Game Resources</h2>
-        
-        <div class="resources-grid">
-            <div class="resource-card">
-                <h3>Weapons</h3>
-                <img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
-                <p>Browse all weapons including swords, daggers, axes, bows, staves and more.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/weapons/weapon-list.php" class="resource-link">View Weapons</a>
-            </div>
-            
-            <div class="resource-card">
-                <h3>Armor</h3>
-                <img src="assets/img/placeholders/armor.png" alt="Armor image" class="card-image">
-                <p>Explore armor sets, helmets, gloves, boots and other protective gear.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/armor/armor-list.php" class="resource-link">View Armor</a>
-            </div>
-            
-            <div class="resource-card">
-                <h3>Accessory</h3>
-                <img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
-                <p>Find information necklace, rings, and other jewelry you can utilize.</p>
-                <a href="<?= SITE_URL ?>/pages/accessories/accessories-list.php" class="resource-link">View Accessories</a>
-            </div>
-            
-            <div class="resource-card">
-                <h3>Monsters</h3>
-                <img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
-                <p>Find information on all bosses, their locations, drops, and strategies.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/monsters/index.php" class="resource-link">View Monsters</a>
-            </div>
-            
-            <div class="resource-card">
-                <h3>Maps</h3>
-                <img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
-                <p>Where to hunt, hunting grounds, and monster spawn locations.</p>
-                <a href="<?php echo SITE_URL; ?>/pages/maps/index.php" class="resource-link">View Maps</a>
-            </div>
-            
-            <div class="resource-card">
-                <h3>Dolls</h3>
-                <img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
-                <p>Your ingame compaion to help you along your adventures.</p>
-                <a href="<?= SITE_URL ?>/pages/dolls/dolls-list.php" class="resource-link">View Dolls</a>
-            </div>
+    <h2>Game Resources</h2>
+    
+    <div class="resources-grid">
+        <div class="resource-card">
+            <h3>Weapons</h3>
+            <img src="assets/img/placeholders/weapons.png" alt="Weapons image" class="card-image">
+            <p>Browse all weapons including swords, daggers, axes, bows, staves and more.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/weapons/weapon-list.php" class="resource-link">View Weapons</a>
         </div>
-    </section>
+        
+        <div class="resource-card">
+            <h3>Armor</h3>
+            <img src="assets/img/placeholders/armor.png" alt="Armor image" class="card-image">
+            <p>Explore armor sets, helmets, gloves, boots and other protective gear.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/armor/armor-list.php" class="resource-link">View Armor</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Accessory</h3>
+            <img src="assets/img/placeholders/accessory.png" alt="Accessory image" class="card-image">
+            <p>Find information necklace, rings, and other jewelry you can utilize.</p>
+            <a href="<?= SITE_URL ?>/pages/accessories/accessories-list.php" class="resource-link">View Accessories</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Monsters</h3>
+            <img src="assets/img/placeholders/monsters.png" alt="Monster image" class="card-image">
+            <p>Find information on all bosses, their locations, drops, and strategies.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/monsters/index.php" class="resource-link">View Monsters</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Maps</h3>
+            <img src="assets/img/placeholders/maps.png" alt="Map image" class="card-image">
+            <p>Where to hunt, hunting grounds, and monster spawn locations.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/maps/index.php" class="resource-link">View Maps</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Dolls</h3>
+            <img src="assets/img/placeholders/dolls.png" alt="Dolls image" class="card-image">
+            <p>Your ingame compaion to help you along your adventures.</p>
+            <a href="<?= SITE_URL ?>/pages/dolls/dolls-list.php" class="resource-link">View Dolls</a>
+        </div>
+        
+        <!-- New Cards -->
+        <div class="resource-card">
+            <h3>Skills</h3>
+            <img src="assets/img/placeholders/skill.png" alt="Skills image" class="card-image">
+            <p>Discover all classes' abilities, spells, and combat techniques.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/skills/skill-list.php" class="resource-link">View Skills</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Polymorphs</h3>
+            <img src="assets/img/placeholders/poly.png" alt="Polymorphs image" class="card-image">
+            <p>Learn about transformations that grant new abilities and appearances.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/polymorph/polymorph-list.php" class="resource-link">View Polymorphs</a>
+        </div>
+        
+        <div class="resource-card">
+            <h3>Items</h3>
+            <img src="assets/img/placeholders/items.png" alt="Items image" class="card-image">
+            <p>Browse all consumables, quest items, materials and special objects.</p>
+            <a href="<?php echo SITE_URL; ?>/pages/items/index.php" class="resource-link">View Items</a>
+        </div>
+    </div>
+</section>
 
     <!-- Main Content Sections -->
     <div class="main-content-grid">

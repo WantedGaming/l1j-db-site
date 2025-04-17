@@ -72,7 +72,7 @@ $pageTitle = $armor['desc_en'];
              onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
     </div>
     <div class="weapon-hero-content">
-        <h1><?= htmlspecialchars($armor['desc_en']) ?></h1>
+        <h1><?= htmlspecialchars(cleanItemName($armor['desc_en'])) ?></h1>
         <p><?= htmlspecialchars(formatArmorType($armor['type'])) ?>, <?= htmlspecialchars(formatMaterial($armor['material_name'])) ?></p>
     </div>
 </div>
@@ -82,7 +82,7 @@ $pageTitle = $armor['desc_en'];
     <div class="breadcrumb">
         <a href="<?= SITE_URL ?>">Home</a> &raquo;
         <a href="<?= SITE_URL ?>/pages/armor/armor-list.php">Armor</a> &raquo;
-        <span><?= htmlspecialchars($armor['desc_en']) ?></span>
+        <span><?= htmlspecialchars(cleanItemName($armor['desc_en'])) ?></span>
     </div>
 
     <!-- Main Content Grid -->
@@ -187,81 +187,125 @@ $pageTitle = $armor['desc_en'];
                            $armor['use_mage'] || $armor['use_darkelf'] || $armor['use_dragonknight'] || 
                            $armor['use_illusionist'] || $armor['use_warrior'] || $armor['use_fencer'] || 
                            $armor['use_lancer'];
-    if ($hasClassRequirements): 
+                           
+    $allClassesEnabled = $armor['use_royal'] && $armor['use_knight'] && $armor['use_elf'] && 
+                        $armor['use_mage'] && $armor['use_darkelf'] && $armor['use_dragonknight'] && 
+                        $armor['use_illusionist'] && $armor['use_warrior'] && $armor['use_fencer'] && 
+                        $armor['use_lancer'];
+
+    // Check for traits
+    $hasTraits = !empty($armor['haste_item']) || !empty($armor['bless']);
+
+    if ($hasClassRequirements || $hasTraits): 
     ?>
-    <div class="card">
-        <div class="card-header">
-            <h2>Class</h2>
-        </div>
-        <div class="card-content">
-            <div class="requirements-grid">
-                <!-- Class Requirements -->
-                <div class="requirement-item">
-                    <div class="requirements-grid">
-                        <?php if ($armor['use_royal']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Royal
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_knight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_elf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_mage']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Mage
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_darkelf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dark Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_dragonknight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dragon Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_illusionist']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Illusionist
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_warrior']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Warrior
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_fencer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Fencer
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($armor['use_lancer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Lancer
-                        </span>
-                        <?php endif; ?>
+    <div class="detail-content-grid">
+        <?php if ($hasClassRequirements): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Class</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <!-- Class Requirements -->
+                    <div class="requirement-item">
+                        <div class="requirements-grid">
+                            <?php if ($allClassesEnabled): ?>
+                            <span class="requirement-switch">
+                                <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                All Classes
+                            </span>
+                            <?php else: ?>
+                                <?php if ($armor['use_royal']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Royal
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_knight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_elf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_mage']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Mage
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_darkelf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dark Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_dragonknight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dragon Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_illusionist']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Illusionist
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_warrior']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Warrior
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_fencer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Fencer
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($armor['use_lancer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Lancer
+                                </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
+
+        <?php if ($hasTraits): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Traits</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <?php if (!empty($armor['haste_item'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Haste
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($armor['bless'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Blessed
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -269,10 +313,6 @@ $pageTitle = $armor['desc_en'];
     <?php
     // Define all properties grouped by category
     $property_groups = [
-        'Traits' => [
-            'haste_item' => 'Haste',
-            'bless' => 'Blessed'
-        ],
         'Restrictions' => [
             'trade' => 'Tradable',
             'retrieve' => 'Retrievable',
@@ -479,13 +519,15 @@ $pageTitle = $armor['desc_en'];
 
     <!-- Armor Set Section -->
     <?php if ($armorSet): ?>
-	<div class="card">
-    <div class="card-header">
-        <h2>Armor Set</h2>
-    </div>
-    <div class="card-content">
-        <div class="set-info">
-            <h3><?= htmlspecialchars($armorSet['note'] ?: 'Armor Set') ?></h3>
+    <div class="card">
+        <div class="card-header">
+            <h2>Armor Set</h2>
+        </div>
+        <div class="card-content">
+            <?php if (!empty($armorSet['note'])): ?>
+                <h3><?= htmlspecialchars($armorSet['note']) ?></h3>
+            <?php endif; ?>
+
             <?php if (!empty($armorSet['sets'])): ?>
             <div class="set-pieces">
                 <?php 
@@ -498,18 +540,24 @@ $pageTitle = $armor['desc_en'];
                         $pieceQuery = "SELECT item_id, desc_en, type, iconId FROM armor WHERE item_id = ?";
                         $piece = $db->getRow($pieceQuery, [trim($pieceId)]);
                         if ($piece):
+                            $isCurrentPiece = $piece['item_id'] == $armorId;
                     ?>
-                    <div class="set-piece-item" style="flex: 0 0 calc(25% - 10px); min-width: 200px; margin-bottom: 10px;">
-                        <div class="set-piece-icon">
+                    <div class="set-piece-item" style="flex: 0 0 calc(25% - 10px); min-width: 200px; margin-bottom: 10px; <?= $isCurrentPiece ? 'background-color: rgba(255, 255, 255, 0.1);' : '' ?>; display: flex; align-items: center; padding: 10px; border-radius: 4px;">
+                        <div class="set-piece-icon" style="margin-right: 10px;">
                             <img src="<?= SITE_URL ?>/assets/img/items/<?= $piece['iconId'] ?>.png" 
                                  alt="<?= htmlspecialchars($piece['desc_en']) ?>" 
+                                 class="item-icon"
                                  onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
                         </div>
-                        <div class="set-piece-info">
-                            <a href="armor-detail.php?id=<?= $piece['item_id'] ?>">
-                                <?= htmlspecialchars($piece['desc_en']) ?> 
-                                <span class="set-piece-type">(<?= formatArmorType($piece['type']) ?>)</span>
-                            </a>
+                        <div class="set-piece-info" style="flex: 1;">
+                            <?php if ($isCurrentPiece): ?>
+                                <strong><?= htmlspecialchars($piece['desc_en']) ?></strong>
+                            <?php else: ?>
+                                <a href="armor-detail.php?id=<?= $piece['item_id'] ?>">
+                                    <?= htmlspecialchars($piece['desc_en']) ?>
+                                </a>
+                            <?php endif; ?>
+                            <span class="set-piece-type" style="display: block; font-size: 0.9em; color: #888;">(<?= formatArmorType($piece['type']) ?>)</span>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -518,186 +566,185 @@ $pageTitle = $armor['desc_en'];
                 <?php endif; ?>
             </div>
             <?php endif; ?>
-                
-                <div class="set-bonuses">
-                    <h4>Set Bonus:</h4>
-                    <table class="detail-table">
-                        <?php if ($armorSet['ac'] != 0): ?>
-                        <tr>
-                            <th>AC</th>
-                            <td><?= $armorSet['ac'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['hp'] != 0): ?>
-                        <tr>
-                            <th>HP</th>
-                            <td><?= $armorSet['hp'] > 0 ? '+' . $armorSet['hp'] : $armorSet['hp'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['mp'] != 0): ?>
-                        <tr>
-                            <th>MP</th>
-                            <td><?= $armorSet['mp'] > 0 ? '+' . $armorSet['mp'] : $armorSet['mp'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['hpr'] != 0): ?>
-                        <tr>
-                            <th>HP Regen</th>
-                            <td><?= $armorSet['hpr'] > 0 ? '+' . $armorSet['hpr'] : $armorSet['hpr'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['mpr'] != 0): ?>
-                        <tr>
-                            <th>MP Regen</th>
-                            <td><?= $armorSet['mpr'] > 0 ? '+' . $armorSet['mpr'] : $armorSet['mpr'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['mr'] != 0): ?>
-                        <tr>
-                            <th>Magic Resistance</th>
-                            <td><?= $armorSet['mr'] > 0 ? '+' . $armorSet['mr'] : $armorSet['mr'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['str'] != 0): ?>
-                        <tr>
-                            <th>STR</th>
-                            <td><?= $armorSet['str'] > 0 ? '+' . $armorSet['str'] : $armorSet['str'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['dex'] != 0): ?>
-                        <tr>
-                            <th>DEX</th>
-                            <td><?= $armorSet['dex'] > 0 ? '+' . $armorSet['dex'] : $armorSet['dex'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['con'] != 0): ?>
-                        <tr>
-                            <th>CON</th>
-                            <td><?= $armorSet['con'] > 0 ? '+' . $armorSet['con'] : $armorSet['con'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['wis'] != 0): ?>
-                        <tr>
-                            <th>WIS</th>
-                            <td><?= $armorSet['wis'] > 0 ? '+' . $armorSet['wis'] : $armorSet['wis'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['cha'] != 0): ?>
-                        <tr>
-                            <th>CHA</th>
-                            <td><?= $armorSet['cha'] > 0 ? '+' . $armorSet['cha'] : $armorSet['cha'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['intl'] != 0): ?>
-                        <tr>
-                            <th>INT</th>
-                            <td><?= $armorSet['intl'] > 0 ? '+' . $armorSet['intl'] : $armorSet['intl'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['sp'] != 0): ?>
-                        <tr>
-                            <th>SP</th>
-                            <td><?= $armorSet['sp'] > 0 ? '+' . $armorSet['sp'] : $armorSet['sp'] ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <!-- Weapon stats if any -->
-                        <?php if ($armorSet['shorthitup'] != 0 || $armorSet['shortdmgup'] != 0 || $armorSet['shortCritical'] != 0): ?>
-                        <tr>
-                            <th>Melee Stats</th>
-                            <td>
-                                <?php if ($armorSet['shorthitup'] != 0): ?>
-                                    Hit: <?= $armorSet['shorthitup'] > 0 ? '+' . $armorSet['shorthitup'] : $armorSet['shorthitup'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['shortdmgup'] != 0): ?>
-                                    Damage: <?= $armorSet['shortdmgup'] > 0 ? '+' . $armorSet['shortdmgup'] : $armorSet['shortdmgup'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['shortCritical'] != 0): ?>
-                                    Critical: <?= $armorSet['shortCritical'] > 0 ? '+' . $armorSet['shortCritical'] : $armorSet['shortCritical'] ?>%
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['longhitup'] != 0 || $armorSet['longdmgup'] != 0 || $armorSet['longCritical'] != 0): ?>
-                        <tr>
-                            <th>Ranged Stats</th>
-                            <td>
-                                <?php if ($armorSet['longhitup'] != 0): ?>
-                                    Hit: <?= $armorSet['longhitup'] > 0 ? '+' . $armorSet['longhitup'] : $armorSet['longhitup'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['longdmgup'] != 0): ?>
-                                    Damage: <?= $armorSet['longdmgup'] > 0 ? '+' . $armorSet['longdmgup'] : $armorSet['longdmgup'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['longCritical'] != 0): ?>
-                                    Critical: <?= $armorSet['longCritical'] > 0 ? '+' . $armorSet['longCritical'] : $armorSet['longCritical'] ?>%
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['magichitup'] != 0 || $armorSet['magicCritical'] != 0): ?>
-                        <tr>
-                            <th>Magic Stats</th>
-                            <td>
-                                <?php if ($armorSet['magichitup'] != 0): ?>
-                                    Hit: <?= $armorSet['magichitup'] > 0 ? '+' . $armorSet['magichitup'] : $armorSet['magichitup'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['magicCritical'] != 0): ?>
-                                    Critical: <?= $armorSet['magicCritical'] > 0 ? '+' . $armorSet['magicCritical'] : $armorSet['magicCritical'] ?>%
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <!-- Elemental Resistances -->
-                        <?php if ($armorSet['earth'] != 0 || $armorSet['fire'] != 0 || $armorSet['wind'] != 0 || $armorSet['water'] != 0): ?>
-                        <tr>
-                            <th>Elemental Resistance</th>
-                            <td>
-                                <?php if ($armorSet['earth'] != 0): ?>
-                                    Earth: <?= $armorSet['earth'] > 0 ? '+' . $armorSet['earth'] : $armorSet['earth'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['fire'] != 0): ?>
-                                    Fire: <?= $armorSet['fire'] > 0 ? '+' . $armorSet['fire'] : $armorSet['fire'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['wind'] != 0): ?>
-                                    Wind: <?= $armorSet['wind'] > 0 ? '+' . $armorSet['wind'] : $armorSet['wind'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['water'] != 0): ?>
-                                    Water: <?= $armorSet['water'] > 0 ? '+' . $armorSet['water'] : $armorSet['water'] ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <?php if ($armorSet['reduction'] != 0 || $armorSet['magicReduction'] != 0): ?>
-                        <tr>
-                            <th>Damage Reduction</th>
-                            <td>
-                                <?php if ($armorSet['reduction'] != 0): ?>
-                                    Physical: <?= $armorSet['reduction'] > 0 ? '+' . $armorSet['reduction'] : $armorSet['reduction'] ?><br>
-                                <?php endif; ?>
-                                <?php if ($armorSet['magicReduction'] != 0): ?>
-                                    Magic: <?= $armorSet['magicReduction'] > 0 ? '+' . $armorSet['magicReduction'] : $armorSet['magicReduction'] ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                    </table>
-                </div>
+
+            <div class="set-bonuses">
+                <h4>Set Bonus:</h4>
+                <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                    <?php if ($armorSet['ac'] != 0): ?>
+                    <tr>
+                        <th>AC</th>
+                        <td><?= $armorSet['ac'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['hp'] != 0): ?>
+                    <tr>
+                        <th>HP</th>
+                        <td><?= $armorSet['hp'] > 0 ? '+' . $armorSet['hp'] : $armorSet['hp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['mp'] != 0): ?>
+                    <tr>
+                        <th>MP</th>
+                        <td><?= $armorSet['mp'] > 0 ? '+' . $armorSet['mp'] : $armorSet['mp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['hpr'] != 0): ?>
+                    <tr>
+                        <th>HP Regen</th>
+                        <td><?= $armorSet['hpr'] > 0 ? '+' . $armorSet['hpr'] : $armorSet['hpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['mpr'] != 0): ?>
+                    <tr>
+                        <th>MP Regen</th>
+                        <td><?= $armorSet['mpr'] > 0 ? '+' . $armorSet['mpr'] : $armorSet['mpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['mr'] != 0): ?>
+                    <tr>
+                        <th>Magic Resistance</th>
+                        <td><?= $armorSet['mr'] > 0 ? '+' . $armorSet['mr'] : $armorSet['mr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['str'] != 0): ?>
+                    <tr>
+                        <th>STR</th>
+                        <td><?= $armorSet['str'] > 0 ? '+' . $armorSet['str'] : $armorSet['str'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['dex'] != 0): ?>
+                    <tr>
+                        <th>DEX</th>
+                        <td><?= $armorSet['dex'] > 0 ? '+' . $armorSet['dex'] : $armorSet['dex'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['con'] != 0): ?>
+                    <tr>
+                        <th>CON</th>
+                        <td><?= $armorSet['con'] > 0 ? '+' . $armorSet['con'] : $armorSet['con'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['wis'] != 0): ?>
+                    <tr>
+                        <th>WIS</th>
+                        <td><?= $armorSet['wis'] > 0 ? '+' . $armorSet['wis'] : $armorSet['wis'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['cha'] != 0): ?>
+                    <tr>
+                        <th>CHA</th>
+                        <td><?= $armorSet['cha'] > 0 ? '+' . $armorSet['cha'] : $armorSet['cha'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['intl'] != 0): ?>
+                    <tr>
+                        <th>INT</th>
+                        <td><?= $armorSet['intl'] > 0 ? '+' . $armorSet['intl'] : $armorSet['intl'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['sp'] != 0): ?>
+                    <tr>
+                        <th>SP</th>
+                        <td><?= $armorSet['sp'] > 0 ? '+' . $armorSet['sp'] : $armorSet['sp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <!-- Weapon stats if any -->
+                    <?php if ($armorSet['shorthitup'] != 0 || $armorSet['shortdmgup'] != 0 || $armorSet['shortCritical'] != 0): ?>
+                    <tr>
+                        <th>Melee Stats</th>
+                        <td>
+                            <?php if ($armorSet['shorthitup'] != 0): ?>
+                                Hit: <?= $armorSet['shorthitup'] > 0 ? '+' . $armorSet['shorthitup'] : $armorSet['shorthitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['shortdmgup'] != 0): ?>
+                                Damage: <?= $armorSet['shortdmgup'] > 0 ? '+' . $armorSet['shortdmgup'] : $armorSet['shortdmgup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['shortCritical'] != 0): ?>
+                                Critical: <?= $armorSet['shortCritical'] > 0 ? '+' . $armorSet['shortCritical'] : $armorSet['shortCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['longhitup'] != 0 || $armorSet['longdmgup'] != 0 || $armorSet['longCritical'] != 0): ?>
+                    <tr>
+                        <th>Ranged Stats</th>
+                        <td>
+                            <?php if ($armorSet['longhitup'] != 0): ?>
+                                Hit: <?= $armorSet['longhitup'] > 0 ? '+' . $armorSet['longhitup'] : $armorSet['longhitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['longdmgup'] != 0): ?>
+                                Damage: <?= $armorSet['longdmgup'] > 0 ? '+' . $armorSet['longdmgup'] : $armorSet['longdmgup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['longCritical'] != 0): ?>
+                                Critical: <?= $armorSet['longCritical'] > 0 ? '+' . $armorSet['longCritical'] : $armorSet['longCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['magichitup'] != 0 || $armorSet['magicCritical'] != 0): ?>
+                    <tr>
+                        <th>Magic Stats</th>
+                        <td>
+                            <?php if ($armorSet['magichitup'] != 0): ?>
+                                Hit: <?= $armorSet['magichitup'] > 0 ? '+' . $armorSet['magichitup'] : $armorSet['magichitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['magicCritical'] != 0): ?>
+                                Critical: <?= $armorSet['magicCritical'] > 0 ? '+' . $armorSet['magicCritical'] : $armorSet['magicCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <!-- Elemental Resistances -->
+                    <?php if ($armorSet['earth'] != 0 || $armorSet['fire'] != 0 || $armorSet['wind'] != 0 || $armorSet['water'] != 0): ?>
+                    <tr>
+                        <th>Elemental Resistance</th>
+                        <td>
+                            <?php if ($armorSet['earth'] != 0): ?>
+                                Earth: <?= $armorSet['earth'] > 0 ? '+' . $armorSet['earth'] : $armorSet['earth'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['fire'] != 0): ?>
+                                Fire: <?= $armorSet['fire'] > 0 ? '+' . $armorSet['fire'] : $armorSet['fire'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['wind'] != 0): ?>
+                                Wind: <?= $armorSet['wind'] > 0 ? '+' . $armorSet['wind'] : $armorSet['wind'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['water'] != 0): ?>
+                                Water: <?= $armorSet['water'] > 0 ? '+' . $armorSet['water'] : $armorSet['water'] ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($armorSet['reduction'] != 0 || $armorSet['magicReduction'] != 0): ?>
+                    <tr>
+                        <th>Damage Reduction</th>
+                        <td>
+                            <?php if ($armorSet['reduction'] != 0): ?>
+                                Physical: <?= $armorSet['reduction'] > 0 ? '+' . $armorSet['reduction'] : $armorSet['reduction'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($armorSet['magicReduction'] != 0): ?>
+                                Magic: <?= $armorSet['magicReduction'] > 0 ? '+' . $armorSet['magicReduction'] : $armorSet['magicReduction'] ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
             </div>
         </div>
     </div>

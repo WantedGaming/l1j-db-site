@@ -167,17 +167,17 @@ require_once '../../includes/header.php';
     <div class="container">
         <h1><?= sanitize($map['locationname']) ?></h1>
         <p><?= $map['dungeon'] ? 'Dungeon' : 'Field' ?> (Map ID: <?= $map['mapid'] ?>)</p>
+        
+        <!-- Breadcrumb Navigation (moved inside hero section) -->
+        <div class="breadcrumb">
+            <a href="<?= SITE_URL ?>">Home</a> &raquo;
+            <a href="<?= SITE_URL ?>/pages/maps/">Maps</a> &raquo;
+            <span><?= sanitize($map['locationname']) ?></span>
+        </div>
     </div>
 </div>
 
 <div class="container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb">
-        <a href="<?= SITE_URL ?>">Home</a> &raquo;
-        <a href="<?= SITE_URL ?>/pages/maps/">Maps</a> &raquo;
-        <span><?= sanitize($map['locationname']) ?></span>
-    </div>
-
     <!-- Main Content Grid -->
     <div class="detail-content-grid">
         <!-- Map Image Card -->
@@ -188,123 +188,146 @@ require_once '../../includes/header.php';
                      class="detail-image-large"
                      onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
             </div>
-            <div class="card-content">
-                <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
-                    <?php if ($map['teleportable']): ?>
-                        <span class="badge badge-success">Teleportable</span>
-                    <?php else: ?>
-                        <span class="badge badge-secondary">Not Teleportable</span>
-                    <?php endif; ?>
-                    
-                    <?php if ($map['markable']): ?>
-                        <span class="badge badge-success">Markable</span>
-                    <?php else: ?>
-                        <span class="badge badge-secondary">Not Markable</span>
-                    <?php endif; ?>
-                    
-                    <?php if ($map['underwater']): ?>
-                        <span class="badge badge-info">Underwater</span>
-                    <?php endif; ?>
-                </div>
-            </div>
         </div>
 
         <!-- Basic Information Card -->
         <div class="card">
+            <div class="card-header">
+                <h2>Map Information</h2>
+            </div>
             <div class="card-content">
-                <h2 class="card-title">Map Information</h2>
-                
-                <table class="detail-table">
-                    <tr>
-                        <th>Map ID</th>
-                        <td><?= $map['mapid'] ?></td>
-                    </tr>
-                    <tr>
-                        <th>Name (Korean)</th>
-                        <td><?= sanitize($map['desc_kr']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Area Type</th>
-                        <td><?= $map['dungeon'] ? 'Dungeon' : 'Field' ?></td>
-                    </tr>
-                    <?php if (!empty($map['startX']) && !empty($map['endX']) && !empty($map['startY']) && !empty($map['endY'])): ?>
-                    <tr>
-                        <th>Coordinates</th>
-                        <td>X: <?= $map['startX'] ?> - <?= $map['endX'] ?>, Y: <?= $map['startY'] ?> - <?= $map['endY'] ?></td>
-                    </tr>
-                    <tr>
-                        <th>Dimensions</th>
-                        <td>
-                            Width: <?= abs($map['endX'] - $map['startX']) ?><br>
-                            Height: <?= abs($map['endY'] - $map['startY']) ?>
-                        </td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if ($map['monster_amount'] > 0): ?>
-                    <tr>
-                        <th>Monster Density</th>
-                        <td><?= $map['monster_amount'] ?></td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if ($map['drop_rate'] > 0): ?>
-                    <tr>
-                        <th>Drop Rate</th>
-                        <td><?= $map['drop_rate'] ?></td>
-                    </tr>
-                    <?php endif; ?>
+                <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                    <tbody>
+                        <tr>
+                            <th>Map ID</th>
+                            <td><?= $map['mapid'] ?></td>
+                        </tr>
+                        <?php if (!empty($map['desc_kr'])): ?>
+                        <tr>
+                            <th>Name (Korean)</th>
+                            <td><?= sanitize($map['desc_kr']) ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <tr>
+                            <th>Area Type</th>
+                            <td><?= $map['dungeon'] ? 'Dungeon' : 'Field' ?></td>
+                        </tr>
+                    </tbody>
                 </table>
                 
-                <h3 style="margin-top: 20px;">Map Properties</h3>
-				<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-					<?php if (isset($map['escapable']) && $map['escapable']): ?>
-						<span class="badge badge-success">Escape Scrolls Allowed</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['resurrection']) && $map['resurrection']): ?>
-						<span class="badge badge-success">Resurrection Allowed</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['painwand']) && $map['painwand']): ?>
-						<span class="badge badge-success">Can use Wands</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['penalty']) && $map['penalty']): ?>
-						<span class="badge badge-danger">Death Penalty</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['take_pets']) && $map['take_pets']): ?>
-						<span class="badge badge-success">Pets Allowed</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['recall_pets']) && $map['recall_pets']): ?>
-						<span class="badge badge-success">Pet Recall Allowed</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['usable_item']) && $map['usable_item']): ?>
-						<span class="badge badge-success">Can use Items</span>
-					<?php endif; ?>
-					
-					<?php if (isset($map['usable_skill']) && $map['usable_skill']): ?>
-						<span class="badge badge-success">Can use Skills</span>
-					<?php endif; ?>
-				</div>
+                <?php
+                $hasProperties = $map['teleportable'] || $map['markable'] || 
+                               (isset($map['escapable']) && $map['escapable']) ||
+                               (isset($map['resurrection']) && $map['resurrection']) ||
+                               (isset($map['painwand']) && $map['painwand']) ||
+                               (isset($map['penalty']) && $map['penalty']) ||
+                               (isset($map['take_pets']) && $map['take_pets']) ||
+                               (isset($map['recall_pets']) && $map['recall_pets']);
+                
+                if ($hasProperties):
+                ?>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h2>Map Properties</h2>
+                    </div>
+                    <div class="card-content">
+                        <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                            <tbody>
+                                <?php if ($map['teleportable']): ?>
+                                <tr>
+                                    <th>Teleportable</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if ($map['markable']): ?>
+                                <tr>
+                                    <th>Markable</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['escapable']) && $map['escapable']): ?>
+                                <tr>
+                                    <th>Escape Scrolls Allowed</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['resurrection']) && $map['resurrection']): ?>
+                                <tr>
+                                    <th>Resurrection Allowed</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['painwand']) && $map['painwand']): ?>
+                                <tr>
+                                    <th>Can use Wands</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['penalty']) && $map['penalty']): ?>
+                                <tr>
+                                    <th>Death Penalty</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['take_pets']) && $map['take_pets']): ?>
+                                <tr>
+                                    <th>Pets Allowed</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (isset($map['recall_pets']) && $map['recall_pets']): ?>
+                                <tr>
+                                    <th>Pet Recall Allowed</th>
+                                    <td><span class="requirement-switch-icon requirement-switch-yes">✓</span></td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
                 
                 <?php if ($map['dmgModiPc2Npc'] != 0 || $map['dmgModiNpc2Pc'] != 0): ?>
-                <h3 style="margin-top: 20px;">Damage Modifiers</h3>
-                <div style="margin-top: 10px;">
-                    <?php if ($map['dmgModiPc2Npc'] != 0): ?>
-                    <p>Player to Monster: <?= $map['dmgModiPc2Npc'] > 0 ? '+' : '' ?><?= $map['dmgModiPc2Npc'] ?>%</p>
-                    <?php endif; ?>
-                    <?php if ($map['dmgModiNpc2Pc'] != 0): ?>
-                    <p>Monster to Player: <?= $map['dmgModiNpc2Pc'] > 0 ? '+' : '' ?><?= $map['dmgModiNpc2Pc'] ?>%</p>
-                    <?php endif; ?>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h2>Damage Modifiers</h2>
+                    </div>
+                    <div class="card-content">
+                        <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                            <tbody>
+                                <?php if ($map['dmgModiPc2Npc'] != 0): ?>
+                                <tr>
+                                    <th>Player to Monster</th>
+                                    <td><?= $map['dmgModiPc2Npc'] > 0 ? '+' : '' ?><?= $map['dmgModiPc2Npc'] ?>%</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if ($map['dmgModiNpc2Pc'] != 0): ?>
+                                <tr>
+                                    <th>Monster to Player</th>
+                                    <td><?= $map['dmgModiNpc2Pc'] > 0 ? '+' : '' ?><?= $map['dmgModiNpc2Pc'] ?>%</td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <?php endif; ?>
                 
                 <?php if ($map['decreaseHp']): ?>
-                <div style="margin-top: 15px;">
-                    <h3 style="color: #f44336;">Warning</h3>
-                    <p>This map has HP decrease effect!</p>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h2 style="color: #f44336;">Warning</h2>
+                    </div>
+                    <div class="card-content">
+                        <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                            <tbody>
+                                <tr>
+                                    <th>HP Decrease</th>
+                                    <td>This map has HP decrease effect!</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <?php endif; ?>
             </div>

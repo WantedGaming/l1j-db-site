@@ -414,6 +414,14 @@ textarea:focus {
     margin-bottom: 1.5rem;
 }
 
+/* Requirements Grid - specific for Class, Traits, and Restrictions cards */
+.requirements-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
 .detail-monster-image-container,
 .detail-image-container {
     display: flex;
@@ -950,15 +958,15 @@ footer {
 
 /* Weapon Hero Styles */
 .weapon-hero {
+    padding: 4rem 0 2rem;
+    text-align: center;
     position: relative;
-    min-height: 300px;
-    background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('../img/backgrounds/weapons-hero.jpg');
-    background-size: cover;
-    background-position: center;
+    overflow: hidden;
+    background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9));
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
 }
 
 .weapon-hero-image-container {
@@ -968,6 +976,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1;
 }
 
 .weapon-hero-image {
@@ -1234,9 +1243,18 @@ footer {
         gap: 1rem;
     }
     
-    .main-content-grid,
+    .main-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .detail-content-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Keep three columns for requirements section even on mobile */
+    .requirements-section {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
     }
     
     .stats-container {
@@ -1308,6 +1326,12 @@ footer {
     
     .monster-combat-value {
         font-size: 1rem;
+    }
+    
+    /* Adjust requirements section for very small screens */
+    .requirements-section {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
     }
 }
 
@@ -1650,5 +1674,69 @@ footer {
 
 .grade-button.badge-only { background-color: #20c997; }
 .grade-button.badge-only:hover { background-color: #1aa179; }
+	
+	
+/* Breadcrumb Styles */
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    list-style: none;
+    margin: 2rem 0;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--primary);
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+}
+
+.breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    margin: 0 0.25rem;
+    font-weight: 500;
+}
+
+.breadcrumb a:hover {
+    color: #ff6b43;
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: var(--text);
+    margin: 0 0.25rem;
+    opacity: 0.8;
+}
+
+.hero .breadcrumb {
+    margin-top: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+}
+	
+.weapon-hero .breadcrumb {
+    position: relative;
+    z-index: 2;
+    margin-top: 2rem;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.weapon-hero .breadcrumb a {
+    color: var(--accent);
+    font-weight: 500;
+    position: relative;
+    z-index: 3;
+}
+
+.weapon-hero .breadcrumb span {
+    color: var(--text);
+    opacity: 0.9;
+    position: relative;
+    z-index: 3;
+}
 	
 }

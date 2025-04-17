@@ -13,6 +13,7 @@ require_once '../../includes/header.php';
 // Include weapons functions
 require_once '../../includes/weapons-functions.php';
 
+
 // Get database instance
 $db = Database::getInstance();
 
@@ -87,7 +88,7 @@ $pageTitle = $weapon['desc_en'];
              onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
     </div>
     <div class="weapon-hero-content">
-        <h1><?= htmlspecialchars($weapon['desc_en']) ?></h1>
+        <h1><?= htmlspecialchars(cleanItemName($weapon['desc_en'])) ?></h1>
         <p><?= htmlspecialchars(ucwords(strtolower($weapon['type']))) ?>, <?= htmlspecialchars(formatMaterial($weapon['material_name'])) ?></p>
     </div>
 </div>
@@ -95,9 +96,11 @@ $pageTitle = $weapon['desc_en'];
 <div class="container">
     <!-- Breadcrumb Navigation -->
     <div class="breadcrumb">
-        <a href="<?= SITE_URL ?>">Home</a> &raquo;
-        <a href="<?= SITE_URL ?>/pages/items/weapons.php">Weapons</a> &raquo;
-        <span><?= htmlspecialchars($weapon['desc_en']) ?></span>
+        <a href="<?= SITE_URL ?>">Home</a>
+        <span>›</span>
+        <a href="<?= SITE_URL ?>/pages/weapons/weapon-list.php/">Weapons</a>
+        <span>›</span>
+        <span><?= htmlspecialchars(cleanItemName($weapon['desc_en'])) ?></span>
     </div>
 
     <!-- Main Content Grid -->
@@ -186,81 +189,131 @@ $pageTitle = $weapon['desc_en'];
                            $weapon['use_mage'] || $weapon['use_darkelf'] || $weapon['use_dragonknight'] || 
                            $weapon['use_illusionist'] || $weapon['use_warrior'] || $weapon['use_fencer'] || 
                            $weapon['use_lancer'];
-    if ($hasClassRequirements): 
+                           
+    $allClassesEnabled = $weapon['use_royal'] && $weapon['use_knight'] && $weapon['use_elf'] && 
+                        $weapon['use_mage'] && $weapon['use_darkelf'] && $weapon['use_dragonknight'] && 
+                        $weapon['use_illusionist'] && $weapon['use_warrior'] && $weapon['use_fencer'] && 
+                        $weapon['use_lancer'];
+
+    // Check for traits
+    $hasTraits = !empty($weapon['haste_item']) || !empty($weapon['canbedmg']) || !empty($weapon['bless']);
+
+    if ($hasClassRequirements || $hasTraits): 
     ?>
-    <div class="card">
-        <div class="card-header">
-            <h2>Class</h2>
-        </div>
-        <div class="card-content">
-            <div class="requirements-grid">
-                <!-- Class Requirements -->
-                <div class="requirement-item">
-                    <div class="requirements-grid">
-                        <?php if ($weapon['use_royal']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Royal
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_knight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_elf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_mage']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Mage
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_darkelf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dark Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_dragonknight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dragon Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_illusionist']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Illusionist
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_warrior']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Warrior
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_fencer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Fencer
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($weapon['use_lancer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Lancer
-                        </span>
-                        <?php endif; ?>
+    <div class="detail-content-grid">
+        <?php if ($hasClassRequirements): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Class</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <!-- Class Requirements -->
+                    <div class="requirement-item">
+                        <div class="requirements-grid">
+                            <?php if ($allClassesEnabled): ?>
+                            <span class="requirement-switch">
+                                <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                All Classes
+                            </span>
+                            <?php else: ?>
+                                <?php if ($weapon['use_royal']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Royal
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_knight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_elf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_mage']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Mage
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_darkelf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dark Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_dragonknight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dragon Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_illusionist']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Illusionist
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_warrior']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Warrior
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_fencer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Fencer
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($weapon['use_lancer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Lancer
+                                </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
+
+        <?php if ($hasTraits): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Traits</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <?php if (!empty($weapon['haste_item'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Haste
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($weapon['canbedmg'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Can Be Damaged
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($weapon['bless'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Blessed
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -279,44 +332,46 @@ $pageTitle = $weapon['desc_en'];
             <h2>Combat Stats</h2>
         </div>
         <div class="card-content">
-            <div class="stat-grid">
-                <?php if (isset($weapon['str']) && $weapon['str'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">STR</span>
-                    <span class="stat-value"><?= $weapon['str'] > 0 ? '+' . $weapon['str'] : $weapon['str'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['dex']) && $weapon['dex'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">DEX</span>
-                    <span class="stat-value"><?= $weapon['dex'] > 0 ? '+' . $weapon['dex'] : $weapon['dex'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['con']) && $weapon['con'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">CON</span>
-                    <span class="stat-value"><?= $weapon['con'] > 0 ? '+' . $weapon['con'] : $weapon['con'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['wis']) && $weapon['wis'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">WIS</span>
-                    <span class="stat-value"><?= $weapon['wis'] > 0 ? '+' . $weapon['wis'] : $weapon['wis'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['int']) && $weapon['int'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">INT</span>
-                    <span class="stat-value"><?= $weapon['int'] > 0 ? '+' . $weapon['int'] : $weapon['int'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['cha']) && $weapon['cha'] != 0): ?>
-                <div class="stat-item">
-                    <span class="stat-label">CHA</span>
-                    <span class="stat-value"><?= $weapon['cha'] > 0 ? '+' . $weapon['cha'] : $weapon['cha'] ?></span>
-                </div>
-                <?php endif; ?>
-            </div>
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                <tbody>
+                    <?php if (isset($weapon['str']) && $weapon['str'] != 0): ?>
+                    <tr>
+                        <th>STR</th>
+                        <td><?= $weapon['str'] > 0 ? '+' . $weapon['str'] : $weapon['str'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['dex']) && $weapon['dex'] != 0): ?>
+                    <tr>
+                        <th>DEX</th>
+                        <td><?= $weapon['dex'] > 0 ? '+' . $weapon['dex'] : $weapon['dex'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['con']) && $weapon['con'] != 0): ?>
+                    <tr>
+                        <th>CON</th>
+                        <td><?= $weapon['con'] > 0 ? '+' . $weapon['con'] : $weapon['con'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['wis']) && $weapon['wis'] != 0): ?>
+                    <tr>
+                        <th>WIS</th>
+                        <td><?= $weapon['wis'] > 0 ? '+' . $weapon['wis'] : $weapon['wis'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['int']) && $weapon['int'] != 0): ?>
+                    <tr>
+                        <th>INT</th>
+                        <td><?= $weapon['int'] > 0 ? '+' . $weapon['int'] : $weapon['int'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['cha']) && $weapon['cha'] != 0): ?>
+                    <tr>
+                        <th>CHA</th>
+                        <td><?= $weapon['cha'] > 0 ? '+' . $weapon['cha'] : $weapon['cha'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
     <?php endif; ?>
@@ -335,38 +390,40 @@ $pageTitle = $weapon['desc_en'];
             <h2>Bonuses</h2>
         </div>
         <div class="card-content">
-            <div class="bonus-grid">
-                <?php if (isset($weapon['hp']) && $weapon['hp'] != 0): ?>
-                <div class="bonus-item">
-                    <span class="bonus-label">HP</span>
-                    <span class="bonus-value"><?= $weapon['hp'] > 0 ? '+' . $weapon['hp'] : $weapon['hp'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['mp']) && $weapon['mp'] != 0): ?>
-                <div class="bonus-item">
-                    <span class="bonus-label">MP</span>
-                    <span class="bonus-value"><?= $weapon['mp'] > 0 ? '+' . $weapon['mp'] : $weapon['mp'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['hpr']) && $weapon['hpr'] != 0): ?>
-                <div class="bonus-item">
-                    <span class="bonus-label">HP Regen</span>
-                    <span class="bonus-value"><?= $weapon['hpr'] > 0 ? '+' . $weapon['hpr'] : $weapon['hpr'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['mpr']) && $weapon['mpr'] != 0): ?>
-                <div class="bonus-item">
-                    <span class="bonus-label">MP Regen</span>
-                    <span class="bonus-value"><?= $weapon['mpr'] > 0 ? '+' . $weapon['mpr'] : $weapon['mpr'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['sp']) && $weapon['sp'] != 0): ?>
-                <div class="bonus-item">
-                    <span class="bonus-label">SP</span>
-                    <span class="bonus-value"><?= $weapon['sp'] > 0 ? '+' . $weapon['sp'] : $weapon['sp'] ?></span>
-                </div>
-                <?php endif; ?>
-            </div>
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                <tbody>
+                    <?php if (isset($weapon['hp']) && $weapon['hp'] != 0): ?>
+                    <tr>
+                        <th>HP</th>
+                        <td><?= $weapon['hp'] > 0 ? '+' . $weapon['hp'] : $weapon['hp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['mp']) && $weapon['mp'] != 0): ?>
+                    <tr>
+                        <th>MP</th>
+                        <td><?= $weapon['mp'] > 0 ? '+' . $weapon['mp'] : $weapon['mp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['hpr']) && $weapon['hpr'] != 0): ?>
+                    <tr>
+                        <th>HP Regen</th>
+                        <td><?= $weapon['hpr'] > 0 ? '+' . $weapon['hpr'] : $weapon['hpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['mpr']) && $weapon['mpr'] != 0): ?>
+                    <tr>
+                        <th>MP Regen</th>
+                        <td><?= $weapon['mpr'] > 0 ? '+' . $weapon['mpr'] : $weapon['mpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['sp']) && $weapon['sp'] != 0): ?>
+                    <tr>
+                        <th>SP</th>
+                        <td><?= $weapon['sp'] > 0 ? '+' . $weapon['sp'] : $weapon['sp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
     <?php endif; ?>
@@ -385,107 +442,53 @@ $pageTitle = $weapon['desc_en'];
             <h2>Resistances</h2>
         </div>
         <div class="card-content">
-            <div class="resistance-grid">
-                <?php if (isset($weapon['mr']) && $weapon['mr'] != 0): ?>
-                <div class="resistance-item">
-                    <span class="resistance-label">Magic</span>
-                    <span class="resistance-value"><?= $weapon['mr'] > 0 ? '+' . $weapon['mr'] : $weapon['mr'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['fire_resist']) && $weapon['fire_resist'] != 0): ?>
-                <div class="resistance-item">
-                    <span class="resistance-label">Fire</span>
-                    <span class="resistance-value"><?= $weapon['fire_resist'] > 0 ? '+' . $weapon['fire_resist'] : $weapon['fire_resist'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['water_resist']) && $weapon['water_resist'] != 0): ?>
-                <div class="resistance-item">
-                    <span class="resistance-label">Water</span>
-                    <span class="resistance-value"><?= $weapon['water_resist'] > 0 ? '+' . $weapon['water_resist'] : $weapon['water_resist'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['wind_resist']) && $weapon['wind_resist'] != 0): ?>
-                <div class="resistance-item">
-                    <span class="resistance-label">Wind</span>
-                    <span class="resistance-value"><?= $weapon['wind_resist'] > 0 ? '+' . $weapon['wind_resist'] : $weapon['wind_resist'] ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($weapon['earth_resist']) && $weapon['earth_resist'] != 0): ?>
-                <div class="resistance-item">
-                    <span class="resistance-label">Earth</span>
-                    <span class="resistance-value"><?= $weapon['earth_resist'] > 0 ? '+' . $weapon['earth_resist'] : $weapon['earth_resist'] ?></span>
-                </div>
-                <?php endif; ?>
-            </div>
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                <tbody>
+                    <?php if (isset($weapon['mr']) && $weapon['mr'] != 0): ?>
+                    <tr>
+                        <th>Magic</th>
+                        <td><?= $weapon['mr'] > 0 ? '+' . $weapon['mr'] : $weapon['mr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['fire_resist']) && $weapon['fire_resist'] != 0): ?>
+                    <tr>
+                        <th>Fire</th>
+                        <td><?= $weapon['fire_resist'] > 0 ? '+' . $weapon['fire_resist'] : $weapon['fire_resist'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['water_resist']) && $weapon['water_resist'] != 0): ?>
+                    <tr>
+                        <th>Water</th>
+                        <td><?= $weapon['water_resist'] > 0 ? '+' . $weapon['water_resist'] : $weapon['water_resist'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['wind_resist']) && $weapon['wind_resist'] != 0): ?>
+                    <tr>
+                        <th>Wind</th>
+                        <td><?= $weapon['wind_resist'] > 0 ? '+' . $weapon['wind_resist'] : $weapon['wind_resist'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (isset($weapon['earth_resist']) && $weapon['earth_resist'] != 0): ?>
+                    <tr>
+                        <th>Earth</th>
+                        <td><?= $weapon['earth_resist'] > 0 ? '+' . $weapon['earth_resist'] : $weapon['earth_resist'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
     <?php endif; ?>
 
-    <!-- Item Properties Section -->
-    <?php
-    // Define all properties grouped by category
-    $property_groups = [
-        'Traits' => [
-            'haste_item' => 'Haste',
-            'canbedmg' => 'Can Be Damaged',
-            'bless' => 'Blessed'
-        ],
-        'Restrictions' => [
-            'trade' => 'Tradable',
-            'retrieve' => 'Retrievable',
-            'specialretrieve' => 'Special Retrieve',
-            'cant_delete' => 'Cannot Delete',
-            'cant_sell' => 'Cannot Sell'
-        ]
-    ];
-
-    // Check which groups have active properties
-    $active_groups = [];
-    foreach ($property_groups as $group_name => $properties) {
-        foreach ($properties as $field => $label) {
-            if (!empty($weapon[$field])) {
-                $active_groups[$group_name] = $properties;
-                break;
-            }
-        }
-    }
-
-    $show_grid = count($active_groups) > 1;
-    ?>
-
-    <?php if (!empty($active_groups)): ?>
-    <div class="<?= $show_grid ? 'detail-content-grid' : '' ?>">
-        <?php foreach ($active_groups as $group_name => $properties): ?>
-        <div class="card" style="<?= !$show_grid ? 'grid-column: 1 / -1;' : '' ?>">
-            <div class="card-header">
-                <h2><?= $group_name ?></h2>
-            </div>
-            <div class="card-content">
-                <div class="requirements-grid">
-                    <?php foreach ($properties as $field => $label): ?>
-                    <div class="requirement-switch">
-                        <span class="requirement-switch-icon <?= !empty($weapon[$field]) ? 'requirement-switch-yes' : 'requirement-switch-no' ?>">
-                            <?= !empty($weapon[$field]) ? '✓' : '✗' ?>
-                        </span>
-                        <?= $label ?>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-    
     <!-- Weapon Skills Section -->
-    <?php if (!empty($weaponSkills) || !empty($weaponSkillModels)): ?>
+    <?php if (!empty($weaponSkills) || !empty($weaponSkillModels) || $weaponSpellDef): ?>
     <div class="card">
         <div class="card-header">
             <h2>Weapon Skills</h2>
         </div>
         <div class="card-content">
             <?php if (!empty($weaponSkills)): ?>
-            <table class="detail-table">
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
                 <thead>
                     <tr>
                         <th>Skill</th>
@@ -539,7 +542,7 @@ $pageTitle = $weapon['desc_en'];
             
             <?php if (!empty($weaponSkillModels)): ?>
             <h3>Skill Models</h3>
-            <table class="detail-table">
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
                 <thead>
                     <tr>
                         <th>Type</th>
@@ -584,7 +587,7 @@ $pageTitle = $weapon['desc_en'];
             
             <?php if ($weaponSpellDef): ?>
             <h3>Spell Defense</h3>
-            <table class="detail-table">
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
                 <tr>
                     <th>Defense Damage</th>
                     <td><?= $weaponSpellDef['def_dmg'] ?></td>
@@ -606,7 +609,7 @@ $pageTitle = $weapon['desc_en'];
             <h2>Drop By</h2>
         </div>
         <div class="card-content">
-            <table class="detail-table">
+            <table class="detail-table" style="border-top: 1px solid var(--border-color);">
                 <thead>
                     <tr>
                         <th>Monster</th>

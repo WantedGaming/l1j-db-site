@@ -1,127 +1,100 @@
 <?php
 /**
- * Items listing page for L1J Database Website
+ * Skills listing page for L1J Database Website
  */
 
 // Set page title and description
-$pageTitle = 'Items';
-$pageDescription = 'Browse all items in L1J Remastered including potions, scrolls, and materials.';
+$pageTitle = 'Skills';
+$pageDescription = 'Browse all skills in L1J Remastered including magical abilities, combat techniques, and passive effects.';
 
 // Include header
 require_once '../../includes/header.php';
 
-// Include item functions
-require_once '../../includes/functions.php';
-
 // Get database instance
 $db = Database::getInstance();
 
-// Build query
-$query = "SELECT e.item_id, e.desc_kr, e.desc_en, e.item_type, 
-                 e.weight, e.itemGrade, e.iconId
-          FROM etcitem e
-          WHERE e.item_type IN ('ARROW', 'FOOD', 'LIGHT', 'MATERIAL', 'OTHER', 'TREASURE_BOX', 'WAND', 'SPELL_BOOK', 'POTION')";
-
-// Exclude MAGICDOLL from OTHER type
-$query .= " AND NOT (e.item_type = 'OTHER' AND e.use_type = 'MAGICDOLL')";
+// Build base query
+$query = "SELECT s.skill_id, s.name, s.desc_en, s.desc_kr, s.skill_level, 
+                 s.target, s.classType, s.grade
+          FROM skills s";
 
 // Handle search and filters
 $whereConditions = [];
 $params = [];
 
 if(isset($_GET['q']) && !empty($_GET['q'])) {
-    $whereConditions[] = "(e.desc_en LIKE ? OR e.desc_kr LIKE ?)";
+    $whereConditions[] = "(s.name LIKE ? OR s.desc_en LIKE ? OR s.desc_kr LIKE ?)";
+    $params[] = '%' . $_GET['q'] . '%';
     $params[] = '%' . $_GET['q'] . '%';
     $params[] = '%' . $_GET['q'] . '%';
 }
 
-if(isset($_GET['type']) && !empty($_GET['type'])) {
-    $whereConditions[] = "e.item_type = ?";
-    $params[] = $_GET['type'];
+if(isset($_GET['class']) && !empty($_GET['class']) && $_GET['class'] !== 'none') {
+    $whereConditions[] = "s.classType = ?";
+    $params[] = $_GET['class'];
+}
+
+if(isset($_GET['target']) && !empty($_GET['target']) && $_GET['target'] !== 'ALL') {
+    $whereConditions[] = "s.target = ?";
+    $params[] = $_GET['target'];
 }
 
 if(isset($_GET['grade']) && !empty($_GET['grade'])) {
-    $whereConditions[] = "e.itemGrade = ?";
+    $whereConditions[] = "s.grade = ?";
     $params[] = $_GET['grade'];
 }
 
-// Add where conditions to query if any
+if(isset($_GET['level_min']) && !empty($_GET['level_min'])) {
+    $whereConditions[] = "s.skill_level >= ?";
+    $params[] = intval($_GET['level_min']);
+}
+
+if(isset($_GET['level_max']) && !empty($_GET['level_max'])) {
+    $whereConditions[] = "s.skill_level <= ?";
+    $params[] = intval($_GET['level_max']);
+}
+
+// Add WHERE clause if we have any conditions
 if(!empty($whereConditions)) {
-    $query .= " AND " . implode(" AND ", $whereConditions);
+    $query .= " WHERE " . implode(" AND ", $whereConditions);
 }
 
 // Add order by
-$query .= " ORDER BY 
-    CASE 
-        WHEN e.itemGrade = 'NORMAL' THEN 1
-        WHEN e.itemGrade = 'ADVANC' THEN 2
-        WHEN e.itemGrade = 'RARE' THEN 3
-        WHEN e.itemGrade = 'HERO' THEN 4
-        WHEN e.itemGrade = 'LEGEND' THEN 5
-        WHEN e.itemGrade = 'MYTH' THEN 6
-        WHEN e.itemGrade = 'ONLY' THEN 7
-        ELSE 8
-    END, e.desc_en ASC";
+$query .= " ORDER BY s.classType, s.skill_level ASC, s.name ASC";
 
 // Pagination
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $itemsPerPage = 20;
 $offset = ($page - 1) * $itemsPerPage;
 
-// Get total count for pagination
-$countQuery = "SELECT COUNT(*) FROM (" . $query . ") as filtered_items";
-$totalItems = $db->getColumn($countQuery, $params);
+// Execute query to get all results for filtering
+$allSkills = $db->getRows($query, $params);
+
+// Calculate pagination
+$totalItems = count($allSkills);
 $totalPages = ceil($totalItems / $itemsPerPage);
 
-// Add limit and offset to the main query
-$query .= " LIMIT ? OFFSET ?";
-$params[] = $itemsPerPage;
-$params[] = $offset;
-
-// Execute query to get paginated results
-$items = $db->getRows($query, $params);
-
-// Filter for available items if requested
-$filteredItems = $items;
-// Default to showing only available items unless explicitly set to "all"
-if(!isset($_GET['availability']) || $_GET['availability'] !== 'all') {
-    // By default or if explicitly set to "available", filter out unavailable items
-    $filteredItems = array_filter($items, function($item) {
-        return isItemAvailable($item['iconId'], SITE_URL);
-    });
-}
-
-// Calculate pagination based on filtered results
-$totalItems = count($filteredItems);
-$totalPages = ceil($totalItems / $itemsPerPage);
-
-// Get the portion of items for this page
-$items = array_slice($filteredItems, $offset, $itemsPerPage);
+// Get the portion of skills for this page
+$skills = array_slice($allSkills, $offset, $itemsPerPage);
 
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
 
-// Get item type counts for the filter
-$itemTypeCounts = [];
-$allowedTypes = ['ARROW', 'FOOD', 'LIGHT', 'MATERIAL', 'OTHER', 'TREASURE_BOX', 'WAND', 'SPELL_BOOK', 'POTION'];
-foreach ($allowedTypes as $type) {
-    $countQuery = "SELECT COUNT(*) FROM etcitem WHERE item_type = ?";
-    if ($type === 'OTHER') {
-        $countQuery .= " AND use_type != 'MAGICDOLL'";
-    }
-    $itemTypeCounts[$type] = $db->getColumn($countQuery, [$type]);
-}
+// Get class types for filter
+$classQuery = "SELECT DISTINCT classType FROM skills WHERE classType != 'none' ORDER BY classType";
+$classTypes = $db->getRows($classQuery);
+
 ?>
 
-<div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/items-hero.jpg');">
+<div class="hero" style="background: linear-gradient(rgba(3, 3, 3, 0.7), rgba(3, 3, 3, 0.9)), url('<?= SITE_URL ?>/assets/img/backgrounds/skills-hero.jpg');">
     <div class="container">
-        <h1>Items Database</h1>
-        <p>Explore the complete collection of items in L1J Remastered. Browse potions, scrolls, materials and more.</p>
+        <h1>Skills Database</h1>
+        <p>Explore the complete collection of skills in L1J Remastered. From basic abilities to legendary powers, find detailed information about all skills in the game.</p>
         
         <!-- Search Bar in Hero Section -->
         <div class="search-container">
             <form action="<?= $currentPath ?>" method="GET" class="search-bar">
-                <input type="text" name="q" placeholder="Search items by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                <input type="text" name="q" placeholder="Search skills by name..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button type="submit" class="btn">Search</button>
             </form>
         </div>
@@ -139,42 +112,62 @@ foreach ($allowedTypes as $type) {
                 <?php endif; ?>
                 
                 <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;">
-                    <!-- Availability Filter -->
+                    <!-- Class Filter -->
                     <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
-                        <label for="availability">Availability:</label>
-                        <select name="availability" id="availability" class="form-control">
-                            <option value="available" <?= (!isset($_GET['availability']) || $_GET['availability'] === 'available') ? 'selected' : '' ?>>In-Game Only</option>
-                            <option value="all" <?= (isset($_GET['availability']) && $_GET['availability'] === 'all') ? 'selected' : '' ?>>Show All Items</option>
+                        <label for="class">Class:</label>
+                        <select name="class" id="class" class="form-control">
+                            <option value="">All Classes</option>
+                            <option value="none" <?= isset($_GET['class']) && $_GET['class'] === 'none' ? 'selected' : '' ?>>Common</option>
+                            <?php foreach($classTypes as $class): ?>
+                                <option value="<?= $class['classType'] ?>" <?= isset($_GET['class']) && $_GET['class'] === $class['classType'] ? 'selected' : '' ?>>
+                                    <?= ucfirst($class['classType']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     
+                    <!-- Target Filter -->
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
+                        <label for="target">Target Type:</label>
+                        <select name="target" id="target" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="NONE" <?= isset($_GET['target']) && $_GET['target'] === 'NONE' ? 'selected' : '' ?>>None</option>
+                            <option value="ATTACK" <?= isset($_GET['target']) && $_GET['target'] === 'ATTACK' ? 'selected' : '' ?>>Attack</option>
+                            <option value="BUFF" <?= isset($_GET['target']) && $_GET['target'] === 'BUFF' ? 'selected' : '' ?>>Buff</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Grade Filter -->
                     <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
                         <label for="grade">Grade:</label>
                         <select name="grade" id="grade" class="form-control">
                             <option value="">All Grades</option>
                             <option value="NORMAL" <?= isset($_GET['grade']) && $_GET['grade'] === 'NORMAL' ? 'selected' : '' ?>>Normal</option>
-                            <option value="ADVANC" <?= isset($_GET['grade']) && $_GET['grade'] === 'ADVANC' ? 'selected' : '' ?>>Advanced</option>
                             <option value="RARE" <?= isset($_GET['grade']) && $_GET['grade'] === 'RARE' ? 'selected' : '' ?>>Rare</option>
-                            <option value="HERO" <?= isset($_GET['grade']) && $_GET['grade'] === 'HERO' ? 'selected' : '' ?>>Hero</option>
                             <option value="LEGEND" <?= isset($_GET['grade']) && $_GET['grade'] === 'LEGEND' ? 'selected' : '' ?>>Legend</option>
                             <option value="MYTH" <?= isset($_GET['grade']) && $_GET['grade'] === 'MYTH' ? 'selected' : '' ?>>Myth</option>
                             <option value="ONLY" <?= isset($_GET['grade']) && $_GET['grade'] === 'ONLY' ? 'selected' : '' ?>>Only</option>
                         </select>
                     </div>
                     
-                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
-                        <label for="type">Item Type:</label>
-                        <select name="type" id="type" class="form-control">
-                            <option value="">All Types</option>
-                            <option value="ARROW" <?= isset($_GET['type']) && $_GET['type'] === 'ARROW' ? 'selected' : '' ?>>Arrow (<?= $itemTypeCounts['ARROW'] ?>)</option>
-                            <option value="FOOD" <?= isset($_GET['type']) && $_GET['type'] === 'FOOD' ? 'selected' : '' ?>>Food (<?= $itemTypeCounts['FOOD'] ?>)</option>
-                            <option value="LIGHT" <?= isset($_GET['type']) && $_GET['type'] === 'LIGHT' ? 'selected' : '' ?>>Light (<?= $itemTypeCounts['LIGHT'] ?>)</option>
-                            <option value="MATERIAL" <?= isset($_GET['type']) && $_GET['type'] === 'MATERIAL' ? 'selected' : '' ?>>Material (<?= $itemTypeCounts['MATERIAL'] ?>)</option>
-                            <option value="OTHER" <?= isset($_GET['type']) && $_GET['type'] === 'OTHER' ? 'selected' : '' ?>>Other (<?= $itemTypeCounts['OTHER'] ?>)</option>
-                            <option value="TREASURE_BOX" <?= isset($_GET['type']) && $_GET['type'] === 'TREASURE_BOX' ? 'selected' : '' ?>>Treasure Box (<?= $itemTypeCounts['TREASURE_BOX'] ?>)</option>
-                            <option value="WAND" <?= isset($_GET['type']) && $_GET['type'] === 'WAND' ? 'selected' : '' ?>>Wand (<?= $itemTypeCounts['WAND'] ?>)</option>
-                            <option value="SPELL_BOOK" <?= isset($_GET['type']) && $_GET['type'] === 'SPELL_BOOK' ? 'selected' : '' ?>>Spell Book (<?= $itemTypeCounts['SPELL_BOOK'] ?>)</option>
-                            <option value="POTION" <?= isset($_GET['type']) && $_GET['type'] === 'POTION' ? 'selected' : '' ?>>Potion (<?= $itemTypeCounts['POTION'] ?>)</option>
+                    <!-- Level Range Filter -->
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px;">
+                        <label for="level_min">Min Level:</label>
+                        <select name="level_min" id="level_min" class="form-control">
+                            <option value="">Any</option>
+                            <?php for($i = 1; $i <= 100; $i += 5): ?>
+                                <option value="<?= $i ?>" <?= (isset($_GET['level_min']) && $_GET['level_min'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px;">
+                        <label for="level_max">Max Level:</label>
+                        <select name="level_max" id="level_max" class="form-control">
+                            <option value="">Any</option>
+                            <?php for($i = 5; $i <= 100; $i += 5): ?>
+                                <option value="<?= $i ?>" <?= (isset($_GET['level_max']) && $_GET['level_max'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
                         </select>
                     </div>
                     
@@ -186,46 +179,52 @@ foreach ($allowedTypes as $type) {
             </form>
         </div>
         
-        <!-- Item List -->
+        <!-- Skills List -->
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th width="40">Icon</th>
+                        <th>Icon</th>
                         <th>Name</th>
+                        <th>Level</th>
+                        <th>Class</th>
                         <th>Type</th>
-                        <th>Weight</th>
+                        <th>MP</th>
                         <th>Grade</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(empty($items)): ?>
+                    <?php if(empty($skills)): ?>
                         <tr>
-                            <td colspan="5" class="text-center">No items found matching your criteria.</td>
+                            <td colspan="7" class="text-center">No skills found matching your criteria.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach($items as $item): 
-                            // Add onerror attribute to img that will set a flag to mark this as unavailable
-                            $itemId = $item['item_id'];
+                        <?php foreach($skills as $skill): 
+                            // Get skill icon if available
+                            $skillInfo = $db->getRow("SELECT icon FROM skills_info WHERE skillId = ?", [$skill['skill_id']]);
+                            $iconId = $skillInfo ? $skillInfo['icon'] : 0;
                         ?>
-                            <tr id="item-<?= $itemId ?>" onclick="window.location.href='detail.php?id=<?= $itemId ?>'" class="item-row">
+                            <tr onclick="window.location.href='skill-detail.php?id=<?= $skill['skill_id'] ?>'" style="cursor: pointer;">
                                 <td>
-                                    <img src="<?= SITE_URL ?>/assets/img/items/<?= $item['iconId'] ?>.png" 
-                                         alt="<?= htmlspecialchars($item['desc_en']) ?>" 
+                                    <img src="<?= SITE_URL ?>/assets/img/skills/<?= $iconId ?>.png" 
+                                         alt="<?= htmlspecialchars($skill['desc_en']) ?>" 
                                          class="item-icon"
-                                         onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'; document.getElementById('item-<?= $itemId ?>').classList.add('unavailable-item');">
+                                         onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/skill-placeholder.png';">
                                 </td>
-                                <td><?= htmlspecialchars(cleanItemName($item['desc_en'])) ?></td>
-                                <td><?= formatItemType($item['item_type']) ?></td>
-                                <td><?= $item['weight'] / 1000 ?></td>
+                                <td><?= htmlspecialchars($skill['desc_en']) ?></td>
+                                <td><?= $skill['skill_level'] ?></td>
+                                <td><?= $skill['classType'] != 'none' ? ucfirst($skill['classType']) : 'Common' ?></td>
+                                <td><?= $skill['target'] != 'NONE' ? ucfirst(strtolower($skill['target'])) : 'Passive' ?></td>
                                 <td>
-                                    <?php if (!empty($item['itemGrade']) && $item['itemGrade'] != 'NORMAL'): ?>
-                                        <span class="badge <?= getGradeBadgeClass($item['itemGrade']) ?>">
-                                            <?= formatGrade($item['itemGrade']) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge badge-normal">Normal</span>
-                                    <?php endif; ?>
+                                    <?php 
+                                        $mpConsume = $db->getColumn("SELECT mpConsume FROM skills WHERE skill_id = ?", [$skill['skill_id']]);
+                                        echo $mpConsume ? $mpConsume : '-';
+                                    ?>
+                                </td>
+                                <td>
+                                    <span class="badge <?= getGradeBadgeClass($skill['grade']) ?>">
+                                        <?= formatGrade($skill['grade']) ?>
+                                    </span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -238,7 +237,7 @@ foreach ($allowedTypes as $type) {
         <?php if($totalPages > 1): ?>
             <div class="pagination">
                 <span class="pagination-info">
-                    Showing <?= $offset + 1 ?>-<?= min($offset + $itemsPerPage, $totalItems) ?> of <?= $totalItems ?> items
+                    Showing <?= $offset + 1 ?>-<?= min($offset + $itemsPerPage, $totalItems) ?> of <?= $totalItems ?> skills
                 </span>
                 
                 <div class="pagination-links">
@@ -344,46 +343,7 @@ foreach ($allowedTypes as $type) {
     </section>
 </div>
 
-<style>
-/* Additional Styles */
-.unavailable-item {
-    opacity: 0.6;
-    background-color: rgba(244, 67, 54, 0.05);
-}
-
-.item-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.item-row:hover {
-    background-color: var(--secondary);
-}
-</style>
-
 <?php
 // Include footer
 require_once '../../includes/footer.php';
-
-/**
- * Helper function to format item type for display
- */
-function formatItemType($type) {
-    $type = str_replace('_', ' ', $type);
-    return ucwords(strtolower($type));
-}
-
-// Helper function to check if an item property is displayable
-function isPropertyDisplayable($item, $property) {
-    return isset($item[$property]) && $item[$property] != 0 && $item[$property] != 'NONE' && $item[$property] != '';
-}
-
-/**
- * Function to format use type for display
- */
-function formatUseType($useType) {
-    $useType = str_replace('_', ' ', $useType);
-    return ucwords(strtolower($useType));
-}
-
 ?>

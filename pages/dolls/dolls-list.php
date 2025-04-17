@@ -43,7 +43,17 @@ if(!empty($whereConditions)) {
 }
 
 // Add order by doll grade first, then item name
-$query .= " ORDER BY m.grade DESC, e.desc_en ASC";
+$query .= " ORDER BY 
+    CASE 
+        WHEN m.grade = 0 THEN 1
+        WHEN m.grade = 1 THEN 2
+        WHEN m.grade = 2 THEN 3
+        WHEN m.grade = 3 THEN 4
+        WHEN m.grade = 4 THEN 5
+        WHEN m.grade = 5 THEN 6
+        WHEN m.grade = 6 THEN 7
+        ELSE 8
+    END, e.desc_en ASC";
 
 // Execute query to get all results
 $allDolls = $db->getRows($query, $params);
@@ -70,7 +80,7 @@ $dolls = array_slice($filteredDolls, $offset, $itemsPerPage);
 $currentPath = $_SERVER['PHP_SELF'];
 
 // Get list of available doll grades for filter
-$gradeQuery = "SELECT DISTINCT grade FROM magicdoll_info ORDER BY grade DESC";
+$gradeQuery = "SELECT DISTINCT grade FROM magicdoll_info ORDER BY grade ASC";
 $availableGrades = $db->getRows($gradeQuery);
 ?>
 

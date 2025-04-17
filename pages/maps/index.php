@@ -97,12 +97,9 @@ switch ($sort) {
         break;
 }
 
-// Get maps
+// Get maps - apply pagination in the SQL query
 $sql = "$baseSql $whereSql ORDER BY $orderBy LIMIT $offset, $itemsPerPage";
 $maps = $db->getRows($sql, $params);
-
-// Get the portion of maps for this page
-$filteredMaps = array_slice($maps, $offset, $itemsPerPage);
 
 // Current URL path (without query string)
 $currentPath = $_SERVER['PHP_SELF'];
@@ -285,8 +282,8 @@ $currentPath = $_SERVER['PHP_SELF'];
         
         <!-- Maps Grid Display -->
         <div class="card-grid">
-            <?php if (!empty($filteredMaps)): ?>
-                <?php foreach ($filteredMaps as $map): ?>
+            <?php if (!empty($maps)): ?>
+                <?php foreach ($maps as $map): ?>
                     <div class="card" onclick="window.location='detail.php?id=<?= $map['mapid'] ?? 0 ?>';" style="cursor: pointer;">
                         <?php 
                         // Check for map image using mapId
@@ -298,49 +295,41 @@ $currentPath = $_SERVER['PHP_SELF'];
                         $server_path = $base_path . $image_path;
 
                         // Check for map image prioritizing pngId if available
-if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
-    // First try using pngId
-    $png_id = $map['pngId'];
-    $image_path = "/assets/img/maps/{$png_id}.jpeg";
-    $server_path = $base_path . $image_path;
-    
-    // Try png format if jpeg doesn't exist
-    if (!file_exists($server_path)) {
-        $image_path = "/assets/img/maps/{$png_id}.png";
-        $server_path = $base_path . $image_path;
-    }
-    
-    // Try jpg format if png doesn't exist
-    if (!file_exists($server_path)) {
-        $image_path = "/assets/img/maps/{$png_id}.jpg";
-        $server_path = $base_path . $image_path;
-    }
-} else {
-    // Fall back to using mapId if pngId isn't available
-    $map_id = $map['mapid'];
-    $image_path = "/assets/img/maps/{$map_id}.jpeg";
-    $server_path = $base_path . $image_path;
-    
-    // Try png format
-    if (!file_exists($server_path)) {
-        $image_path = "/assets/img/maps/{$map_id}.png";
-        $server_path = $base_path . $image_path;
-    }
-    
-    // Try jpg format
-    if (!file_exists($server_path)) {
-        $image_path = "/assets/img/maps/{$map_id}.jpg";
-        $server_path = $base_path . $image_path;
-    }
-}
-
-// Use placeholder if no image found
-if (!file_exists($server_path)) {
-    $image_path = "/assets/img/placeholders/map-placeholder.png";
-}
-
-// Final image source for HTML
-$imageSrc = SITE_URL . $image_path;
+                        if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+                            // First try using pngId
+                            $png_id = $map['pngId'];
+                            $image_path = "/assets/img/maps/{$png_id}.jpeg";
+                            $server_path = $base_path . $image_path;
+                            
+                            // Try png format if jpeg doesn't exist
+                            if (!file_exists($server_path)) {
+                                $image_path = "/assets/img/maps/{$png_id}.png";
+                                $server_path = $base_path . $image_path;
+                            }
+                            
+                            // Try jpg format if png doesn't exist
+                            if (!file_exists($server_path)) {
+                                $image_path = "/assets/img/maps/{$png_id}.jpg";
+                                $server_path = $base_path . $image_path;
+                            }
+                        } else {
+                            // Fall back to using mapId if pngId isn't available
+                            $map_id = $map['mapid'];
+                            $image_path = "/assets/img/maps/{$map_id}.jpeg";
+                            $server_path = $base_path . $image_path;
+                            
+                            // Try png format
+                            if (!file_exists($server_path)) {
+                                $image_path = "/assets/img/maps/{$map_id}.png";
+                                $server_path = $base_path . $image_path;
+                            }
+                            
+                            // Try jpg format
+                            if (!file_exists($server_path)) {
+                                $image_path = "/assets/img/maps/{$map_id}.jpg";
+                                $server_path = $base_path . $image_path;
+                            }
+                        }
 
                         // Use placeholder if no image found
                         if (!file_exists($server_path)) {

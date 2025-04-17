@@ -244,40 +244,40 @@ $monsterImagePath = get_monster_image($monster['spriteId']);
         <h2>Attributes</h2>
     </div>
     <div class="card-content">
-        <div class="monster-stat-grid">
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">STR</div>
-                <div class="monster-stat-value"><?= $monster['str'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">CON</div>
-                <div class="monster-stat-value"><?= $monster['con'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">DEX</div>
-                <div class="monster-stat-value"><?= $monster['dex'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">WIS</div>
-                <div class="monster-stat-value"><?= $monster['wis'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">INT</div>
-                <div class="monster-stat-value"><?= $monster['intel'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">MR</div>
-                <div class="monster-stat-value"><?= $monster['mr'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">KARMA</div>
-                <div class="monster-stat-value"><?= $monster['karma'] ?></div>
-            </div>
-            <div class="monster-stat-item">
-                <div class="monster-stat-icon">ALIGNMENT</div>
-                <div class="monster-stat-value"><?= $monster['alignment'] ?></div>
-            </div>
-        </div>
+        <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+            <tbody>
+                <?php if ($monster['str'] > 0): ?>
+                <tr>
+                    <th>STR</th>
+                    <td><?= $monster['str'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['dex'] > 0): ?>
+                <tr>
+                    <th>DEX</th>
+                    <td><?= $monster['dex'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['con'] > 0): ?>
+                <tr>
+                    <th>CON</th>
+                    <td><?= $monster['con'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['intel'] > 0): ?>
+                <tr>
+                    <th>INT</th>
+                    <td><?= $monster['intel'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['wis'] > 0): ?>
+                <tr>
+                    <th>WIS</th>
+                    <td><?= $monster['wis'] ?></td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -287,103 +287,34 @@ $monsterImagePath = get_monster_image($monster['spriteId']);
         <h2>Combat Stats</h2>
     </div>
     <div class="card-content">
-        <div class="monster-combat-grid">
-            <?php if($monster['atkspeed'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Attack Speed</div>
-                    <div class="monster-combat-value"><?= $monster['atkspeed'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['passispeed'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-running"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Move Speed</div>
-                    <div class="monster-combat-value"><?= $monster['passispeed'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['atk_magic_speed'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-magic"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Magic Attack Speed</div>
-                    <div class="monster-combat-value"><?= $monster['atk_magic_speed'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['ranged'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-bullseye"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Ranged</div>
-                    <div class="monster-combat-value"><?= $monster['ranged'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['is_hard'] === 'true'): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Hard</div>
-                    <div class="monster-combat-value">Yes</div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['is_teleport'] === 'true'): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">Teleport</div>
-                    <div class="monster-combat-value">Yes</div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['hprinterval'] > 0 && $monster['hpr'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">HP Regen</div>
-                    <div class="monster-combat-value"><?= $monster['hpr'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if($monster['mprinterval'] > 0 && $monster['mpr'] > 0): ?>
-            <div class="monster-combat-stat">
-                <div class="monster-combat-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <div class="monster-combat-details">
-                    <div class="monster-combat-label">MP Regen</div>
-                    <div class="monster-combat-value"><?= $monster['mpr'] ?></div>
-                </div>
-            </div>
-            <?php endif; ?>
-        </div>
+        <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+            <tbody>
+                <?php if ($monster['mr'] > 0): ?>
+                <tr>
+                    <th>Magic Resistance</th>
+                    <td><?= $monster['mr'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['karma'] !== 0): ?>
+                <tr>
+                    <th>Karma</th>
+                    <td><?= $monster['karma'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['alignment'] !== 0): ?>
+                <tr>
+                    <th>Alignment</th>
+                    <td><?= $monster['alignment'] ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($monster['damage_reduction'] > 0): ?>
+                <tr>
+                    <th>Damage Reduction</th>
+                    <td><?= $monster['damage_reduction'] ?>%</td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

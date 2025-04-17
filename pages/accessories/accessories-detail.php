@@ -189,81 +189,125 @@ $pageTitle = $accessory['desc_en'];
                            $accessory['use_mage'] || $accessory['use_darkelf'] || $accessory['use_dragonknight'] || 
                            $accessory['use_illusionist'] || $accessory['use_warrior'] || $accessory['use_fencer'] || 
                            $accessory['use_lancer'];
-    if ($hasClassRequirements): 
+                           
+    $allClassesEnabled = $accessory['use_royal'] && $accessory['use_knight'] && $accessory['use_elf'] && 
+                        $accessory['use_mage'] && $accessory['use_darkelf'] && $accessory['use_dragonknight'] && 
+                        $accessory['use_illusionist'] && $accessory['use_warrior'] && $accessory['use_fencer'] && 
+                        $accessory['use_lancer'];
+
+    // Check for traits
+    $hasTraits = !empty($accessory['haste_item']) || !empty($accessory['bless']);
+
+    if ($hasClassRequirements || $hasTraits): 
     ?>
-    <div class="card">
-        <div class="card-header">
-            <h2>Class</h2>
-        </div>
-        <div class="card-content">
-            <div class="requirements-grid">
-                <!-- Class Requirements -->
-                <div class="requirement-item">
-                    <div class="requirements-grid">
-                        <?php if ($accessory['use_royal']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Royal
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_knight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_elf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_mage']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Mage
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_darkelf']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dark Elf
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_dragonknight']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Dragon Knight
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_illusionist']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Illusionist
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_warrior']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Warrior
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_fencer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Fencer
-                        </span>
-                        <?php endif; ?>
-                        <?php if ($accessory['use_lancer']): ?>
-                        <span class="requirement-switch">
-                            <span class="requirement-switch-icon requirement-switch-yes">✓</span>
-                            Lancer
-                        </span>
-                        <?php endif; ?>
+    <div class="detail-content-grid">
+        <?php if ($hasClassRequirements): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Class</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <!-- Class Requirements -->
+                    <div class="requirement-item">
+                        <div class="requirements-grid">
+                            <?php if ($allClassesEnabled): ?>
+                            <span class="requirement-switch">
+                                <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                All Classes
+                            </span>
+                            <?php else: ?>
+                                <?php if ($accessory['use_royal']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Royal
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_knight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_elf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_mage']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Mage
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_darkelf']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dark Elf
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_dragonknight']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Dragon Knight
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_illusionist']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Illusionist
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_warrior']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Warrior
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_fencer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Fencer
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($accessory['use_lancer']): ?>
+                                <span class="requirement-switch">
+                                    <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                                    Lancer
+                                </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
+
+        <?php if ($hasTraits): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>Traits</h2>
+            </div>
+            <div class="card-content">
+                <div class="requirements-grid">
+                    <?php if (!empty($accessory['haste_item'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Haste
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($accessory['bless'])): ?>
+                    <div class="requirement-switch">
+                        <span class="requirement-switch-icon requirement-switch-yes">✓</span>
+                        Blessed
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -274,18 +318,246 @@ $pageTitle = $accessory['desc_en'];
             <h2>Set Information</h2>
         </div>
         <div class="card-content">
-            <h3><?= htmlspecialchars($accessorySet['name']) ?></h3>
-            <p><?= htmlspecialchars($accessorySet['description']) ?></p>
+            <?php if (!empty($accessorySet['note'])): ?>
+                <h3><?= htmlspecialchars($accessorySet['note']) ?></h3>
+            <?php endif; ?>
             
-            <?php if ($accessorySet['effects']): ?>
-            <div class="set-effects">
-                <h4>Set Effects:</h4>
-                <ul>
-                    <?php foreach (explode("\n", $accessorySet['effects']) as $effect): ?>
-                        <li><?= htmlspecialchars($effect) ?></li>
+            <?php if (!empty($accessorySet['sets'])): ?>
+            <div class="set-pieces">
+                <h4>Set Items:</h4>
+                <?php 
+                $setPieces = explode(',', $accessorySet['sets']);
+                if (count($setPieces) > 0): 
+                ?>
+                <div class="set-pieces-grid" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <?php foreach ($setPieces as $pieceId): 
+                        // Get piece details with icon
+                        $pieceQuery = "SELECT item_id, desc_en, type, iconId FROM armor WHERE item_id = ?";
+                        $piece = $db->getRow($pieceQuery, [trim($pieceId)]);
+                        if ($piece):
+                            $isCurrentPiece = $piece['item_id'] == $accessoryId;
+                    ?>
+                    <div class="set-piece-item" style="flex: 0 0 calc(25% - 10px); min-width: 200px; margin-bottom: 10px; <?= $isCurrentPiece ? 'background-color: rgba(255, 255, 255, 0.1);' : '' ?>; display: flex; align-items: center; padding: 10px; border-radius: 4px;">
+                        <div class="set-piece-icon" style="margin-right: 10px;">
+                            <img src="<?= SITE_URL ?>/assets/img/items/<?= $piece['iconId'] ?>.png" 
+                                 alt="<?= htmlspecialchars($piece['desc_en']) ?>" 
+                                 class="item-icon"
+                                 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+                        </div>
+                        <div class="set-piece-info" style="flex: 1;">
+                            <?php if ($isCurrentPiece): ?>
+                                <strong><?= htmlspecialchars($piece['desc_en']) ?></strong>
+                            <?php else: ?>
+                                <a href="accessories-detail.php?id=<?= $piece['item_id'] ?>">
+                                    <?= htmlspecialchars($piece['desc_en']) ?>
+                                </a>
+                            <?php endif; ?>
+                            <span class="set-piece-type" style="display: block; font-size: 0.9em; color: #888;">(<?= formatArmorType($piece['type']) ?>)</span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <?php endforeach; ?>
-                </ul>
+                </div>
+                <?php endif; ?>
             </div>
+            <?php endif; ?>
+
+            <div class="set-bonuses">
+                <h4>Set Bonus:</h4>
+                <table class="detail-table" style="border-top: 1px solid var(--border-color);">
+                    <?php if ($accessorySet['ac'] != 0): ?>
+                    <tr>
+                        <th>AC</th>
+                        <td><?= $accessorySet['ac'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['hp'] != 0): ?>
+                    <tr>
+                        <th>HP</th>
+                        <td><?= $accessorySet['hp'] > 0 ? '+' . $accessorySet['hp'] : $accessorySet['hp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['mp'] != 0): ?>
+                    <tr>
+                        <th>MP</th>
+                        <td><?= $accessorySet['mp'] > 0 ? '+' . $accessorySet['mp'] : $accessorySet['mp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['hpr'] != 0): ?>
+                    <tr>
+                        <th>HP Regen</th>
+                        <td><?= $accessorySet['hpr'] > 0 ? '+' . $accessorySet['hpr'] : $accessorySet['hpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['mpr'] != 0): ?>
+                    <tr>
+                        <th>MP Regen</th>
+                        <td><?= $accessorySet['mpr'] > 0 ? '+' . $accessorySet['mpr'] : $accessorySet['mpr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['mr'] != 0): ?>
+                    <tr>
+                        <th>Magic Resistance</th>
+                        <td><?= $accessorySet['mr'] > 0 ? '+' . $accessorySet['mr'] : $accessorySet['mr'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['str'] != 0): ?>
+                    <tr>
+                        <th>STR</th>
+                        <td><?= $accessorySet['str'] > 0 ? '+' . $accessorySet['str'] : $accessorySet['str'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['dex'] != 0): ?>
+                    <tr>
+                        <th>DEX</th>
+                        <td><?= $accessorySet['dex'] > 0 ? '+' . $accessorySet['dex'] : $accessorySet['dex'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['con'] != 0): ?>
+                    <tr>
+                        <th>CON</th>
+                        <td><?= $accessorySet['con'] > 0 ? '+' . $accessorySet['con'] : $accessorySet['con'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['wis'] != 0): ?>
+                    <tr>
+                        <th>WIS</th>
+                        <td><?= $accessorySet['wis'] > 0 ? '+' . $accessorySet['wis'] : $accessorySet['wis'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['cha'] != 0): ?>
+                    <tr>
+                        <th>CHA</th>
+                        <td><?= $accessorySet['cha'] > 0 ? '+' . $accessorySet['cha'] : $accessorySet['cha'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['intl'] != 0): ?>
+                    <tr>
+                        <th>INT</th>
+                        <td><?= $accessorySet['intl'] > 0 ? '+' . $accessorySet['intl'] : $accessorySet['intl'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['sp'] != 0): ?>
+                    <tr>
+                        <th>SP</th>
+                        <td><?= $accessorySet['sp'] > 0 ? '+' . $accessorySet['sp'] : $accessorySet['sp'] ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <!-- Weapon stats if any -->
+                    <?php if ($accessorySet['shorthitup'] != 0 || $accessorySet['shortdmgup'] != 0 || $accessorySet['shortCritical'] != 0): ?>
+                    <tr>
+                        <th>Melee Stats</th>
+                        <td>
+                            <?php if ($accessorySet['shorthitup'] != 0): ?>
+                                Hit: <?= $accessorySet['shorthitup'] > 0 ? '+' . $accessorySet['shorthitup'] : $accessorySet['shorthitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['shortdmgup'] != 0): ?>
+                                Damage: <?= $accessorySet['shortdmgup'] > 0 ? '+' . $accessorySet['shortdmgup'] : $accessorySet['shortdmgup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['shortCritical'] != 0): ?>
+                                Critical: <?= $accessorySet['shortCritical'] > 0 ? '+' . $accessorySet['shortCritical'] : $accessorySet['shortCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['longhitup'] != 0 || $accessorySet['longdmgup'] != 0 || $accessorySet['longCritical'] != 0): ?>
+                    <tr>
+                        <th>Ranged Stats</th>
+                        <td>
+                            <?php if ($accessorySet['longhitup'] != 0): ?>
+                                Hit: <?= $accessorySet['longhitup'] > 0 ? '+' . $accessorySet['longhitup'] : $accessorySet['longhitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['longdmgup'] != 0): ?>
+                                Damage: <?= $accessorySet['longdmgup'] > 0 ? '+' . $accessorySet['longdmgup'] : $accessorySet['longdmgup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['longCritical'] != 0): ?>
+                                Critical: <?= $accessorySet['longCritical'] > 0 ? '+' . $accessorySet['longCritical'] : $accessorySet['longCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['magichitup'] != 0 || $accessorySet['magicCritical'] != 0): ?>
+                    <tr>
+                        <th>Magic Stats</th>
+                        <td>
+                            <?php if ($accessorySet['magichitup'] != 0): ?>
+                                Hit: <?= $accessorySet['magichitup'] > 0 ? '+' . $accessorySet['magichitup'] : $accessorySet['magichitup'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['magicCritical'] != 0): ?>
+                                Critical: <?= $accessorySet['magicCritical'] > 0 ? '+' . $accessorySet['magicCritical'] : $accessorySet['magicCritical'] ?>%
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <!-- Elemental Resistances -->
+                    <?php if ($accessorySet['earth'] != 0 || $accessorySet['fire'] != 0 || $accessorySet['wind'] != 0 || $accessorySet['water'] != 0): ?>
+                    <tr>
+                        <th>Elemental Resistance</th>
+                        <td>
+                            <?php if ($accessorySet['earth'] != 0): ?>
+                                Earth: <?= $accessorySet['earth'] > 0 ? '+' . $accessorySet['earth'] : $accessorySet['earth'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['fire'] != 0): ?>
+                                Fire: <?= $accessorySet['fire'] > 0 ? '+' . $accessorySet['fire'] : $accessorySet['fire'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['wind'] != 0): ?>
+                                Wind: <?= $accessorySet['wind'] > 0 ? '+' . $accessorySet['wind'] : $accessorySet['wind'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['water'] != 0): ?>
+                                Water: <?= $accessorySet['water'] > 0 ? '+' . $accessorySet['water'] : $accessorySet['water'] ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($accessorySet['reduction'] != 0 || $accessorySet['magicReduction'] != 0): ?>
+                    <tr>
+                        <th>Damage Reduction</th>
+                        <td>
+                            <?php if ($accessorySet['reduction'] != 0): ?>
+                                Physical: <?= $accessorySet['reduction'] > 0 ? '+' . $accessorySet['reduction'] : $accessorySet['reduction'] ?><br>
+                            <?php endif; ?>
+                            <?php if ($accessorySet['magicReduction'] != 0): ?>
+                                Magic: <?= $accessorySet['magicReduction'] > 0 ? '+' . $accessorySet['magicReduction'] : $accessorySet['magicReduction'] ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+
+            <?php if ($accessorySet['min_enchant'] > 0): ?>
+                <div class="set-requirement">
+                    <p>Minimum Enchant Required: +<?= $accessorySet['min_enchant'] ?></p>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($accessorySet['underWater'] === 'true'): ?>
+                <div class="set-special">
+                    <p>Special: Underwater Breathing</p>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($accessorySet['strangeTimeIncrease'] > 0): ?>
+                <div class="set-special">
+                    <p>Strange Time Increase: <?= $accessorySet['strangeTimeIncrease'] ?></p>
+                </div>
             <?php endif; ?>
         </div>
     </div>
@@ -295,10 +567,6 @@ $pageTitle = $accessory['desc_en'];
     <?php
     // Define all properties grouped by category
     $property_groups = [
-        'Traits' => [
-            'haste_item' => 'Haste',
-            'bless' => 'Blessed'
-        ],
         'Restrictions' => [
             'trade' => 'Tradable',
             'retrieve' => 'Retrievable',

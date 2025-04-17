@@ -446,21 +446,17 @@ function calculateMonsterDrops($npcId) {
 }
 
 /**
- * Format drop chance for display
- * @param int $chance Raw chance value (typically 1-1000000)
- * @return string Formatted percentage
+ * Format the drop chance of an item
+ * @param int $chance
+ * @return string
  */
 function formatDropChance($chance) {
-    if ($chance >= 1000000) return '100%';
-    
-    $percentage = ($chance / 10000); // Convert to percentage (10000 = 1%)
-    
-    if ($percentage < 0.01) {
-        return '<0.01%';
-    } elseif ($percentage < 1) {
-        return number_format($percentage, 2) . '%';
+    if ($chance >= 1000000) {
+        return '100%';
+    } elseif ($chance >= 10000) {
+        return round($chance / 10000, 2) . '%';
     } else {
-        return number_format($percentage, 1) . '%';
+        return round($chance / 10000, 4) . '%';
     }
 }
 
@@ -698,5 +694,12 @@ function getAvailabilityStatusHTML($isAvailable) {
  */
 function getUnavailableItemRowClass($isAvailable) {
     return $isAvailable ? '' : 'unavailable-item';
+}
+
+/**
+ * Sanitize output for HTML display
+ */
+function h($text) {
+    return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
 }
 

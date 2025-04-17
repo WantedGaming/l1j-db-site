@@ -55,13 +55,13 @@ if(!empty($whereConditions)) {
 // Add order by
 $query .= " ORDER BY 
     CASE 
-        WHEN w.itemGrade = 'ONLY' THEN 1
-        WHEN w.itemGrade = 'MYTH' THEN 2
-        WHEN w.itemGrade = 'LEGEND' THEN 3
+        WHEN w.itemGrade = 'NORMAL' THEN 1
+        WHEN w.itemGrade = 'ADVANC' THEN 2
+        WHEN w.itemGrade = 'RARE' THEN 3
         WHEN w.itemGrade = 'HERO' THEN 4
-        WHEN w.itemGrade = 'RARE' THEN 5
-        WHEN w.itemGrade = 'ADVANC' THEN 6
-        WHEN w.itemGrade = 'NORMAL' THEN 7
+        WHEN w.itemGrade = 'LEGEND' THEN 5
+        WHEN w.itemGrade = 'MYTH' THEN 6
+        WHEN w.itemGrade = 'ONLY' THEN 7
         ELSE 8
     END, w.desc_en ASC";
 

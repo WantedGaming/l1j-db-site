@@ -86,6 +86,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete']) && 
     redirect('index.php');
 }
 
+// Prepare image path for preview
+$imagePath = '';
+$base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
+
+// Check for map image using pngId first if available
+if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+    // First try using pngId
+    $png_id = $map['pngId'];
+    $image_path = "/assets/img/maps/{$png_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format if jpeg doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format if png doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+} else {
+    // Fall back to using mapId if pngId isn't available
+    $map_id = $map['mapid'];
+    $image_path = "/assets/img/maps/{$map_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
+}
+
+// Use placeholder if no image found
+if (!file_exists($server_path)) {
+    $image_path = "/assets/img/placeholders/map-placeholder.png";
+}
+
+// Final image URL
+$imagePath = SITE_URL . $image_path;
+
 // Set page title for the confirmation page
 $pageTitle = 'Delete Map';
 
@@ -111,6 +160,12 @@ require_once '../../includes/admin-header.php';
     
     <div class="card">
         <div class="card-content">
+            <div class="text-center mb-4">
+                <div class="image-preview-container" style="margin: 0 auto; max-width: 300px;">
+                    <img src="<?= $imagePath ?>" alt="Map Preview" class="item-image-preview" style="max-width: 100%;" onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
+                </div>
+            </div>
+            
             <div class="text-center">
                 <h2 class="text-danger">Warning: This action cannot be undone</h2>
                 <p>You are about to delete the following map:</p>

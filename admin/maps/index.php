@@ -136,6 +136,9 @@ $currentPath = $_SERVER['PHP_SELF'];
         grid-template-columns: repeat(4, 1fr);
         gap: 1.2rem;
         margin-bottom: 2rem;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
     }
     
     /* Responsive Adjustments */
@@ -229,6 +232,9 @@ $currentPath = $_SERVER['PHP_SELF'];
         margin-bottom: 2rem;
         border: 1px solid var(--border-color);
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
     }
     
     /* Badge Styles */
@@ -299,6 +305,13 @@ $currentPath = $_SERVER['PHP_SELF'];
     
     .property-icons i:hover {
         color: var(--accent);
+    }
+    
+    /* Fixed width container */
+    .admin-container {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>
 
@@ -433,18 +446,49 @@ $currentPath = $_SERVER['PHP_SELF'];
             <?php foreach ($maps as $map): ?>
                 <div class="card">
                     <?php 
-                    // Check for map image using mapId or pngId
+                    // Check for map image using mapId
                     $map_id = $map['mapid'];
                     $base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
-                    $image_path = "/assets/img/maps/{$map_id}.jpg";
                     
-                    // Try pngId if available
+                    // Check for map image using pngId first if available
                     if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+                        // First try using pngId
                         $png_id = $map['pngId'];
-                        $image_path_png = "/assets/img/maps/{$png_id}.jpg";
-                        if (file_exists($base_path . $image_path_png)) {
-                            $image_path = $image_path_png;
+                        $image_path = "/assets/img/maps/{$png_id}.jpeg";
+                        $server_path = $base_path . $image_path;
+                        
+                        // Try png format if jpeg doesn't exist
+                        if (!file_exists($server_path)) {
+                            $image_path = "/assets/img/maps/{$png_id}.png";
+                            $server_path = $base_path . $image_path;
                         }
+                        
+                        // Try jpg format if png doesn't exist
+                        if (!file_exists($server_path)) {
+                            $image_path = "/assets/img/maps/{$png_id}.jpg";
+                            $server_path = $base_path . $image_path;
+                        }
+                    } else {
+                        // Fall back to using mapId if pngId isn't available
+                        $image_path = "/assets/img/maps/{$map_id}.jpeg";
+                        $server_path = $base_path . $image_path;
+                        
+                        // Try png format if jpeg doesn't exist
+                        if (!file_exists($server_path)) {
+                            $image_path = "/assets/img/maps/{$map_id}.png";
+                            $server_path = $base_path . $image_path;
+                        }
+                        
+                        // Try jpg format if png doesn't exist
+                        if (!file_exists($server_path)) {
+                            $image_path = "/assets/img/maps/{$map_id}.jpg";
+                            $server_path = $base_path . $image_path;
+                        }
+                    }
+                    
+                    // Use placeholder if no image found
+                    if (!file_exists($server_path)) {
+                        $image_path = "/assets/img/placeholders/map-placeholder.png";
                     }
                     
                     // Final image URL

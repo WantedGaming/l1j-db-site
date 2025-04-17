@@ -146,6 +146,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+// For new maps, we'll use a placeholder image, but if we have a mapid or pngId, we can try to preview
+$previewImage = SITE_URL . '/assets/img/placeholders/map-placeholder.png';
+
+// Check if we can show a preview for entered values
+if (!empty($map['mapid']) || (!empty($map['pngId']) && $map['pngId'] > 0)) {
+    $base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
+    
+    // Check for map image using pngId first if available
+    if (!empty($map['pngId']) && $map['pngId'] > 0) {
+        $png_id = $map['pngId'];
+        $image_path = "/assets/img/maps/{$png_id}.jpeg";
+        $server_path = $base_path . $image_path;
+        
+        // Try png format if jpeg doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$png_id}.png";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // Try jpg format if png doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$png_id}.jpg";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // If an image is found, set it as preview
+        if (file_exists($server_path)) {
+            $previewImage = SITE_URL . $image_path;
+        }
+    } 
+    // If no pngId or no image found with pngId, try with mapId
+    else if (!empty($map['mapid'])) {
+        $map_id = $map['mapid'];
+        $image_path = "/assets/img/maps/{$map_id}.jpeg";
+        $server_path = $base_path . $image_path;
+        
+        // Try png format if jpeg doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$map_id}.png";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // Try jpg format if png doesn't exist
+        if (!file_exists($server_path)) {
+            $image_path = "/assets/img/maps/{$map_id}.jpg";
+            $server_path = $base_path . $image_path;
+        }
+        
+        // If an image is found, set it as preview
+        if (file_exists($server_path)) {
+            $previewImage = SITE_URL . $image_path;
+        }
+    }
+}
 ?>
 
 <div class="admin-container">
@@ -190,55 +245,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-section active" id="basic-info">
                     <h3>Basic Information</h3>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="mapid">Map ID *</label>
-                            <input type="number" id="mapid" name="mapid" value="<?= htmlspecialchars($map['mapid']) ?>" required>
-                            <small>Unique identifier for the map</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="locationname">Location Name *</label>
-                            <input type="text" id="locationname" name="locationname" value="<?= htmlspecialchars($map['locationname']) ?>" required>
-                            <small>English name of the map location</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="desc_kr">Korean Name</label>
-                            <input type="text" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($map['desc_kr']) ?>">
-                            <small>Korean name of the map location</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="pngId">Image ID</label>
-                            <input type="number" id="pngId" name="pngId" value="<?= htmlspecialchars($map['pngId']) ?>">
-                            <small>ID for the map image file</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="min_level">Minimum Level</label>
-                            <input type="number" id="min_level" name="min_level" value="<?= htmlspecialchars($map['min_level']) ?>">
-                            <small>Minimum recommended level (0 = No level restriction)</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="max_level">Maximum Level</label>
-                            <input type="number" id="max_level" name="max_level" value="<?= htmlspecialchars($map['max_level']) ?>">
-                            <small>Maximum recommended level (0 = No level restriction)</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input type="checkbox" id="dungeon" name="dungeon" <?= $map['dungeon'] ? 'checked' : '' ?>>
-                                <label for="dungeon">Dungeon</label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Map Image Preview - Will show placeholder for new maps -->
+                            <div class="image-preview-container">
+                                <img src="<?= $previewImage ?>" alt="Map Preview" class="item-image-preview" onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
                             </div>
-                            <small>Check if this map is a dungeon (unchecked = field map)</small>
+                            <p class="text-center mt-2">Image preview will update based on Map ID or Image ID when saved</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="mapid">Map ID *</label>
+                                    <input type="number" id="mapid" name="mapid" value="<?= htmlspecialchars($map['mapid']) ?>" required>
+                                    <small>Unique identifier for the map</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="locationname">Location Name *</label>
+                                    <input type="text" id="locationname" name="locationname" value="<?= htmlspecialchars($map['locationname']) ?>" required>
+                                    <small>English name of the map location</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="desc_kr">Korean Name</label>
+                                    <input type="text" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($map['desc_kr']) ?>">
+                                    <small>Korean name of the map location</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="pngId">Image ID</label>
+                                    <input type="number" id="pngId" name="pngId" value="<?= htmlspecialchars($map['pngId']) ?>">
+                                    <small>ID for the map image file</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="min_level">Minimum Level</label>
+                                    <input type="number" id="min_level" name="min_level" value="<?= htmlspecialchars($map['min_level']) ?>">
+                                    <small>Minimum recommended level (0 = No level restriction)</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="max_level">Maximum Level</label>
+                                    <input type="number" id="max_level" name="max_level" value="<?= htmlspecialchars($map['max_level']) ?>">
+                                    <small>Maximum recommended level (0 = No level restriction)</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="dungeon" name="dungeon" <?= $map['dungeon'] ? 'checked' : '' ?>>
+                                        <label for="dungeon">Dungeon</label>
+                                    </div>
+                                    <small>Check if this map is a dungeon (unchecked = field map)</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

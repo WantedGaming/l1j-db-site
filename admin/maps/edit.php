@@ -120,11 +120,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Prepare image path for preview
 $imagePath = '';
-if (!empty($map['pngId']) && $map['pngId'] > 0) {
-    $imagePath = SITE_URL . "/assets/img/maps/{$map['pngId']}.jpg";
+$base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
+
+// Check for map image using pngId first if available
+if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+    // First try using pngId
+    $png_id = $map['pngId'];
+    $image_path = "/assets/img/maps/{$png_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format if jpeg doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format if png doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$png_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
 } else {
-    $imagePath = SITE_URL . "/assets/img/maps/{$map['mapid']}.jpg";
+    // Fall back to using mapId if pngId isn't available
+    $map_id = $map['mapid'];
+    $image_path = "/assets/img/maps/{$map_id}.jpeg";
+    $server_path = $base_path . $image_path;
+    
+    // Try png format if jpeg doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.png";
+        $server_path = $base_path . $image_path;
+    }
+    
+    // Try jpg format if png doesn't exist
+    if (!file_exists($server_path)) {
+        $image_path = "/assets/img/maps/{$map_id}.jpg";
+        $server_path = $base_path . $image_path;
+    }
 }
+
+// Use placeholder if no image found
+if (!file_exists($server_path)) {
+    $image_path = "/assets/img/placeholders/map-placeholder.png";
+}
+
+// Final image URL
+$imagePath = SITE_URL . $image_path;
 
 // Helper function to safely handle HTML escaping
 function safe_html($value) {
@@ -220,12 +261,14 @@ function safe_html($value) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="min_level">Minimum Level</label>
-                                    <input type="number" id="pngId" name="pngId" value="<?= isset($map['pngId']) ? safe_html($map['pngId']) : '' ?>">
+                                    <input type="number" id="min_level" name="min_level" value="<?= isset($map['min_level']) ? safe_html($map['min_level']) : '0' ?>">
+                                    <small>Minimum recommended level (0 = No level restriction)</small>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="max_level">Maximum Level</label>
-                                    <input type="checkbox" id="dungeon" name="dungeon" <?= isset($map['dungeon']) && $map['dungeon'] ? 'checked' : '' ?>>
+                                    <input type="number" id="max_level" name="max_level" value="<?= isset($map['max_level']) ? safe_html($map['max_level']) : '0' ?>">
+                                    <small>Maximum recommended level (0 = No level restriction)</small>
                                 </div>
                             </div>
                         </div>

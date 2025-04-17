@@ -128,18 +128,20 @@ $maps = $db->getRows($sql, $params);
 $currentPath = $_SERVER['PHP_SELF'];
 ?>
 
-<!-- Add custom CSS for card grid -->
+<!-- Enhanced custom CSS for the cards grid -->
 <style>
+    /* Card Grid Layout */
     .card-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
+        gap: 1.2rem;
         margin-bottom: 2rem;
     }
     
+    /* Responsive Adjustments */
     @media (max-width: 1200px) {
         .card-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
         }
     }
     
@@ -161,87 +163,142 @@ $currentPath = $_SERVER['PHP_SELF'];
         }
     }
     
+    /* Enhanced Card Styling */
     .card {
         width: 100%;
-        transition: transform 0.2s;
-        background: #1a1a1a;
-        border: 1px solid #333;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: var(--primary);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
     .card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        border-color: var(--accent);
     }
     
     .card-image {
-        height: 120px !important;
+        height: 150px !important;
         background-size: cover;
         background-position: center;
-        background-color: #2a2a2a;
+        object-fit: cover;
+        width: 100%;
+        background-color: var(--secondary);
     }
     
     .card-content {
         padding: 1rem;
+        display: flex;
+        flex-direction: column;
     }
     
     .card-title {
-        font-size: 1rem;
+        font-size: 1.1rem;
         margin-bottom: 0.5rem;
-        color: #fff;
+        color: var(--text);
+        font-weight: 600;
     }
     
     .card-text {
-        font-size: 0.85rem;
-        color: #ccc;
+        color: #cccccc;
+        font-size: 0.9rem;
     }
     
     .card-text p {
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.5rem;
     }
     
     .card-actions {
-        padding: 0.5rem 1rem;
-        background: #252525;
+        padding: 0.75rem 1rem;
+        background: var(--secondary);
         display: flex;
         gap: 0.5rem;
         justify-content: flex-end;
+        border-top: 1px solid var(--border-color);
+        margin-top: auto;
     }
     
+    /* Filter Container Styling */
     .filter-container {
-        background: #1a1a1a;
+        background: var(--primary);
         padding: 1.5rem;
         border-radius: 8px;
         margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     
+    /* Badge Styles */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .badge-danger {
+        background-color: #dc3545;
+    }
+    
+    .badge-secondary {
+        background-color: #6c757d;
+    }
+    
+    /* Action Buttons */
+    .btn-sm.btn-edit, 
+    .btn-sm.btn-delete, 
+    .btn-sm.btn-view {
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Hero Section Styling */
+    .admin-hero-section {
+        background-color: var(--primary);
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Filters Form */
     .filters-form {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
     }
     
-    .filter-group {
-        margin-bottom: 1rem;
+    .filter-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+        gap: 0.5rem;
     }
     
-    .filter-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #fff;
+    /* Property Icons */
+    .property-icons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        color: var(--text);
+        opacity: 0.7;
     }
     
-    .filter-group select {
-        width: 100%;
-        padding: 0.5rem;
-        background: #252525;
-        border: 1px solid #333;
-        color: #fff;
-        border-radius: 4px;
+    .property-icons i {
+        transition: color 0.3s ease;
     }
     
-    .sort-group {
-        grid-column: 1 / -1;
+    .property-icons i:hover {
+        color: var(--accent);
     }
 </style>
 
@@ -288,17 +345,17 @@ $currentPath = $_SERVER['PHP_SELF'];
             <?php endif; ?>
             
             <div class="filter-group">
-                <label for="dungeon">Dungeon</label>
-                <select name="dungeon" id="dungeon">
-                    <option value="-1">All</option>
-                    <option value="1" <?= $dungeon_filter === 1 ? 'selected' : '' ?>>Yes</option>
-                    <option value="0" <?= $dungeon_filter === 0 ? 'selected' : '' ?>>No</option>
+                <label for="dungeon">Area Type:</label>
+                <select name="dungeon" id="dungeon" class="form-control">
+                    <option value="-1">All Areas</option>
+                    <option value="1" <?= $dungeon_filter === 1 ? 'selected' : '' ?>>Dungeon</option>
+                    <option value="0" <?= $dungeon_filter === 0 ? 'selected' : '' ?>>Field</option>
                 </select>
             </div>
             
             <div class="filter-group">
-                <label for="teleportable">Teleportable</label>
-                <select name="teleportable" id="teleportable">
+                <label for="teleportable">Teleportable:</label>
+                <select name="teleportable" id="teleportable" class="form-control">
                     <option value="-1">All</option>
                     <option value="1" <?= $teleportable_filter === 1 ? 'selected' : '' ?>>Yes</option>
                     <option value="0" <?= $teleportable_filter === 0 ? 'selected' : '' ?>>No</option>
@@ -306,8 +363,8 @@ $currentPath = $_SERVER['PHP_SELF'];
             </div>
             
             <div class="filter-group">
-                <label for="markable">Markable</label>
-                <select name="markable" id="markable">
+                <label for="markable">Markable:</label>
+                <select name="markable" id="markable" class="form-control">
                     <option value="-1">All</option>
                     <option value="1" <?= $markable_filter === 1 ? 'selected' : '' ?>>Yes</option>
                     <option value="0" <?= $markable_filter === 0 ? 'selected' : '' ?>>No</option>
@@ -315,56 +372,112 @@ $currentPath = $_SERVER['PHP_SELF'];
             </div>
             
             <div class="filter-group">
-                <label for="underwater">Underwater</label>
-                <select name="underwater" id="underwater">
+                <label for="underwater">Underwater:</label>
+                <select name="underwater" id="underwater" class="form-control">
                     <option value="-1">All</option>
                     <option value="1" <?= $underwater_filter === 1 ? 'selected' : '' ?>>Yes</option>
                     <option value="0" <?= $underwater_filter === 0 ? 'selected' : '' ?>>No</option>
                 </select>
             </div>
             
-            <div class="filter-group sort-group">
-                <label for="sort">Sort By</label>
-                <select name="sort" id="sort">
+            <div class="filter-group">
+                <label for="sort">Sort By:</label>
+                <select name="sort" id="sort" class="form-control">
                     <option value="name_asc" <?= $sort === 'name_asc' ? 'selected' : '' ?>>Name (A-Z)</option>
                     <option value="name_desc" <?= $sort === 'name_desc' ? 'selected' : '' ?>>Name (Z-A)</option>
                     <option value="mapid_asc" <?= $sort === 'mapid_asc' ? 'selected' : '' ?>>Map ID (Low-High)</option>
                     <option value="mapid_desc" <?= $sort === 'mapid_desc' ? 'selected' : '' ?>>Map ID (High-Low)</option>
-                    <option value="dungeon_asc" <?= $sort === 'dungeon_asc' ? 'selected' : '' ?>>Dungeon (Yes-No)</option>
-                    <option value="dungeon_desc" <?= $sort === 'dungeon_desc' ? 'selected' : '' ?>>Dungeon (No-Yes)</option>
+                    <option value="dungeon_asc" <?= $sort === 'dungeon_asc' ? 'selected' : '' ?>>Field First</option>
+                    <option value="dungeon_desc" <?= $sort === 'dungeon_desc' ? 'selected' : '' ?>>Dungeon First</option>
                 </select>
             </div>
             
-            <div class="filter-group">
-                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            <div class="filter-buttons">
+                <a href="<?= $currentPath ?>" class="btn btn-secondary">Reset</a>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
             </div>
         </form>
     </div>
     
+    <!-- Filter summary -->
+    <?php if (!empty($whereClauses)): ?>
+        <div style="margin-bottom: 1.5rem;">
+            <span>Filters applied:</span>
+            <span style="display: inline-flex; flex-wrap: wrap; gap: 0.5rem; margin-left: 0.5rem;">
+                <?php if (!empty($name_search)): ?>
+                    <span class="badge badge-secondary">Search: <?= htmlspecialchars($name_search) ?></span>
+                <?php endif; ?>
+                <?php if ($dungeon_filter !== -1): ?>
+                    <span class="badge badge-secondary">Area: <?= $dungeon_filter ? 'Dungeon' : 'Field' ?></span>
+                <?php endif; ?>
+                <?php if ($teleportable_filter !== -1): ?>
+                    <span class="badge badge-secondary">Teleportable: <?= $teleportable_filter ? 'Yes' : 'No' ?></span>
+                <?php endif; ?>
+                <?php if ($markable_filter !== -1): ?>
+                    <span class="badge badge-secondary">Markable: <?= $markable_filter ? 'Yes' : 'No' ?></span>
+                <?php endif; ?>
+                <?php if ($underwater_filter !== -1): ?>
+                    <span class="badge badge-secondary">Underwater: <?= $underwater_filter ? 'Yes' : 'No' ?></span>
+                <?php endif; ?>
+            </span>
+        </div>
+    <?php endif; ?>
+    
     <!-- Maps Grid -->
     <div class="card-grid">
         <?php if (empty($maps)): ?>
-            <div class="col-span-full text-center py-8">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: var(--primary); border-radius: 8px; border: 1px solid var(--border-color);">
                 <p>No maps found matching your criteria.</p>
             </div>
         <?php else: ?>
             <?php foreach ($maps as $map): ?>
                 <div class="card">
-                    <div class="card-image" style="background-image: url('<?= SITE_URL ?>/assets/img/maps/<?= !empty($map['pngId']) ? $map['pngId'] : $map['mapid'] ?>.jpg')"></div>
+                    <?php 
+                    // Check for map image using mapId or pngId
+                    $map_id = $map['mapid'];
+                    $base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
+                    $image_path = "/assets/img/maps/{$map_id}.jpg";
+                    
+                    // Try pngId if available
+                    if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
+                        $png_id = $map['pngId'];
+                        $image_path_png = "/assets/img/maps/{$png_id}.jpg";
+                        if (file_exists($base_path . $image_path_png)) {
+                            $image_path = $image_path_png;
+                        }
+                    }
+                    
+                    // Final image URL
+                    $image_url = SITE_URL . $image_path;
+                    ?>
+                    <div class="card-image" style="background-image: url('<?= $image_url ?>'); background-size: cover; background-position: center;"></div>
                     <div class="card-content">
                         <h3 class="card-title"><?= htmlspecialchars($map['locationname']) ?></h3>
                         <div class="card-text">
                             <p>Map ID: <?= $map['mapid'] ?></p>
-                            <p>Level: <?= isset($map['min_level']) && $map['min_level'] ? $map['min_level'].'-'.$map['max_level'] : 'N/A' ?></p>
-                            <p>Dungeon: <?= $map['dungeon'] ? 'Yes' : 'No' ?></p>
-                            <p>Teleportable: <?= $map['teleportable'] ? 'Yes' : 'No' ?></p>
+                            <p><?= isset($map['min_level']) && $map['min_level'] ? 'Level: ' . $map['min_level'] . '-' . $map['max_level'] : '' ?></p>
+                            <p>
+                                <?= $map['dungeon'] ? '<span class="badge badge-danger">Dungeon</span>' : '<span class="badge badge-secondary">Field</span>' ?>
+                            </p>
+                            <div class="property-icons">
+                                <?php if ($map['teleportable']): ?>
+                                    <span title="Teleportable"><i class="fas fa-magic"></i></span>
+                                <?php endif; ?>
+                                <?php if ($map['markable']): ?>
+                                    <span title="Markable"><i class="fas fa-map-marker-alt"></i></span>
+                                <?php endif; ?>
+                                <?php if ($map['underwater']): ?>
+                                    <span title="Underwater"><i class="fas fa-water"></i></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                     <div class="card-actions">
                         <a href="edit.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-edit" title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="delete.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-delete" title="Delete">
+                        <a href="#" class="btn btn-sm btn-delete" title="Delete" 
+                           onclick="confirmDelete(<?= $map['mapid'] ?>, '<?= addslashes($map['locationname']) ?>')">
                             <i class="fas fa-trash"></i>
                         </a>
                         <a href="<?= SITE_URL ?>/pages/maps/detail.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
@@ -385,10 +498,10 @@ $currentPath = $_SERVER['PHP_SELF'];
             
             <div class="pagination-links">
                 <?php if ($page > 1): ?>
-                    <a href="<?= $currentPath ?>?page=1<?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?>" class="pagination-link">
+                    <a href="<?= $currentPath ?>?page=1<?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?><?= $dungeon_filter !== -1 ? '&dungeon='.$dungeon_filter : '' ?><?= $sort ? '&sort='.$sort : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
-                    <a href="<?= $currentPath ?>?page=<?= ($page - 1) ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?>" class="pagination-link">
+                    <a href="<?= $currentPath ?>?page=<?= ($page - 1) ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?><?= $dungeon_filter !== -1 ? '&dungeon='.$dungeon_filter : '' ?><?= $sort ? '&sort='.$sort : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 <?php else: ?>
@@ -404,9 +517,16 @@ $currentPath = $_SERVER['PHP_SELF'];
                     echo '<span class="pagination-ellipsis">...</span>';
                 }
                 
-                for ($i = $startPage; $i <= $endPage; $i++): ?>
-                    <a href="<?= $currentPath ?>?page=<?= $i ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?>" 
-                       class="pagination-link <?= ($i == $page) ? 'active' : '' ?>">
+                for ($i = $startPage; $i <= $endPage; $i++): 
+                    $url = $currentPath . '?page=' . $i;
+                    if (isset($_GET['search'])) $url .= '&search=' . urlencode($_GET['search']);
+                    if ($dungeon_filter !== -1) $url .= '&dungeon=' . $dungeon_filter;
+                    if ($teleportable_filter !== -1) $url .= '&teleportable=' . $teleportable_filter;
+                    if ($markable_filter !== -1) $url .= '&markable=' . $markable_filter;
+                    if ($underwater_filter !== -1) $url .= '&underwater=' . $underwater_filter;
+                    if ($sort) $url .= '&sort=' . $sort;
+                ?>
+                    <a href="<?= $url ?>" class="pagination-link <?= ($i == $page) ? 'active' : '' ?>">
                         <?= $i ?>
                     </a>
                 <?php endfor;
@@ -417,10 +537,10 @@ $currentPath = $_SERVER['PHP_SELF'];
                 ?>
                 
                 <?php if ($page < $totalPages): ?>
-                    <a href="<?= $currentPath ?>?page=<?= ($page + 1) ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?>" class="pagination-link">
+                    <a href="<?= $currentPath ?>?page=<?= ($page + 1) ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?><?= $dungeon_filter !== -1 ? '&dungeon='.$dungeon_filter : '' ?><?= $sort ? '&sort='.$sort : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-right"></i>
                     </a>
-                    <a href="<?= $currentPath ?>?page=<?= $totalPages ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?>" class="pagination-link">
+                    <a href="<?= $currentPath ?>?page=<?= $totalPages ?><?= isset($_GET['search']) ? '&search='.urlencode($_GET['search']) : '' ?><?= $dungeon_filter !== -1 ? '&dungeon='.$dungeon_filter : '' ?><?= $sort ? '&sort='.$sort : '' ?>" class="pagination-link">
                         <i class="fas fa-angle-double-right"></i>
                     </a>
                 <?php else: ?>
@@ -431,6 +551,65 @@ $currentPath = $_SERVER['PHP_SELF'];
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the map: <span id="deleteItemName"></span>?</p>
+            <p class="warning">This action cannot be undone!</p>
+        </div>
+        <div class="modal-footer">
+            <form id="deleteForm" method="POST">
+                <input type="hidden" name="confirm_delete" value="yes">
+                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Delete confirmation modal functionality
+function confirmDelete(id, name) {
+    var modal = document.getElementById('deleteModal');
+    var nameSpan = document.getElementById('deleteItemName');
+    var deleteForm = document.getElementById('deleteForm');
+    
+    // Set the item name and form action
+    nameSpan.textContent = name;
+    deleteForm.action = 'index.php?action=delete&id=' + id;
+    
+    // Display the modal
+    modal.style.display = 'block';
+    
+    // Close modal functionality
+    var closeButtons = modal.getElementsByClassName('close');
+    for (var i = 0; i < closeButtons.length; i++) {
+        closeButtons[i].onclick = function() {
+            modal.style.display = 'none';
+        }
+    }
+    
+    var cancelButtons = modal.getElementsByClassName('close-modal');
+    for (var i = 0; i < cancelButtons.length; i++) {
+        cancelButtons[i].onclick = function() {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Close when clicking outside the modal
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+}
+</script>
 
 <?php
 // Include admin footer

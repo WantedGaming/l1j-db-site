@@ -452,7 +452,8 @@ $yesNoOptions = [
                     <div class="acquisition-card-body">
                         <h6 class="text-center"><?= htmlspecialchars($setInfo['note'] ?: 'Set #'.$setInfo['id']) ?></h6>
                         <?php if (!empty($setInfo['sets'])): ?>
-                            <p><small>This armor is part of a set with the following bonuses:</small></p>
+							<br/>
+							<br/>
                             <ul class="list-group list-group-flush bg-transparent">
                                 <?php if ($setInfo['str'] > 0): ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
@@ -548,12 +549,12 @@ $yesNoOptions = [
                             <div class="col-lg-12 form-section active" id="basic-section">
                                 <div class="card bg-dark">
                                     <div class="card-header">
-                                        Basic Information
+                                        Basic Detail
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                <label for="item_name_id" class="form-label">Item Name ID</label>
+                                                <label for="item_name_id" class="form-label">Item ID</label>
                                                 <input type="number" class="form-control no-spinner" id="item_name_id" name="item_name_id" value="<?= (int)$armor['item_name_id'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -565,7 +566,7 @@ $yesNoOptions = [
                                                 <input type="text" class="form-control" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($armor['desc_kr'] ?? '') ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="desc_powerbook" class="form-label">Powerbook Description</label>
+                                                <label for="desc_powerbook" class="form-label">Wiki Description</label>
                                                 <input type="text" class="form-control" id="desc_powerbook" name="desc_powerbook" value="<?= htmlspecialchars($armor['desc_powerbook'] ?? '') ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -633,7 +634,7 @@ $yesNoOptions = [
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="ac" class="form-label">AC (Armor Class)</label>
+                                                <label for="ac" class="form-label">AC</label>
                                                 <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$armor['ac'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
@@ -665,7 +666,7 @@ $yesNoOptions = [
                                                 <input type="number" class="form-control no-spinner" id="bow_dmg_rate" name="bow_dmg_rate" value="<?= (int)$armor['bow_dmg_rate'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="safenchant" class="form-label">Safe Enchant Level</label>
+                                                <label for="safenchant" class="form-label">Safe Enchant</label>
                                                 <input type="number" class="form-control no-spinner" id="safenchant" name="safenchant" value="<?= (int)$armor['safenchant'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
@@ -677,11 +678,11 @@ $yesNoOptions = [
                                                 <input type="number" class="form-control no-spinner" id="carryBonus" name="carryBonus" value="<?= (int)$armor['carryBonus'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="min_lvl" class="form-label">Minimum Level</label>
+                                                <label for="min_lvl" class="form-label">Min Lvl</label>
                                                 <input type="number" class="form-control no-spinner" id="min_lvl" name="min_lvl" value="<?= (int)$armor['min_lvl'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="max_lvl" class="form-label">Maximum Level</label>
+                                                <label for="max_lvl" class="form-label">Max Lvl</label>
                                                 <input type="number" class="form-control no-spinner" id="max_lvl" name="max_lvl" value="<?= (int)$armor['max_lvl'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">

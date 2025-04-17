@@ -340,7 +340,7 @@ if (strpos($materialName, '(') !== false) {
                     <form method="POST" action="" id="editForm">
                         <div class="row">
                             <!-- Form Tabs -->
-                            <div class="col-lg-12 mb-4">
+                            <div class="col-lg-12 mb-0">
                                 <div class="form-tabs">
                                     <button type="button" class="form-tab active" data-tab="basic">Basic</button>
                                     <button type="button" class="form-tab" data-tab="properties">Properties</button>
@@ -518,7 +518,8 @@ if (strpos($materialName, '(') !== false) {
                                     </div>
                                 </div>
                             </div>
-							<!-- Combat Stats Section -->
+                            
+                            <!-- Combat Stats Section -->
                             <div class="col-lg-12 form-section" id="combat-section">
                                 <div class="card bg-dark">
                                     <div class="card-header">
@@ -620,7 +621,7 @@ if (strpos($materialName, '(') !== false) {
                                 </div>
                             </div>
                             
-                            <!-- Item Properties Section (New) -->
+                            <!-- Item Properties Section -->
                             <div class="col-lg-12 form-section" id="item_properties-section">
                                 <div class="card bg-dark">
                                     <div class="card-header">
@@ -757,13 +758,25 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             
             // Hide all sections
-            sections.forEach(section => section.classList.remove('active'));
+            sections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
             
             // Show the selected section
             const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId + '-section').classList.add('active');
+            const activeSection = document.getElementById(tabId + '-section');
+            activeSection.style.display = 'block';
+            setTimeout(() => {
+                activeSection.classList.add('active');
+            }, 10);
         });
     });
+    
+    // Initialize first tab as active if none is active
+    if (!document.querySelector('.form-tab.active') && tabs.length > 0) {
+        tabs[0].click();
+    }
     
     // Image preview functionality
     const iconIdInput = document.getElementById('iconId');

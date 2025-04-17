@@ -124,47 +124,39 @@ $base_path = $_SERVER['DOCUMENT_ROOT'] . parse_url(SITE_URL, PHP_URL_PATH);
 
 // Check for map image using pngId first if available
 if (isset($map['pngId']) && !empty($map['pngId']) && $map['pngId'] > 0) {
-    // First try using pngId
     $png_id = $map['pngId'];
     $image_path = "/assets/img/maps/{$png_id}.jpeg";
     $server_path = $base_path . $image_path;
     
-    // Try png format if jpeg doesn't exist
     if (!file_exists($server_path)) {
         $image_path = "/assets/img/maps/{$png_id}.png";
         $server_path = $base_path . $image_path;
     }
     
-    // Try jpg format if png doesn't exist
     if (!file_exists($server_path)) {
         $image_path = "/assets/img/maps/{$png_id}.jpg";
         $server_path = $base_path . $image_path;
     }
 } else {
-    // Fall back to using mapId if pngId isn't available
     $map_id = $map['mapid'];
     $image_path = "/assets/img/maps/{$map_id}.jpeg";
     $server_path = $base_path . $image_path;
     
-    // Try png format if jpeg doesn't exist
     if (!file_exists($server_path)) {
         $image_path = "/assets/img/maps/{$map_id}.png";
         $server_path = $base_path . $image_path;
     }
     
-    // Try jpg format if png doesn't exist
     if (!file_exists($server_path)) {
         $image_path = "/assets/img/maps/{$map_id}.jpg";
         $server_path = $base_path . $image_path;
     }
 }
 
-// Use placeholder if no image found
 if (!file_exists($server_path)) {
     $image_path = "/assets/img/placeholders/map-placeholder.png";
 }
 
-// Final image URL
 $imagePath = SITE_URL . $image_path;
 
 // Helper function to safely handle HTML escaping
@@ -173,27 +165,52 @@ function safe_html($value) {
 }
 ?>
 
-<div class="admin-container">
-    <div class="admin-hero-section">
-        <div class="admin-hero-container">
-            <div class="admin-hero-content">
-                <h1 class="admin-hero-title">Edit Map: <?= safe_html($map['locationname']) ?></h1>
-                <p class="admin-hero-subtitle">Map ID: <?= $map['mapid'] ?></p>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto text-center">
+                <h1 class="hero-title"><?= safe_html($map['locationname']) ?></h1>
+                <div class="item-id-display mb-3">
+                    <span class="badge bg-primary fs-4 px-3 py-2">
+                        <i class="fas fa-tag me-2"></i>Map ID: <?= $mapId ?>
+                    </span>
+                    <span class="mx-3 text-muted">|</span>
+                    <span class="badge bg-secondary fs-5 px-3 py-2">
+                        <i class="fas fa-map me-2"></i><?= $map['dungeon'] ? 'Dungeon' : 'Field Map' ?>
+                    </span>
+                </div>
                 
-                <div class="mt-3">
-                    <a href="index.php" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Maps
+                <!-- Buttons row -->
+                <div class="hero-buttons mt-3">
+                    <a href="index.php" class="btn" style="background-color: #212121; color: #e0e0e0;">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Maps
                     </a>
-                    <a href="<?= SITE_URL ?>/pages/maps/detail.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-view" target="_blank">
-                        <i class="fas fa-eye"></i> View Map
-                    </a>
+                    <button type="button" onclick="document.getElementById('editForm').reset();" class="btn" style="background-color: #343434; color: #e0e0e0;">
+                        <i class="fas fa-undo me-1"></i> Reset Changes
+                    </button>
+                    <button type="button" onclick="document.getElementById('editForm').submit();" class="btn" style="background-color: #212121; color: #e0e0e0;">
+                        <i class="fas fa-save me-1"></i> Save Changes
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../../admin_dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="index.php">Maps</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Map</li>
+        </ol>
+    </nav>
     
+    <!-- Messages -->
     <?php if (!empty($errors)): ?>
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
             <ul>
                 <?php foreach ($errors as $error): ?>
                     <li><?= $error ?></li>
@@ -202,323 +219,457 @@ function safe_html($value) {
         </div>
     <?php endif; ?>
     
-    <div class="card">
-        <div class="card-content">
-            <form action="edit.php?id=<?= $mapId ?>" method="POST" class="admin-form">
-                <div class="form-tabs">
-                    <button type="button" class="form-tab active" data-section="basic-info">Basic Info</button>
-                    <button type="button" class="form-tab" data-section="coordinates">Coordinates</button>
-                    <button type="button" class="form-tab" data-section="properties">Properties</button>
-                    <button type="button" class="form-tab" data-section="damage-modifiers">Damage Modifiers</button>
-                    <button type="button" class="form-tab" data-section="special-zones">Special Zones</button>
-                    <button type="button" class="form-tab" data-section="advanced">Advanced</button>
+    <?php if (isset($_SESSION['admin_message'])): ?>
+        <div class="alert alert-<?= $_SESSION['admin_message']['type'] ?>">
+            <?= $_SESSION['admin_message']['message'] ?>
+        </div>
+        <?php unset($_SESSION['admin_message']); ?>
+    <?php endif; ?>
+    
+    <div class="row equal-height-row">
+        <div class="col-md-3 sidebar-column">
+            <!-- Map Image and Basic Info -->
+            <div class="acquisition-card mb-4">
+                <div class="acquisition-card-header">
+                    Map Preview
                 </div>
-                
-                <!-- Basic Info Section -->
-                <div class="form-section active" id="basic-info">
-                    <h3>Basic Information</h3>
+                <div class="acquisition-card-body d-flex flex-column align-items-center justify-content-center">
+                    <img src="<?= $imagePath ?>" 
+                         alt="<?= safe_html($map['locationname']) ?>" 
+                         style="max-width: 100%; max-height: 200px;"
+                         onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png';">
                     
-                    <div class="row">
-                        <div class="col-md-4">
-                            <!-- Map Image Preview -->
-                            <div class="image-preview-container">
-                                <img src="<?= $imagePath ?>" alt="Map Preview" class="item-image-preview" onerror="this.src='<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png'">
-                            </div>
-                            <p class="text-center mt-2">Map Preview</p>
-                        </div>
-                        
-                        <div class="col-md-8">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="locationname">Location Name *</label>
-                                    <input type="text" id="locationname" name="locationname" value="<?= safe_html($map['locationname']) ?>" required>
-                                    <small>English name of the map location</small>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="desc_kr">Korean Name</label>
-                                    <input type="text" id="desc_kr" name="desc_kr" value="<?= safe_html($map['desc_kr']) ?>">
-                                    <small>Korean name of the map location</small>
+                    <h5 class="mt-3"><?= safe_html($map['locationname']) ?></h5>
+                    <div class="item-ids w-100 text-center mt-3">
+                        <div class="badge bg-secondary mb-1">Map ID: <?= $mapId ?></div>
+                        <div class="badge bg-secondary">Image ID: <?= $map['pngId'] ?? 'N/A' ?></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Map Stats Quick View -->
+            <div class="acquisition-card mb-4">
+                <div class="acquisition-card-header">
+                    Map Stats
+                </div>
+                <div class="acquisition-card-body">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Type</span>
+                            <span class="badge <?= $map['dungeon'] ? 'bg-danger' : 'bg-success' ?> rounded-pill">
+                                <?= $map['dungeon'] ? 'Dungeon' : 'Field' ?>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Monster Amount</span>
+                            <span class="badge bg-info rounded-pill"><?= $map['monster_amount'] ?>x</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Drop Rate</span>
+                            <span class="badge bg-primary rounded-pill"><?= $map['drop_rate'] ?>x</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Teleportable</span>
+                            <span class="badge <?= $map['teleportable'] ? 'bg-success' : 'bg-secondary' ?> rounded-pill">
+                                <?= $map['teleportable'] ? 'Yes' : 'No' ?>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Markable</span>
+                            <span class="badge <?= $map['markable'] ? 'bg-success' : 'bg-secondary' ?> rounded-pill">
+                                <?= $map['markable'] ? 'Yes' : 'No' ?>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
+                            <span>Level Range</span>
+                            <span class="badge bg-warning rounded-pill">
+                                <?= $map['min_level'] > 0 ? $map['min_level'] : '1' ?>-<?= $map['max_level'] > 0 ? $map['max_level'] : '∞' ?>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Edit Form -->
+            <div class="acquisition-card">
+                <div class="acquisition-card-header">
+                    <h4><i class="fas fa-edit me-2"></i> Edit Map</h4>
+                </div>
+                <div class="acquisition-card-body p-4">
+                    <form method="POST" action="" id="editForm">
+                        <div class="row">
+                            <!-- Form Tabs -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="form-tabs">
+                                    <button type="button" class="form-tab active" data-tab="basic">Basic</button>
+                                    <button type="button" class="form-tab" data-tab="coordinates">Coordinates</button>
+                                    <button type="button" class="form-tab" data-tab="properties">Properties</button>
+                                    <button type="button" class="form-tab" data-tab="combat">Combat</button>
+                                    <button type="button" class="form-tab" data-tab="zones">Zones</button>
+                                    <button type="button" class="form-tab" data-tab="advanced">Advanced</button>
                                 </div>
                             </div>
                             
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="pngId">Image ID</label>
-                                    <input type="number" id="pngId" name="pngId" value="<?= safe_html($map['pngId']) ?>">
-                                    <small>ID for the map image file</small>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <div class="form-check" style="margin-top: 25px;">
-                                        <input type="checkbox" id="dungeon" name="dungeon" <?= $map['dungeon'] ? 'checked' : '' ?>>
-                                        <label for="dungeon">Dungeon</label>
+                            <!-- Basic Information Section -->
+                            <div class="col-lg-12 form-section active" id="basic-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Basic Information
                                     </div>
-                                    <small>Check if this map is a dungeon (unchecked = field map)</small>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="locationname" class="form-label">Location Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="locationname" name="locationname" value="<?= safe_html($map['locationname']) ?>" required>
+                                                <small class="form-text">English name of the map location</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="desc_kr" class="form-label">Korean Name</label>
+                                                <input type="text" class="form-control" id="desc_kr" name="desc_kr" value="<?= safe_html($map['desc_kr']) ?>">
+                                                <small class="form-text">Korean name of the map location</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="pngId" class="form-label">Image ID</label>
+                                                <input type="number" class="form-control no-spinner" id="pngId" name="pngId" value="<?= safe_html($map['pngId']) ?>">
+                                                <small class="form-text">ID for the map image file</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="min_level" class="form-label">Minimum Level</label>
+                                                <input type="number" class="form-control no-spinner" id="min_level" name="min_level" value="<?= isset($map['min_level']) ? safe_html($map['min_level']) : '0' ?>">
+                                                <small class="form-text">Minimum recommended level (0 = No restriction)</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="max_level" class="form-label">Maximum Level</label>
+                                                <input type="number" class="form-control no-spinner" id="max_level" name="max_level" value="<?= isset($map['max_level']) ? safe_html($map['max_level']) : '0' ?>">
+                                                <small class="form-text">Maximum recommended level (0 = No restriction)</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="dungeon" name="dungeon" <?= $map['dungeon'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="dungeon">Dungeon</label>
+                                                </div>
+                                                <small class="form-text">Check if this map is a dungeon</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="min_level">Minimum Level</label>
-                                    <input type="number" id="min_level" name="min_level" value="<?= isset($map['min_level']) ? safe_html($map['min_level']) : '0' ?>">
-                                    <small>Minimum recommended level (0 = No level restriction)</small>
+
+                            <!-- Coordinates Section -->
+                            <div class="col-lg-12 form-section" id="coordinates-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Coordinates
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="startX" class="form-label">Start X</label>
+                                                <input type="number" class="form-control no-spinner" id="startX" name="startX" value="<?= safe_html($map['startX']) ?>">
+                                                <small class="form-text">Starting X coordinate</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="endX" class="form-label">End X</label>
+                                                <input type="number" class="form-control no-spinner" id="endX" name="endX" value="<?= safe_html($map['endX']) ?>">
+                                                <small class="form-text">Ending X coordinate</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="startY" class="form-label">Start Y</label>
+                                                <input type="number" class="form-control no-spinner" id="startY" name="startY" value="<?= safe_html($map['startY']) ?>">
+                                                <small class="form-text">Starting Y coordinate</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="endY" class="form-label">End Y</label>
+                                                <input type="number" class="form-control no-spinner" id="endY" name="endY" value="<?= safe_html($map['endY']) ?>">
+                                                <small class="form-text">Ending Y coordinate</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <div class="form-group">
-                                    <label for="max_level">Maximum Level</label>
-                                    <input type="number" id="max_level" name="max_level" value="<?= isset($map['max_level']) ? safe_html($map['max_level']) : '0' ?>">
-                                    <small>Maximum recommended level (0 = No level restriction)</small>
+                            </div>
+
+                            <!-- Properties Section -->
+                            <div class="col-lg-12 form-section" id="properties-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Map Properties
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="monster_amount" class="form-label">Monster Amount</label>
+                                                <input type="number" class="form-control no-spinner" id="monster_amount" name="monster_amount" step="0.1" value="<?= safe_html($map['monster_amount']) ?>">
+                                                <small class="form-text">Multiplier for monster spawn amounts (1.0 = normal)</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="drop_rate" class="form-label">Drop Rate</label>
+                                                <input type="number" class="form-control no-spinner" id="drop_rate" name="drop_rate" step="0.1" value="<?= safe_html($map['drop_rate']) ?>">
+                                                <small class="form-text">Multiplier for item drop rates (1.0 = normal)</small>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="underwater" name="underwater" <?= $map['underwater'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="underwater">Underwater</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="markable" name="markable" <?= $map['markable'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="markable">Markable</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="teleportable" name="teleportable" <?= $map['teleportable'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="teleportable">Teleportable</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="escapable" name="escapable" <?= $map['escapable'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="escapable">Escapable</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="resurrection" name="resurrection" <?= $map['resurrection'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="resurrection">Resurrection</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="painwand" name="painwand" <?= $map['painwand'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="painwand">Pain Wand</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="penalty" name="penalty" <?= $map['penalty'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="penalty">Death Penalty</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="take_pets" name="take_pets" <?= $map['take_pets'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="take_pets">Allow Pets</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="recall_pets" name="recall_pets" <?= $map['recall_pets'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="recall_pets">Recall Pets</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="usable_item" name="usable_item" <?= $map['usable_item'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="usable_item">Allow Items</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="usable_skill" name="usable_skill" <?= $map['usable_skill'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="usable_skill">Allow Skills</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="decreaseHp" name="decreaseHp" <?= $map['decreaseHp'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="decreaseHp">HP Decreases</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Combat Section -->
+                            <div class="col-lg-12 form-section" id="combat-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Combat Modifiers
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="dmgModiPc2Npc" class="form-label">Player to NPC Damage (%)</label>
+                                                <input type="number" class="form-control no-spinner" id="dmgModiPc2Npc" name="dmgModiPc2Npc" value="<?= safe_html($map['dmgModiPc2Npc']) ?>">
+                                                <small class="form-text">Damage modifier when players attack NPCs (0 = normal, positive = more damage)</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="dmgModiNpc2Pc" class="form-label">NPC to Player Damage (%)</label>
+                                                <input type="number" class="form-control no-spinner" id="dmgModiNpc2Pc" name="dmgModiNpc2Pc" value="<?= safe_html($map['dmgModiNpc2Pc']) ?>">
+                                                <small class="form-text">Damage modifier when NPCs attack players (0 = normal, positive = more damage)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Zones Section -->
+                            <div class="col-lg-12 form-section" id="zones-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Special Zones
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="dominationTeleport" name="dominationTeleport" <?= $map['dominationTeleport'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="dominationTeleport">Domination Teleport</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="beginZone" name="beginZone" <?= $map['beginZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="beginZone">Beginner Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="redKnightZone" name="redKnightZone" <?= $map['redKnightZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="redKnightZone">Red Knight Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="ruunCastleZone" name="ruunCastleZone" <?= $map['ruunCastleZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="ruunCastleZone">Ruun Castle Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="interWarZone" name="interWarZone" <?= $map['interWarZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="interWarZone">Inter-War Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="geradBuffZone" name="geradBuffZone" <?= $map['geradBuffZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="geradBuffZone">Gerad Buff Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="growBuffZone" name="growBuffZone" <?= $map['growBuffZone'] ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="growBuffZone">Growth Buff Zone</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="interKind" class="form-label">Inter Kind</label>
+                                                <input type="number" class="form-control no-spinner" id="interKind" name="interKind" value="<?= safe_html($map['interKind']) ?>">
+                                                <small class="form-text">Inter-server kind identifier</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Section -->
+                            <div class="col-lg-12 form-section" id="advanced-section">
+                                <div class="card bg-dark">
+                                    <div class="card-header">
+                                        Advanced Settings
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="script" class="form-label">Map Script</label>
+                                                <input type="text" class="form-control" id="script" name="script" value="<?= safe_html($map['script']) ?>">
+                                                <small class="form-text">Custom script for this map (leave blank for none)</small>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="cloneStart" class="form-label">Clone Start ID</label>
+                                                <input type="number" class="form-control no-spinner" id="cloneStart" name="cloneStart" value="<?= safe_html($map['cloneStart']) ?>">
+                                                <small class="form-text">Starting ID for map clones</small>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="cloneEnd" class="form-label">Clone End ID</label>
+                                                <input type="number" class="form-control no-spinner" id="cloneEnd" name="cloneEnd" value="<?= safe_html($map['cloneEnd']) ?>">
+                                                <small class="form-text">Ending ID for map clones</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        
+                        <div class="form-actions mt-4">
+                            <button type="submit" class="btn btn-primary">Update Map</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
                 </div>
-                
-                <!-- Coordinates Section -->
-                <div class="form-section" id="coordinates">
-                    <h3>Map Coordinates</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="startX">Start X</label>
-                            <input type="number" id="startX" name="startX" value="<?= safe_html($map['startX']) ?>">
-                            <small>Starting X coordinate</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="endX">End X</label>
-                            <input type="number" id="endX" name="endX" value="<?= safe_html($map['endX']) ?>">
-                            <small>Ending X coordinate</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="startY">Start Y</label>
-                            <input type="number" id="startY" name="startY" value="<?= safe_html($map['startY']) ?>">
-                            <small>Starting Y coordinate</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="endY">End Y</label>
-                            <input type="number" id="endY" name="endY" value="<?= safe_html($map['endY']) ?>">
-                            <small>Ending Y coordinate</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Properties Section -->
-                <div class="form-section" id="properties">
-                    <h3>Map Properties</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="monster_amount">Monster Amount</label>
-                            <input type="number" id="monster_amount" name="monster_amount" step="0.1" value="<?= safe_html($map['monster_amount']) ?>">
-                            <small>Multiplier for monster spawn amounts (1.0 = normal)</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="drop_rate">Drop Rate</label>
-                            <input type="number" id="drop_rate" name="drop_rate" step="0.1" value="<?= safe_html($map['drop_rate']) ?>">
-                            <small>Multiplier for item drop rates (1.0 = normal)</small>
-                        </div>
-                    </div>
-                    
-                    <div class="checkbox-grid">
-                        <div class="form-check">
-                            <input type="checkbox" id="underwater" name="underwater" <?= $map['underwater'] ? 'checked' : '' ?>>
-                            <label for="underwater">Underwater</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="markable" name="markable" <?= $map['markable'] ? 'checked' : '' ?>>
-                            <label for="markable">Markable</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="teleportable" name="teleportable" <?= $map['teleportable'] ? 'checked' : '' ?>>
-                            <label for="teleportable">Teleportable</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="escapable" name="escapable" <?= $map['escapable'] ? 'checked' : '' ?>>
-                            <label for="escapable">Escapable</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="resurrection" name="resurrection" <?= $map['resurrection'] ? 'checked' : '' ?>>
-                            <label for="resurrection">Resurrection</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="painwand" name="painwand" <?= $map['painwand'] ? 'checked' : '' ?>>
-                            <label for="painwand">Pain Wand</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="penalty" name="penalty" <?= $map['penalty'] ? 'checked' : '' ?>>
-                            <label for="penalty">Death Penalty</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="take_pets" name="take_pets" <?= $map['take_pets'] ? 'checked' : '' ?>>
-                            <label for="take_pets">Allow Pets</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="recall_pets" name="recall_pets" <?= $map['recall_pets'] ? 'checked' : '' ?>>
-                            <label for="recall_pets">Recall Pets</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="usable_item" name="usable_item" <?= $map['usable_item'] ? 'checked' : '' ?>>
-                            <label for="usable_item">Allow Items</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="usable_skill" name="usable_skill" <?= $map['usable_skill'] ? 'checked' : '' ?>>
-                            <label for="usable_skill">Allow Skills</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="decreaseHp" name="decreaseHp" <?= $map['decreaseHp'] ? 'checked' : '' ?>>
-                            <label for="decreaseHp">HP Decreases</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Damage Modifiers Section -->
-                <div class="form-section" id="damage-modifiers">
-                    <h3>Damage Modifiers</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dmgModiPc2Npc">Player to NPC Damage (%)</label>
-                            <input type="number" id="dmgModiPc2Npc" name="dmgModiPc2Npc" value="<?= safe_html($map['dmgModiPc2Npc']) ?>">
-                            <small>Damage modifier when players attack NPCs (0 = normal, positive = more damage)</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dmgModiNpc2Pc">NPC to Player Damage (%)</label>
-                            <input type="number" id="dmgModiNpc2Pc" name="dmgModiNpc2Pc" value="<?= safe_html($map['dmgModiNpc2Pc']) ?>">
-                            <small>Damage modifier when NPCs attack players (0 = normal, positive = more damage)</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Special Zones Section -->
-                <div class="form-section" id="special-zones">
-                    <h3>Special Zone Settings</h3>
-                    
-                    <div class="checkbox-grid">
-                        <div class="form-check">
-                            <input type="checkbox" id="dominationTeleport" name="dominationTeleport" <?= $map['dominationTeleport'] ? 'checked' : '' ?>>
-                            <label for="dominationTeleport">Domination Teleport</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="beginZone" name="beginZone" <?= $map['beginZone'] ? 'checked' : '' ?>>
-                            <label for="beginZone">Beginner Zone</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="redKnightZone" name="redKnightZone" <?= $map['redKnightZone'] ? 'checked' : '' ?>>
-                            <label for="redKnightZone">Red Knight Zone</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="ruunCastleZone" name="ruunCastleZone" <?= $map['ruunCastleZone'] ? 'checked' : '' ?>>
-                            <label for="ruunCastleZone">Ruun Castle Zone</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="interWarZone" name="interWarZone" <?= $map['interWarZone'] ? 'checked' : '' ?>>
-                            <label for="interWarZone">Inter-War Zone</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="geradBuffZone" name="geradBuffZone" <?= $map['geradBuffZone'] ? 'checked' : '' ?>>
-                            <label for="geradBuffZone">Gerad Buff Zone</label>
-                        </div>
-                        
-                        <div class="form-check">
-                            <input type="checkbox" id="growBuffZone" name="growBuffZone" <?= $map['growBuffZone'] ? 'checked' : '' ?>>
-                            <label for="growBuffZone">Growth Buff Zone</label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="interKind">Inter Kind</label>
-                            <input type="number" id="interKind" name="interKind" value="<?= safe_html($map['interKind']) ?>">
-                            <small>Inter-server kind identifier</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Advanced Section -->
-                <div class="form-section" id="advanced">
-                    <h3>Advanced Settings</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="script">Map Script</label>
-                            <input type="text" id="script" name="script" value="<?= safe_html($map['script']) ?>">
-                            <small>Custom script for this map (leave blank for none)</small>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cloneStart">Clone Start ID</label>
-                            <input type="number" id="cloneStart" name="cloneStart" value="<?= safe_html($map['cloneStart']) ?>">
-                            <small>Starting ID for map clones</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cloneEnd">Clone End ID</label>
-                            <input type="number" id="cloneEnd" name="cloneEnd" value="<?= safe_html($map['cloneEnd']) ?>">
-                            <small>Ending ID for map clones</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <a href="index.php" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-// Tab navigation
+// Tab switching functionality
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.form-tab');
     const sections = document.querySelectorAll('.form-section');
     
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
-            const targetSection = this.getAttribute('data-section');
+            // Remove active class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
             
             // Hide all sections
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
+            sections.forEach(section => section.classList.remove('active'));
             
-            // Remove active class from all tabs
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show target section and activate tab
-            document.getElementById(targetSection).classList.add('active');
-            this.classList.add('active');
+            // Show the corresponding section
+            const targetSection = document.getElementById(this.getAttribute('data-tab') + '-section');
+            targetSection.classList.add('active');
         });
     });
+    
+    // Image preview functionality
+    const pngIdInput = document.getElementById('pngId');
+    const imagePreview = document.querySelector('.acquisition-card-body img');
+    const basePath = '<?= SITE_URL ?>/assets/img/maps/';
+    const defaultImage = '<?= SITE_URL ?>/assets/img/placeholders/map-placeholder.png';
+    
+    if (pngIdInput && imagePreview) {
+        pngIdInput.addEventListener('input', function() {
+            const pngId = this.value.trim();
+            if (pngId && !isNaN(pngId)) {
+                // Try different image formats
+                const formats = ['jpeg', 'png', 'jpg'];
+                let found = false;
+                
+                formats.forEach(format => {
+                    if (!found) {
+                        const testSrc = basePath + pngId + '.' + format;
+                        const img = new Image();
+                        img.onload = function() {
+                            imagePreview.src = testSrc;
+                            found = true;
+                        };
+                        img.onerror = function() {
+                            // Try next format
+                        };
+                        img.src = testSrc;
+                    }
+                });
+                
+                if (!found) {
+                    imagePreview.src = defaultImage;
+                }
+            } else {
+                imagePreview.src = defaultImage;
+            }
+        });
+    }
 });
 </script>
 

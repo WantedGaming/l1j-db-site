@@ -263,6 +263,9 @@ $currentPath = $_SERVER['PHP_SELF'];
                     <a href="create.php" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Add New Map
                     </a>
+                    <a href="import-export.php" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-exchange-alt"></i> Import/Export
+                    </a>
                 </div>
             </div>
         </div>
@@ -347,12 +350,12 @@ $currentPath = $_SERVER['PHP_SELF'];
         <?php else: ?>
             <?php foreach ($maps as $map): ?>
                 <div class="card">
-                    <div class="card-image" style="background-image: url('<?= SITE_URL ?>/assets/img/maps/<?= $map['mapid'] ?>.jpg')"></div>
+                    <div class="card-image" style="background-image: url('<?= SITE_URL ?>/assets/img/maps/<?= !empty($map['pngId']) ? $map['pngId'] : $map['mapid'] ?>.jpg')"></div>
                     <div class="card-content">
                         <h3 class="card-title"><?= htmlspecialchars($map['locationname']) ?></h3>
                         <div class="card-text">
                             <p>Map ID: <?= $map['mapid'] ?></p>
-                            <p>Level: <?= $map['min_level'] ? $map['min_level'].'-'.$map['max_level'] : 'N/A' ?></p>
+                            <p>Level: <?= isset($map['min_level']) && $map['min_level'] ? $map['min_level'].'-'.$map['max_level'] : 'N/A' ?></p>
                             <p>Dungeon: <?= $map['dungeon'] ? 'Yes' : 'No' ?></p>
                             <p>Teleportable: <?= $map['teleportable'] ? 'Yes' : 'No' ?></p>
                         </div>
@@ -361,11 +364,10 @@ $currentPath = $_SERVER['PHP_SELF'];
                         <a href="edit.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-edit" title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="#" class="btn btn-sm btn-delete" title="Delete" 
-                           onclick="confirmDelete(<?= $map['mapid'] ?>, '<?= addslashes($map['locationname']) ?>')">
+                        <a href="delete.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-delete" title="Delete">
                             <i class="fas fa-trash"></i>
                         </a>
-                        <a href="<?= SITE_URL ?>/pages/maps/map-detail.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
+                        <a href="<?= SITE_URL ?>/pages/maps/detail.php?id=<?= $map['mapid'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
                             <i class="fas fa-eye"></i>
                         </a>
                     </div>
@@ -430,66 +432,7 @@ $currentPath = $_SERVER['PHP_SELF'];
     <?php endif; ?>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Confirm Deletion</h3>
-            <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete the map: <span id="deleteItemName"></span>?</p>
-            <p class="warning">This action cannot be undone!</p>
-        </div>
-        <div class="modal-footer">
-            <form id="deleteForm" method="POST">
-                <input type="hidden" name="confirm_delete" value="yes">
-                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-// Delete confirmation modal functionality
-function confirmDelete(id, name) {
-    var modal = document.getElementById('deleteModal');
-    var nameSpan = document.getElementById('deleteItemName');
-    var deleteForm = document.getElementById('deleteForm');
-    
-    // Set the item name and form action
-    nameSpan.textContent = name;
-    deleteForm.action = 'index.php?action=delete&id=' + id;
-    
-    // Display the modal
-    modal.style.display = 'block';
-    
-    // Close modal functionality
-    var closeButtons = modal.getElementsByClassName('close');
-    for (var i = 0; i < closeButtons.length; i++) {
-        closeButtons[i].onclick = function() {
-            modal.style.display = 'none';
-        }
-    }
-    
-    var cancelButtons = modal.getElementsByClassName('close-modal');
-    for (var i = 0; i < cancelButtons.length; i++) {
-        cancelButtons[i].onclick = function() {
-            modal.style.display = 'none';
-        }
-    }
-    
-    // Close when clicking outside the modal
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
-}
-</script>
-
 <?php
 // Include admin footer
 require_once '../../includes/admin-footer.php';
-?> 
+?>

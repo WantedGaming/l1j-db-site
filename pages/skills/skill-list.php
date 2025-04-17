@@ -59,6 +59,17 @@ if(!empty($whereConditions)) {
     $query .= " WHERE " . implode(" AND ", $whereConditions);
 }
 
+// Add to the existing WHERE conditions
+if(isset($_GET['skill_level']) && !empty($_GET['skill_level'])) {
+    $whereConditions[] = "s.skill_level = ?";
+    $params[] = intval($_GET['skill_level']);
+}
+
+if(isset($_GET['attr']) && !empty($_GET['attr']) && $_GET['attr'] !== 'NONE') {
+    $whereConditions[] = "s.attr = ?";
+    $params[] = $_GET['attr'];
+}
+
 // Add order by
 $query .= " ORDER BY s.classType, s.skill_level ASC, s.name ASC";
 
@@ -125,6 +136,31 @@ $classTypes = $db->getRows($classQuery);
                             <?php endforeach; ?>
                         </select>
                     </div>
+					
+					<!-- After the class dropdown -->
+					<div class="form-group skill-level-filter" style="margin-bottom: 0; flex: 1; min-width: 180px; display: none;">
+						<label for="skill_level">Skill Level:</label>
+						<select name="skill_level" id="skill_level" class="form-control">
+							<option value="">All Levels</option>
+							<option value="1" <?= isset($_GET['skill_level']) && $_GET['skill_level'] === '1' ? 'selected' : '' ?>>Level 1</option>
+							<option value="2" <?= isset($_GET['skill_level']) && $_GET['skill_level'] === '2' ? 'selected' : '' ?>>Level 2</option>
+							<option value="3" <?= isset($_GET['skill_level']) && $_GET['skill_level'] === '3' ? 'selected' : '' ?>>Level 3</option>
+							<option value="4" <?= isset($_GET['skill_level']) && $_GET['skill_level'] === '4' ? 'selected' : '' ?>>Level 4</option>
+							<option value="5" <?= isset($_GET['skill_level']) && $_GET['skill_level'] === '5' ? 'selected' : '' ?>>Level 5</option>
+						</select>
+					</div>
+
+					<div class="form-group elemental-filter" style="margin-bottom: 0; flex: 1; min-width: 180px; display: none;">
+						<label for="attr">Elemental Attribute:</label>
+						<select name="attr" id="attr" class="form-control">
+							<option value="">All Elements</option>
+							<option value="EARTH" <?= isset($_GET['attr']) && $_GET['attr'] === 'EARTH' ? 'selected' : '' ?>>Earth</option>
+							<option value="FIRE" <?= isset($_GET['attr']) && $_GET['attr'] === 'FIRE' ? 'selected' : '' ?>>Fire</option>
+							<option value="WATER" <?= isset($_GET['attr']) && $_GET['attr'] === 'WATER' ? 'selected' : '' ?>>Water</option>
+							<option value="WIND" <?= isset($_GET['attr']) && $_GET['attr'] === 'WIND' ? 'selected' : '' ?>>Wind</option>
+							<option value="RAY" <?= isset($_GET['attr']) && $_GET['attr'] === 'RAY' ? 'selected' : '' ?>>Ray</option>
+						</select>
+					</div>
                     
                     <!-- Target Filter -->
                     <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 180px;">
@@ -342,6 +378,39 @@ $classTypes = $db->getRows($classQuery);
         <?php endif; ?>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const classSelect = document.getElementById('class');
+    const skillLevelFilter = document.querySelector('.skill-level-filter');
+    const elementalFilter = document.querySelector('.elemental-filter');
+    
+    // Function to toggle filters based on selected class
+    function toggleFilters() {
+        const selectedClass = classSelect.value;
+        
+        // Hide all conditional filters first
+        skillLevelFilter.style.display = 'none';
+        elementalFilter.style.display = 'none';
+        
+        // Show relevant filters based on class
+        if (['wizard', 'illusionist', 'dragonknight'].includes(selectedClass)) {
+            skillLevelFilter.style.display = 'block';
+        }
+        
+        // Show elemental filter for elf and some other classes that might use elemental magic
+        if (['elf', 'wizard'].includes(selectedClass)) {
+            elementalFilter.style.display = 'block';
+        }
+    }
+    
+    // Run once on page load
+    toggleFilters();
+    
+    // Add event listener for class change
+    classSelect.addEventListener('change', toggleFilters);
+});
+</script>
 
 <?php
 // Include footer

@@ -199,34 +199,29 @@ $recentActivity = [
 				<div class="action-label">Skill</div>
 			</a>
 			
+			<a href="<?php echo SITE_URL; ?>/admin/polymorph/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/poly.png" alt="Polymorph icon" class="action-icon">
+				<div class="action-label">Polymorph</div>
+			</a>
+						
+			<a href="<?php echo SITE_URL; ?>/admin/dolls/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/dolls.png" alt="Dolls icon" class="action-icon">
+				<div class="action-label">Dolls</div>
+			</a>
+			
+			<a href="<?php echo SITE_URL; ?>/admin/accessories/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/accessory.png" alt="Accessories icon" class="action-icon">
+				<div class="action-label">Accessories</div>
+			</a>
+			
 			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/maps.png" alt="Maps icon" class="action-icon">
 				<div class="action-label">Maps</div>
 			</a>
 			
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/items.png" alt="Maps icon" class="action-icon">
+			<a href="<?php echo SITE_URL; ?>/admin/items/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/items.png" alt="Items icon" class="action-icon">
 				<div class="action-label">Items</div>
-			</a>
-			
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/dolls.png" alt="Maps icon" class="action-icon">
-				<div class="action-label">Dolls</div>
-			</a>
-			
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/potions.png" alt="Maps icon" class="action-icon">
-				<div class="action-label">Potions</div>
-			</a>
-			
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/scroll2.png" alt="Maps icon" class="action-icon">
-				<div class="action-label">Scrolls</div>
-			</a>
-			
-			<a href="<?php echo SITE_URL; ?>/admin/maps/index.php" class="action-card">
-				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/currency.png" alt="Maps icon" class="action-icon">
-				<div class="action-label">Currency</div>
 			</a>
 
 			<a href="<?php echo SITE_URL; ?>/admin/backup.php" class="action-card">

@@ -18,6 +18,25 @@ $db = Database::getInstance();
 // Initialize model
 $monsterModel = new Monster();
 
+// Custom CSS for improved layout
+?>
+<style>
+/* Fix for cards being cut off */
+.card {
+    overflow: visible;
+}
+
+.form-section {
+    overflow: visible;
+}
+
+/* Add a little extra space at the bottom of the container */
+.container {
+    padding-bottom: 20px;
+}
+</style>
+
+<?php
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect monster data from form
@@ -451,51 +470,60 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="hp" class="form-label">HP</label>
-                                                <input type="number" class="form-control no-spinner" id="hp" name="hp" value="100">
+                                                <input type="number" class="form-control no-spinner" id="hp" name="hp" value="<?= (int)$monster['hp'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="mp" class="form-label">MP</label>
-                                                <input type="number" class="form-control no-spinner" id="mp" name="mp" value="10">
+                                                <input type="number" class="form-control no-spinner" id="mp" name="mp" value="<?= (int)$monster['mp'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="ac" class="form-label">AC</label>
-                                                <input type="number" class="form-control no-spinner" id="ac" name="ac" value="10">
+                                                <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$monster['ac'] ?>">
                                             </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="str" class="form-label">STR</label>
-                                                <input type="number" class="form-control no-spinner" id="str" name="str" value="10">
+                                                <input type="number" class="form-control no-spinner" id="str" name="str" value="<?= (int)$monster['str'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="con" class="form-label">CON</label>
-                                                <input type="number" class="form-control no-spinner" id="con" name="con" value="10">
+                                                <input type="number" class="form-control no-spinner" id="con" name="con" value="<?= (int)$monster['con'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="dex" class="form-label">DEX</label>
-                                                <input type="number" class="form-control no-spinner" id="dex" name="dex" value="10">
+                                                <input type="number" class="form-control no-spinner" id="dex" name="dex" value="<?= (int)$monster['dex'] ?>">
                                             </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="wis" class="form-label">WIS</label>
-                                                <input type="number" class="form-control no-spinner" id="wis" name="wis" value="10">
+                                                <input type="number" class="form-control no-spinner" id="wis" name="wis" value="<?= (int)$monster['wis'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="intel" class="form-label">INT</label>
-                                                <input type="number" class="form-control no-spinner" id="intel" name="intel" value="10">
+                                                <input type="number" class="form-control no-spinner" id="intel" name="intel" value="<?= (int)$monster['intel'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="mr" class="form-label">Magic Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="mr" name="mr" value="0">
+                                                <input type="number" class="form-control no-spinner" id="mr" name="mr" value="<?= (int)$monster['mr'] ?>">
                                             </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="exp" class="form-label">EXP</label>
-                                                <input type="number" class="form-control no-spinner" id="exp" name="exp" value="10">
+                                                <input type="number" class="form-control no-spinner" id="exp" name="exp" value="<?= (int)$monster['exp'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="alignment" class="form-label">Alignment</label>
-                                                <input type="number" class="form-control no-spinner" id="alignment" name="alignment" value="0">
+                                                <input type="number" class="form-control no-spinner" id="alignment" name="alignment" value="<?= (int)$monster['alignment'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="karma" class="form-label">Karma</label>
-                                                <input type="number" class="form-control no-spinner" id="karma" name="karma" value="0">
+                                                <input type="number" class="form-control no-spinner" id="karma" name="karma" value="<?= (int)$monster['karma'] ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -509,19 +537,19 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-3 mb-3">
                                                 <label for="hpr" class="form-label">HP Regen</label>
-                                                <input type="number" class="form-control no-spinner" id="hpr" name="hpr" value="0">
+                                                <input type="number" class="form-control no-spinner" id="hpr" name="hpr" value="<?= (int)$monster['hpr'] ?>">
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <label for="hprinterval" class="form-label">HP Regen Interval</label>
-                                                <input type="number" class="form-control no-spinner" id="hprinterval" name="hprinterval" value="0">
+                                                <input type="number" class="form-control no-spinner" id="hprinterval" name="hprinterval" value="<?= (int)$monster['hprinterval'] ?>">
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <label for="mpr" class="form-label">MP Regen</label>
-                                                <input type="number" class="form-control no-spinner" id="mpr" name="mpr" value="0">
+                                                <input type="number" class="form-control no-spinner" id="mpr" name="mpr" value="<?= (int)$monster['mpr'] ?>">
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <label for="mprinterval" class="form-label">MP Regen Interval</label>
-                                                <input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="0">
+                                                <input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="<?= (int)$monster['mprinterval'] ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -540,7 +568,9 @@ $poisonAtkOptions = [
                                                 <label for="weakAttr" class="form-label">Weak Attribute</label>
                                                 <select class="form-select" id="weakAttr" name="weakAttr">
                                                     <?php foreach ($attributeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
+                                                        <option value="<?= $value ?>" <?= $monster['weakAttr'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -548,7 +578,9 @@ $poisonAtkOptions = [
                                                 <label for="undead" class="form-label">Undead Type</label>
                                                 <select class="form-select" id="undead" name="undead">
                                                     <?php foreach ($undeadOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
+                                                        <option value="<?= $value ?>" <?= $monster['undead'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -556,13 +588,15 @@ $poisonAtkOptions = [
                                                 <label for="poison_atk" class="form-label">Poison Attack</label>
                                                 <select class="form-select" id="poison_atk" name="poison_atk">
                                                     <?php foreach ($poisonAtkOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
+                                                        <option value="<?= $value ?>" <?= $monster['poison_atk'] === $value ? 'selected' : '' ?>>
+                                                            <?= $label ?>
+                                                        </option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead" <?= $monster['can_turnundead'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="can_turnundead">
                                                         Affected by Turn Undead
                                                     </label>
@@ -580,11 +614,11 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="damage_reduction" class="form-label">Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="0">
+                                                <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="<?= (int)$monster['damage_reduction'] ?>">
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_hard" name="is_hard">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="is_hard" name="is_hard" <?= $monster['is_hard'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_hard">
                                                         Hard Monster (Resistant to damage)
                                                     </label>
@@ -603,60 +637,67 @@ $poisonAtkOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="passispeed" class="form-label">Passive Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="passispeed" name="passispeed" value="480">
+                                                <input type="number" class="form-control no-spinner" id="passispeed" name="passispeed" value="<?= (int)$monster['passispeed'] ?>">
                                             </div>
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="atkspeed" class="form-label">Attack Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="480">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="atk_magic_speed" class="form-label">Magic Attack Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="atk_magic_speed" name="atk_magic_speed" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="sub_magic_speed" class="form-label">Sub Magic Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="sub_magic_speed" name="sub_magic_speed" value="0">
+                                                <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="<?= (int)$monster['atkspeed'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="ranged" class="form-label">Ranged Attack Distance</label>
-                                                <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
-                                                <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="0">
+                                                <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="<?= (int)$monster['ranged'] ?>">
                                             </div>
                                         </div>
                                         
                                         <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="atk_magic_speed" class="form-label">Magic Attack Speed</label>
+                                                <input type="number" class="form-control no-spinner" id="atk_magic_speed" name="atk_magic_speed" value="<?= (int)$monster['atk_magic_speed'] ?>">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="sub_magic_speed" class="form-label">Sub Magic Speed</label>
+                                                <input type="number" class="form-control no-spinner" id="sub_magic_speed" name="sub_magic_speed" value="<?= (int)$monster['sub_magic_speed'] ?>">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
+                                                <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="<?= (int)$monster['bowSpritetId'] ?>">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mt-4">
+                                            <h5 class="mb-3">Aggression Settings</h5>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_agro">
                                                         Aggressive
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_agro_poly">
                                                         Aggressive (Poly)
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_agro_invis">
                                                         Aggressive (Invisible)
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_teleport">
                                                         Can Teleport
                                                     </label>
@@ -666,32 +707,32 @@ $poisonAtkOptions = [
 
                                         <div class="row">
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_taming">
                                                         Can Be Tamed
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_picupitem">
                                                         Loot Items
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed" <?= $monster['is_bravespeed'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_bravespeed">
                                                         Brave Speed
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check form-switch mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= $monster['cant_resurrect'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="cant_resurrect">
                                                         Cannot Be Resurrected
                                                     </label>
@@ -709,15 +750,15 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="agrofamily" class="form-label">Aggro Family</label>
-                                                <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="0">
+                                                <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="<?= (int)$monster['agrofamily'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="agrogfxid1" class="form-label">Aggro GFX ID 1</label>
-                                                <input type="number" class="form-control no-spinner" id="agrogfxid1" name="agrogfxid1" value="-1">
+                                                <input type="number" class="form-control no-spinner" id="agrogfxid1" name="agrogfxid1" value="<?= (int)$monster['agrogfxid1'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="agrogfxid2" class="form-label">Aggro GFX ID 2</label>
-                                                <input type="number" class="form-control no-spinner" id="agrogfxid2" name="agrogfxid2" value="-1">
+                                                <input type="number" class="form-control no-spinner" id="agrogfxid2" name="agrogfxid2" value="<?= (int)$monster['agrogfxid2'] ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -734,37 +775,37 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="digestitem" class="form-label">Digest Item</label>
-                                                <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="0">
+                                                <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="<?= (int)$monster['digestitem'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="transform_id" class="form-label">Transform ID</label>
-                                                <input type="number" class="form-control no-spinner" id="transform_id" name="transform_id" value="-1">
+                                                <input type="number" class="form-control no-spinner" id="transform_id" name="transform_id" value="<?= (int)$monster['transform_id'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="transform_gfxid" class="form-label">Transform GFX ID</label>
-                                                <input type="number" class="form-control no-spinner" id="transform_gfxid" name="transform_gfxid" value="0">
+                                                <input type="number" class="form-control no-spinner" id="transform_gfxid" name="transform_gfxid" value="<?= (int)$monster['transform_gfxid'] ?>">
                                             </div>
                                         </div>
                                         
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="light_size" class="form-label">Light Size</label>
-                                                <input type="number" class="form-control no-spinner" id="light_size" name="light_size" value="0">
+                                                <input type="number" class="form-control no-spinner" id="light_size" name="light_size" value="<?= (int)$monster['light_size'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="spawnlist_door" class="form-label">Spawnlist Door</label>
-                                                <input type="number" class="form-control no-spinner" id="spawnlist_door" name="spawnlist_door" value="0">
+                                                <input type="number" class="form-control no-spinner" id="spawnlist_door" name="spawnlist_door" value="<?= (int)$monster['spawnlist_door'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="count_map" class="form-label">Count Map</label>
-                                                <input type="number" class="form-control no-spinner" id="count_map" name="count_map" value="0">
+                                                <input type="number" class="form-control no-spinner" id="count_map" name="count_map" value="<?= (int)$monster['count_map'] ?>">
                                             </div>
                                         </div>
                                         
                                         <div class="row mt-3">
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="is_amount_fixed" name="is_amount_fixed">
+                                                    <input class="form-check-input" type="checkbox" id="is_amount_fixed" name="is_amount_fixed" <?= $monster['is_amount_fixed'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_amount_fixed">
                                                         Amount Fixed
                                                     </label>
@@ -772,7 +813,7 @@ $poisonAtkOptions = [
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="is_change_head" name="is_change_head">
+                                                    <input class="form-check-input" type="checkbox" id="is_change_head" name="is_change_head" <?= $monster['is_change_head'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="is_change_head">
                                                         Change Head
                                                     </label>
@@ -780,7 +821,7 @@ $poisonAtkOptions = [
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="isHide" name="isHide">
+                                                    <input class="form-check-input" type="checkbox" id="isHide" name="isHide" <?= $monster['isHide'] === 'true' ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="isHide">
                                                         Is Hidden
                                                     </label>
@@ -798,30 +839,30 @@ $poisonAtkOptions = [
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomlevel" class="form-label">Random Level</label>
-                                                <input type="number" class="form-control no-spinner" id="randomlevel" name="randomlevel" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randomlevel" name="randomlevel" value="<?= (int)$monster['randomlevel'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomhp" class="form-label">Random HP</label>
-                                                <input type="number" class="form-control no-spinner" id="randomhp" name="randomhp" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randomhp" name="randomhp" value="<?= (int)$monster['randomhp'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="randommp" class="form-label">Random MP</label>
-                                                <input type="number" class="form-control no-spinner" id="randommp" name="randommp" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randommp" name="randommp" value="<?= (int)$monster['randommp'] ?>">
                                             </div>
                                         </div>
                                         
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomac" class="form-label">Random AC</label>
-                                                <input type="number" class="form-control no-spinner" id="randomac" name="randomac" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randomac" name="randomac" value="<?= (int)$monster['randomac'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomexp" class="form-label">Random EXP</label>
-                                                <input type="number" class="form-control no-spinner" id="randomexp" name="randomexp" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randomexp" name="randomexp" value="<?= (int)$monster['randomexp'] ?>">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomAlign" class="form-label">Random Alignment</label>
-                                                <input type="number" class="form-control no-spinner" id="randomAlign" name="randomAlign" value="0">
+                                                <input type="number" class="form-control no-spinner" id="randomAlign" name="randomAlign" value="<?= (int)$monster['randomAlign'] ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -837,7 +878,7 @@ $poisonAtkOptions = [
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label for="note" class="form-label">Notes</label>
-                                            <textarea class="form-control" id="note" name="note" rows="5"></textarea>
+                                            <textarea class="form-control" id="note" name="note" rows="5"><?= $monster['note'] ?></textarea>
                                             <small>Enter any additional information about this monster.</small>
                                         </div>
                                     </div>
@@ -855,149 +896,6 @@ $poisonAtkOptions = [
         </div>
     </div>
 </div>
-
-<style>
-/* Additional styles for the drops section */
-.item-preview {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-    padding: 10px;
-}
-
-.preview-container {
-    background-color: rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-}
-
-.preview-container:hover {
-    background-color: rgba(0, 0, 0, 0.15);
-}
-
-.item-name {
-    font-weight: 500;
-    margin-top: 8px;
-}
-
-.admin-item-icon {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
-    padding: 3px;
-}
-
-/* Modal styling */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    position: relative;
-    background-color: var(--primary);
-    margin: 10% auto;
-    padding: 0;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 500px;
-    max-width: 90%;
-    animation: slideIn 0.3s;
-}
-
-.modal-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: var(--text);
-}
-
-.close {
-    color: var(--text);
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    opacity: 0.7;
-}
-
-.close:hover {
-    opacity: 1;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Styling for spawn locations section */
-.nav-pills .nav-link {
-    color: #adb5bd;
-    background-color: #343a40;
-    margin: 0 3px;
-}
-
-.nav-pills .nav-link:hover {
-    color: #fff;
-    background-color: #495057;
-}
-
-.nav-pills .nav-link.active {
-    color: #fff;
-    background-color: #3d78db;
-}
-
-.table-dark {
-    background-color: #272b30;
-    color: #e0e0e0;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.table-dark thead th {
-    background-color: #212529;
-}
-
-.table-dark td, .table-dark th {
-    padding: 0.5rem;
-    border-color: #373b3e;
-}
-
-/* Make list group items in the special tab more compact */
-.list-group-item {
-    padding: 0.75rem 1rem;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

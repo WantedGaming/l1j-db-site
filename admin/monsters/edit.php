@@ -18,6 +18,25 @@ $db = Database::getInstance();
 // Initialize model
 $monsterModel = new Monster();
 
+// Custom CSS for improved layout
+?>
+<style>
+/* Fix for cards being cut off */
+.card {
+    overflow: visible;
+}
+
+.form-section {
+    overflow: visible;
+}
+
+/* Add a little extra space at the bottom of the container */
+.container {
+    padding-bottom: 20px;
+}
+</style>
+
+<?php
 // Get monster ID from URL
 $monsterId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -720,7 +739,11 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                             <label for="ac" class="form-label">AC</label>
                                             <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$monster['ac'] ?>">
                                         </div>
+                                    </div>
+                                    
+                                    <div class="row">
                                         <div class="col-md-4 mb-3">
+                                            <label for="str" class="form-label">STR</label>
                                             <input type="number" class="form-control no-spinner" id="str" name="str" value="<?= (int)$monster['str'] ?>">
                                         </div>
                                         <div class="col-md-4 mb-3">
@@ -731,6 +754,9 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                             <label for="dex" class="form-label">DEX</label>
                                             <input type="number" class="form-control no-spinner" id="dex" name="dex" value="<?= (int)$monster['dex'] ?>">
                                         </div>
+                                    </div>
+                                    
+                                    <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="wis" class="form-label">WIS</label>
                                             <input type="number" class="form-control no-spinner" id="wis" name="wis" value="<?= (int)$monster['wis'] ?>">
@@ -743,6 +769,9 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                             <label for="mr" class="form-label">Magic Resistance</label>
                                             <input type="number" class="form-control no-spinner" id="mr" name="mr" value="<?= (int)$monster['mr'] ?>">
                                         </div>
+                                    </div>
+                                    
+                                    <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="exp" class="form-label">EXP</label>
                                             <input type="number" class="form-control no-spinner" id="exp" name="exp" value="<?= (int)$monster['exp'] ?>">
@@ -779,7 +808,7 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label for="mprinterval" class="form-label">MP Regen Interval</label>
-											<input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="<?= (int)$monster['mprinterval'] ?>">
+                                            <input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="<?= (int)$monster['mprinterval'] ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -867,14 +896,21 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label for="passispeed" class="form-label">Passive Speed</label>
                                             <input type="number" class="form-control no-spinner" id="passispeed" name="passispeed" value="<?= (int)$monster['passispeed'] ?>">
                                         </div>
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label for="atkspeed" class="form-label">Attack Speed</label>
                                             <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="<?= (int)$monster['atkspeed'] ?>">
                                         </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="ranged" class="form-label">Ranged Attack Distance</label>
+                                            <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="<?= (int)$monster['ranged'] ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="atk_magic_speed" class="form-label">Magic Attack Speed</label>
                                             <input type="number" class="form-control no-spinner" id="atk_magic_speed" name="atk_magic_speed" value="<?= (int)($monster['atk_magic_speed'] ?? 0) ?>">
@@ -883,85 +919,85 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                             <label for="sub_magic_speed" class="form-label">Sub Magic Speed</label>
                                             <input type="number" class="form-control no-spinner" id="sub_magic_speed" name="sub_magic_speed" value="<?= (int)($monster['sub_magic_speed'] ?? 0) ?>">
                                         </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="ranged" class="form-label">Ranged Attack Distance</label>
-                                            <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="<?= (int)$monster['ranged'] ?>">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
                                             <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
                                             <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="<?= (int)($monster['bowSpritetId'] ?? 0) ?>">
                                         </div>
                                     </div>
                                     
-                                    <div class="row">
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_agro">
-													Aggressive
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_agro_poly">
-													Aggressive (Poly)
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_agro_invis">
-													Aggressive (Invisible)
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_teleport">
-													Can Teleport
-												</label>
-											</div>
-										</div>
-									</div>
+                                    <div class="row mt-4">
+                                        <h5 class="mb-3">Aggression Settings</h5>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro">
+                                                    Aggressive
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro_poly">
+                                                    Aggressive (Poly)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro_invis">
+                                                    Aggressive (Invisible)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_teleport">
+                                                    Can Teleport
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
 
-									<div class="row">
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_taming">
-													Can Be Tamed
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_picupitem">
-													Loot Items
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed" <?= ($monster['is_bravespeed'] ?? 'false') === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="is_bravespeed">
-													Brave Speed
-												</label>
-											</div>
-										</div>
-										<div class="col-md-3 mb-3">
-											<div class="form-check form-switch mt-4">
-												<input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= ($monster['cant_resurrect'] ?? 'false') === 'true' ? 'checked' : '' ?>>
-												<label class="form-check-label" for="cant_resurrect">
-													Cannot Be Resurrected
-												</label>
-											</div>
-										</div>
-									</div>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_taming">
+                                                    Can Be Tamed
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_picupitem">
+                                                    Loot Items
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed" <?= ($monster['is_bravespeed'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_bravespeed">
+                                                    Brave Speed
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= ($monster['cant_resurrect'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="cant_resurrect">
+                                                    Cannot Be Resurrected
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -1166,32 +1202,34 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                         
                                         <!-- Spawn list table -->
                                         <div class="table-responsive">
-                                            <table class="admin-table">
-                                                <thead>
+                                            <table class="admin-table table table-bordered table-hover">
+                                                <thead class="table-dark">
                                                     <tr>
                                                         <th>Map</th>
                                                         <th>Coordinates</th>
-                                                        <th>Count</th>
+                                                        <th style="width: 80px;">Count</th>
                                                         <th>Random Range</th>
                                                         <th>Respawn Time</th>
-                                                        <th>Actions</th>
+                                                        <th style="width: 120px;">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php foreach ($spawns as $spawn): ?>
                                                         <tr data-mapid="<?= $spawn['mapid'] ?>" class="spawn-row">
                                                             <td><?= htmlspecialchars($spawn['map_name'] ?? 'Unknown Map') ?></td>
-                                                            <td>X: <?= $spawn['locx'] ?>, Y: <?= $spawn['locy'] ?></td>
-                                                            <td><?= $spawn['count'] ?></td>
-                                                            <td>±<?= $spawn['randomx'] ?>, ±<?= $spawn['randomy'] ?></td>
-                                                            <td><?= $spawn['min_respawn_delay'] ?> - <?= $spawn['max_respawn_delay'] ?> sec</td>
-                                                            <td class="actions">
-                                                                <button class="btn btn-sm btn-edit" title="Edit" onclick="editSpawn(<?= $spawn['id'] ?>, <?= htmlspecialchars(json_encode($spawn), ENT_QUOTES, 'UTF-8') ?>)">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteSpawn(<?= $spawn['id'] ?>, '<?= htmlspecialchars($spawn['map_name']) ?>')">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
+                                                            <td class="text-center">X: <?= $spawn['locx'] ?>, Y: <?= $spawn['locy'] ?></td>
+                                                            <td class="text-center"><?= $spawn['count'] ?></td>
+                                                            <td class="text-center">±<?= $spawn['randomx'] ?>, ±<?= $spawn['randomy'] ?></td>
+                                                            <td class="text-center"><?= $spawn['min_respawn_delay'] ?> - <?= $spawn['max_respawn_delay'] ?> sec</td>
+                                                            <td class="actions text-center">
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button class="btn btn-primary" title="Edit" onclick="editSpawn(<?= $spawn['id'] ?>, <?= htmlspecialchars(json_encode($spawn), ENT_QUOTES, 'UTF-8') ?>)">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-danger" title="Delete" onclick="confirmDeleteSpawn(<?= $spawn['id'] ?>, '<?= htmlspecialchars($spawn['map_name']) ?>')">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -1225,53 +1263,53 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                 </div>
                 <div class="acquisition-card-body p-4">
                     <?php if (empty($drops)): ?>
-						<div class="alert alert-info">
-							<p>This monster doesn't have any drops defined. Click the "Add New Drop" button to add drops.</p>
-						</div>
-					<?php else: ?>
-						<div class="table-responsive">
-							<table class="admin-table">
-								<thead>
-									<tr>
-										<th width="80">Icon</th>
-										<th width="80">Name</th>
-										<th width="80">Item ID</th>
-										<th width="80">Min</th>
-										<th width="80">Max</th>
-										<th width="80">Chance</th>
-										<th width="80">Raw</th>
-										<th width="80">Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ($drops as $drop): ?>
-										<tr>
-											<td class="text-center">
-												<img src="<?= SITE_URL ?>/assets/img/items/<?= $drop['icon_id'] ?>.png" 
-													 alt="<?= htmlspecialchars($drop['item_name']) ?>"
-													 class="admin-item-icon"
-													 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
-											</td>
-											<td><?= htmlspecialchars($drop['item_name']) ?></td>
-											<td><?= $drop['itemId'] ?></td>
-											<td><?= $drop['min'] ?></td>
-											<td><?= $drop['max'] ?></td>
-											<td><?= number_format($drop['chance'] / 10000, 4) ?>%</td>
-											<td><?= $drop['chance'] ?></td>
-											<td class="actions">
-												<button class="btn btn-sm btn-edit" title="Edit" onclick="editDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['min'] ?>, <?= $drop['max'] ?>, <?= $drop['chance'] ?>, <?= $drop['icon_id'] ?>)">
-													<i class="fas fa-edit"></i>
-												</button>
-												<button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['icon_id'] ?>)">
-													<i class="fas fa-trash"></i>
-												</button>
-											</td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
-						</div>
-					<?php endif; ?>
+                        <div class="alert alert-info">
+                            <p>This monster doesn't have any drops defined. Click the "Add New Drop" button to add drops.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th width="80">Icon</th>
+                                        <th width="80">Name</th>
+                                        <th width="80">Item ID</th>
+                                        <th width="80">Min</th>
+                                        <th width="80">Max</th>
+                                        <th width="80">Chance</th>
+                                        <th width="80">Raw</th>
+                                        <th width="80">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($drops as $drop): ?>
+                                        <tr>
+                                            <td class="text-center">
+                                                <img src="<?= SITE_URL ?>/assets/img/items/<?= $drop['icon_id'] ?>.png" 
+                                                     alt="<?= htmlspecialchars($drop['item_name']) ?>"
+                                                     class="admin-item-icon"
+                                                     onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+                                            </td>
+                                            <td><?= htmlspecialchars($drop['item_name']) ?></td>
+                                            <td><?= $drop['itemId'] ?></td>
+                                            <td><?= $drop['min'] ?></td>
+                                            <td><?= $drop['max'] ?></td>
+                                            <td><?= number_format($drop['chance'] / 10000, 4) ?>%</td>
+                                            <td><?= $drop['chance'] ?></td>
+                                            <td class="actions">
+                                                <button class="btn btn-sm btn-edit" title="Edit" onclick="editDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['min'] ?>, <?= $drop['max'] ?>, <?= $drop['chance'] ?>, <?= $drop['icon_id'] ?>)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['icon_id'] ?>)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

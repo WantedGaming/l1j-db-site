@@ -115,7 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'impl' => $_POST['impl'] ?? 'L1Monster',
         'cant_resurrect' => isset($_POST['cant_resurrect']) ? 'true' : 'false',
         'can_turnundead' => isset($_POST['can_turnundead']) ? 'true' : 'false',
-        'is_picupitem' => isset($_POST['is_picupitem']) ? 'true' : 'false'
+        'is_picupitem' => isset($_POST['is_picupitem']) ? 'true' : 'false',
+        'poison_atk' => $_POST['poison_atk'] ?? 'NONE',
+        'fire_resist' => 0,
+        'water_resist' => 0,
+        'wind_resist' => 0,
+        'earth_resist' => 0
     ];
     
     // Validation
@@ -151,6 +156,25 @@ if(!$monster) {
     ];
     header("Location: index.php");
     exit;
+}
+
+// Initialize missing fields with default values
+$defaultMonsterFields = [
+    'is_doppel' => 'false',
+    'is_perceptive' => 'false',
+    'is_haste' => 'false',
+    'is_crusuitem' => 'false',
+    'poison_atk' => 'NONE',
+    'fire_resist' => 0,
+    'water_resist' => 0,
+    'wind_resist' => 0,
+    'earth_resist' => 0
+];
+
+foreach ($defaultMonsterFields as $field => $defaultValue) {
+    if (!isset($monster[$field])) {
+        $monster[$field] = $defaultValue;
+    }
 }
 
 // Get monster drops for sidebar
@@ -240,8 +264,9 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
     <?php endif; ?>
     
     <div class="row equal-height-row">
+        <!-- Sidebar Preview Column -->
         <div class="col-md-3 sidebar-column">
-            <!-- Monster Image and Basic Info -->
+            <!-- Monster Preview Card -->
             <div class="acquisition-card mb-4">
                 <div class="acquisition-card-header">
                     Monster Preview
@@ -262,7 +287,7 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                 </div>
             </div>
             
-            <!-- Monster Stats Quick View -->
+            <!-- Quick Stats Preview -->
             <div class="acquisition-card mb-4">
                 <div class="acquisition-card-header">
                     Monster Stats
@@ -295,7 +320,7 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                 </div>
             </div>
             
-            <!-- Monster Drops Quick View -->
+            <!-- Monster Drops Preview -->
             <?php if (!empty($drops)): ?>
             <div class="acquisition-card mb-4">
                 <div class="acquisition-card-header">
@@ -327,548 +352,561 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
             <?php endif; ?>
         </div>
         
+        <!-- Main Form Column -->
         <div class="col-md-9">
-            <!-- Edit Form -->
             <div class="acquisition-card">
                 <div class="acquisition-card-header">
                     <h4><i class="fas fa-edit me-2"></i> Edit Monster</h4>
                 </div>
                 <div class="acquisition-card-body p-4">
                     <form method="POST" action="" id="editForm">
-                        <div class="row">
-                            <!-- Form Tabs -->
-                            <div class="col-lg-12 mb-4">
-                                <div class="form-tabs">
-                                    <button type="button" class="form-tab active" data-tab="basic">Basic</button>
-                                    <button type="button" class="form-tab" data-tab="stats">Stats</button>
-                                    <button type="button" class="form-tab" data-tab="attributes">Attributes</button>
-                                    <button type="button" class="form-tab" data-tab="behavior">Behavior</button>
-                                    <button type="button" class="form-tab" data-tab="advanced">Advanced</button>
-                                    <button type="button" class="form-tab" data-tab="notes">Notes</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Basic Information Section -->
-                            <div class="col-lg-12 form-section active" id="basic-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Basic Information
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="npcid" class="form-label">Monster ID</label>
-                                                <input type="number" class="form-control no-spinner" id="npcid" value="<?= $monsterId ?>" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="desc_en" class="form-label">Monster Name (English) <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="desc_en" name="desc_en" value="<?= htmlspecialchars($monster['desc_en']) ?>" required>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="desc_kr" class="form-label">Monster Name (Korean)</label>
-                                                <input type="text" class="form-control" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($monster['desc_kr'] ?? '') ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="spriteId" class="form-label">Sprite ID</label>
-                                                <input type="number" class="form-control no-spinner" id="spriteId" name="spriteId" value="<?= (int)$monster['spriteId'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="family" class="form-label">Family</label>
-                                                <input type="text" class="form-control" id="family" name="family" value="<?= htmlspecialchars($monster['family'] ?? '') ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="cls_desc" class="form-label">Class Description</label>
-                                                <input type="text" class="form-control" id="cls_desc" name="cls_desc" value="<?= htmlspecialchars($monster['cls_desc'] ?? '') ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="lvl" class="form-label">Level</label>
-                                                <input type="number" class="form-control no-spinner" id="lvl" name="lvl" value="<?= (int)$monster['lvl'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="size" class="form-label">Size</label>
-                                                <select class="form-select" id="size" name="size">
-                                                    <?php foreach ($sizeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['size'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="impl" class="form-label">Implementation</label>
-                                                <input type="text" class="form-control" id="impl" name="impl" value="<?= htmlspecialchars($monster['impl'] ?? 'L1Monster') ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_bossmonster" name="is_bossmonster" <?= $monster['is_bossmonster'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_bossmonster">
-                                                        Boss Monster
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="polyid" class="form-label">Polymorph ID</label>
-                                                <input type="number" class="form-control no-spinner" id="polyid" name="polyid" value="<?= (int)$monster['polyid'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stats Section -->
-                            <div class="col-lg-12 form-section" id="stats-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Stats
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="hp" class="form-label">HP</label>
-                                                <input type="number" class="form-control no-spinner" id="hp" name="hp" value="<?= (int)$monster['hp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="mp" class="form-label">MP</label>
-                                                <input type="number" class="form-control no-spinner" id="mp" name="mp" value="<?= (int)$monster['mp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="ac" class="form-label">AC</label>
-                                                <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$monster['ac'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="str" class="form-label">STR</label>
-                                                <input type="number" class="form-control no-spinner" id="str" name="str" value="<?= (int)$monster['str'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="con" class="form-label">CON</label>
-                                                <input type="number" class="form-control no-spinner" id="con" name="con" value="<?= (int)$monster['con'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="dex" class="form-label">DEX</label>
-                                                <input type="number" class="form-control no-spinner" id="dex" name="dex" value="<?= (int)$monster['dex'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="wis" class="form-label">WIS</label>
-                                                <input type="number" class="form-control no-spinner" id="wis" name="wis" value="<?= (int)$monster['wis'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="intel" class="form-label">INT</label>
-                                                <input type="number" class="form-control no-spinner" id="intel" name="intel" value="<?= (int)$monster['intel'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="mr" class="form-label">Magic Resistance</label>
-                                                <input type="number" class="form-control no-spinner" id="mr" name="mr" value="<?= (int)$monster['mr'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="exp" class="form-label">EXP</label>
-                                                <input type="number" class="form-control no-spinner" id="exp" name="exp" value="<?= (int)$monster['exp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="lawful" class="form-label">Lawful</label>
-                                                <input type="number" class="form-control no-spinner" id="lawful" name="lawful" value="<?= (int)$monster['lawful'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="karma" class="form-label">Karma</label>
-                                                <input type="number" class="form-control no-spinner" id="karma" name="karma" value="<?= (int)$monster['karma'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card bg-dark mt-4">
-                                    <div class="card-header">
-                                        Regeneration
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="hpr" class="form-label">HP Regen</label>
-                                                <input type="number" class="form-control no-spinner" id="hpr" name="hpr" value="<?= (int)$monster['hpr'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="hprinterval" class="form-label">HP Regen Interval</label>
-                                                <input type="number" class="form-control no-spinner" id="hprinterval" name="hprinterval" value="<?= (int)$monster['hprinterval'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="mpr" class="form-label">MP Regen</label>
-                                                <input type="number" class="form-control no-spinner" id="mpr" name="mpr" value="<?= (int)$monster['mpr'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="mprinterval" class="form-label">MP Regen Interval</label>
-                                                <input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="<?= (int)$monster['mprinterval'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Attributes Section -->
-                            <div class="col-lg-12 form-section" id="attributes-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Elemental Attributes
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr" class="form-label">Primary Attribute</label>
-                                                <select class="form-select" id="attr" name="attr">
-                                                    <?php foreach ($attributeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['attr'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr1_power" class="form-label">Primary Attribute Power</label>
-                                                <input type="number" class="form-control no-spinner" id="attr1_power" name="attr1_power" value="<?= (int)$monster['attr1_power'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="weakAttr" class="form-label">Weak Attribute</label>
-                                                <select class="form-select" id="weakAttr" name="weakAttr">
-                                                    <?php foreach ($attributeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['weakAttr'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="undead" class="form-label">Undead Type</label>
-                                                <select class="form-select" id="undead" name="undead">
-                                                    <?php foreach ($undeadOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['undead'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="poison_atk" class="form-label">Poison Attack</label>
-                                                <select class="form-select" id="poison_atk" name="poison_atk">
-                                                    <?php foreach ($poisonAtkOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['poison_atk'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card bg-dark mt-4">
-                                    <div class="card-header">
-                                        Damage Reduction
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="damage_reduction" class="form-label">Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="<?= (int)$monster['damage_reduction'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="damagereduction" class="form-label">Physical Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="damagereduction" name="damagereduction" value="<?= (int)$monster['damagereduction'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="mdamagereduction" class="form-label">Magic Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="mdamagereduction" name="mdamagereduction" value="<?= (int)$monster['mdamagereduction'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Behavior Section -->
-                            <div class="col-lg-12 form-section" id="behavior-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Movement & Combat Behavior
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="passispeed" class="form-label">Passive Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="passispeed" name="passispeed" value="<?= (int)$monster['passispeed'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="atkspeed" class="form-label">Attack Speed</label>
-                                                <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="<?= (int)$monster['atkspeed'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="ranged" class="form-label">Ranged Attack Distance</label>
-                                                <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="<?= (int)$monster['ranged'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="is_atk_magic" class="form-label">Magic Attack</label>
-                                                <select class="form-select" id="is_atk_magic" name="is_atk_magic">
-                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['is_atk_magic'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="brain" class="form-label">Brain Type</label>
-                                                <select class="form-select" id="brain" name="brain">
-                                                    <?php foreach ($brainOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['brain'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_agro">
-                                                        Aggressive
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_agro_poly">
-                                                        Aggressive to Poly
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_agro_invis">
-                                                        Aggressive to Invisible
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_teleport">
-                                                        Can Teleport
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_taming">
-                                                        Can Be Tamed
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_picupitem">
-                                                        Picks Up Items
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead" <?= $monster['can_turnundead'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="can_turnundead">
-                                                        Affected by Turn Undead
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= $monster['cant_resurrect'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="cant_resurrect">
-                                                        Cannot Be Resurrected
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card bg-dark mt-4">
-                                    <div class="card-header">
-                                        Sound Settings
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="atksound" class="form-label">Attack Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="atksound" name="atksound" value="<?= (int)$monster['atksound'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="deadsound" class="form-label">Death Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="deadsound" name="deadsound" value="<?= (int)$monster['deadsound'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="movesound" class="form-label">Move Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="movesound" name="movesound" value="<?= (int)$monster['movesound'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="altsound" class="form-label">Alt Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="altsound" name="altsound" value="<?= (int)$monster['altsound'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Advanced Section -->
-                            <div class="col-lg-12 form-section" id="advanced-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Advanced Settings
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="is_hard" class="form-label">Is Hard</label>
-                                                <select class="form-select" id="is_hard" name="is_hard">
-                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $monster['is_hard'] === $value ? 'selected' : '' ?>>
-                                                            <?= $label ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="scale" class="form-label">Scale</label>
-                                                <input type="number" class="form-control no-spinner" id="scale" name="scale" value="<?= (int)$monster['scale'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="digestitem" class="form-label">Digest Item</label>
-                                                <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="<?= (int)$monster['digestitem'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowActId" class="form-label">Bow Action ID</label>
-                                                <input type="number" class="form-control no-spinner" id="bowActId" name="bowActId" value="<?= (int)$monster['bowActId'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowx" class="form-label">Bow X</label>
-                                                <input type="number" class="form-control no-spinner" id="bowx" name="bowx" value="<?= (int)$monster['bowx'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowy" class="form-label">Bow Y</label>
-                                                <input type="number" class="form-control no-spinner" id="bowy" name="bowy" value="<?= (int)$monster['bowy'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="agrofamily" class="form-label">Aggro Family</label>
-                                                <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="<?= (int)$monster['agrofamily'] ?>">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="use_item_id" class="form-label">Use Item ID</label>
-                                                <input type="number" class="form-control no-spinner" id="use_item_id" name="use_item_id" value="<?= (int)$monster['use_item_id'] ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="use_item_name" class="form-label">Use Item Name</label>
-                                                <input type="text" class="form-control" id="use_item_name" name="use_item_name" value="<?= htmlspecialchars($monster['use_item_name'] ?? '') ?>">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="use_type" class="form-label">Use Type</label>
-                                                <input type="number" class="form-control no-spinner" id="use_type" name="use_type" value="<?= (int)$monster['use_type'] ?>">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row mt-3">
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_doppel" name="is_doppel" <?= $monster['is_doppel'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_doppel">
-                                                        Doppelganger
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_perceptive" name="is_perceptive" <?= $monster['is_perceptive'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_perceptive">
-                                                        Is Perceptive
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_haste" name="is_haste" <?= $monster['is_haste'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_haste">
-                                                        Is Haste
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_crusuitem" name="is_crusuitem" <?= $monster['is_crusuitem'] === 'true' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="is_crusuitem">
-                                                        Is Crusuitem
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card bg-dark mt-4">
-                                    <div class="card-header">
-                                        Random Value Settings
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randomlevel" class="form-label">Random Level</label>
-                                                <input type="number" class="form-control no-spinner" id="randomlevel" name="randomlevel" value="<?= (int)$monster['randomlevel'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randomhp" class="form-label">Random HP</label>
-                                                <input type="number" class="form-control no-spinner" id="randomhp" name="randomhp" value="<?= (int)$monster['randomhp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randommp" class="form-label">Random MP</label>
-                                                <input type="number" class="form-control no-spinner" id="randommp" name="randommp" value="<?= (int)$monster['randommp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randomac" class="form-label">Random AC</label>
-                                                <input type="number" class="form-control no-spinner" id="randomac" name="randomac" value="<?= (int)$monster['randomac'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randomexp" class="form-label">Random EXP</label>
-                                                <input type="number" class="form-control no-spinner" id="randomexp" name="randomexp" value="<?= (int)$monster['randomexp'] ?>">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="randomlawful" class="form-label">Random Lawful</label>
-                                                <input type="number" class="form-control no-spinner" id="randomlawful" name="randomlawful" value="<?= (int)$monster['randomlawful'] ?>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Notes Section -->
-                            <div class="col-lg-12 form-section" id="notes-section">
-                                <div class="card bg-dark">
-                                    <div class="card-header">
-                                        Additional Notes
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="note" class="form-label">Notes</label>
-                                            <textarea class="form-control" id="note" name="note" rows="5"><?= htmlspecialchars($monster['note'] ?? '') ?></textarea>
-                                            <small>Enter any additional information about this monster.</small>
-                                        </div>
-                                    </div>
-                                </div>
+                        <!-- Form Tabs -->
+                        <div class="col-lg-12 mb-0">
+                            <div class="form-tabs">
+                                <button type="button" class="form-tab active" data-tab="basic">Basic</button>
+                                <button type="button" class="form-tab" data-tab="stats">Stats</button>
+                                <button type="button" class="form-tab" data-tab="attributes">Attributes</button>
+                                <button type="button" class="form-tab" data-tab="behavior">Behavior</button>
+                                <button type="button" class="form-tab" data-tab="advanced">Advanced</button>
+                                <button type="button" class="form-tab" data-tab="notes">Notes</button>
                             </div>
                         </div>
                         
-                        <div class="form-actions mt-4">
-                            <button type="submit" class="btn btn-primary">Update Monster</button>
-                            <a href="index.php" class="btn btn-secondary">Cancel</a>
-                            <a href="drops.php?id=<?= $monsterId ?>" class="btn" style="background-color: #212121; color: #e0e0e0;">
-                                <i class="fas fa-coins me-1"></i> Manage Drops
-                            </a>
+                        <!-- Basic Information Section -->
+                        <div class="col-lg-12 form-section active" id="basic-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Basic Information
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="npcid" class="form-label">Monster ID</label>
+                                            <input type="number" class="form-control no-spinner" id="npcid" value="<?= $monsterId ?>" disabled>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="desc_en" class="form-label">Monster Name (English) <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="desc_en" name="desc_en" value="<?= htmlspecialchars($monster['desc_en']) ?>" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="desc_kr" class="form-label">Monster Name (Korean)</label>
+                                            <input type="text" class="form-control" id="desc_kr" name="desc_kr" value="<?= htmlspecialchars($monster['desc_kr'] ?? '') ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="spriteId" class="form-label">Sprite ID</label>
+                                            <input type="number" class="form-control no-spinner" id="spriteId" name="spriteId" value="<?= (int)$monster['spriteId'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="family" class="form-label">Family</label>
+                                            <input type="text" class="form-control" id="family" name="family" value="<?= htmlspecialchars($monster['family'] ?? '') ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="cls_desc" class="form-label">Class Description</label>
+                                            <input type="text" class="form-control" id="cls_desc" name="cls_desc" value="<?= htmlspecialchars($monster['cls_desc'] ?? '') ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="lvl" class="form-label">Level</label>
+                                            <input type="number" class="form-control no-spinner" id="lvl" name="lvl" value="<?= (int)$monster['lvl'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="size" class="form-label">Size</label>
+                                            <select class="form-select" id="size" name="size">
+                                                <?php foreach ($sizeOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['size'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="impl" class="form-label">Implementation</label>
+                                            <input type="text" class="form-control" id="impl" name="impl" value="<?= htmlspecialchars($monster['impl'] ?? 'L1Monster') ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_bossmonster" name="is_bossmonster" <?= $monster['is_bossmonster'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_bossmonster">
+                                                    Boss Monster
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="polyid" class="form-label">Polymorph ID</label>
+                                            <input type="number" class="form-control no-spinner" id="polyid" name="polyid" value="<?= (int)$monster['polyid'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
+
+                        <!-- Stats Section -->
+                        <div class="col-lg-12 form-section" id="stats-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Stats
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="hp" class="form-label">HP</label>
+                                            <input type="number" class="form-control no-spinner" id="hp" name="hp" value="<?= (int)$monster['hp'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="mp" class="form-label">MP</label>
+                                            <input type="number" class="form-control no-spinner" id="mp" name="mp" value="<?= (int)$monster['mp'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="ac" class="form-label">AC</label>
+                                            <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$monster['ac'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="str" class="form-label">STR</label>
+                                            <input type="number" class="form-control no-spinner" id="str" name="str" value="<?= (int)$monster['str'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="con" class="form-label">CON</label>
+                                            <input type="number" class="form-control no-spinner" id="con" name="con" value="<?= (int)$monster['con'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="dex" class="form-label">DEX</label>
+                                            <input type="number" class="form-control no-spinner" id="dex" name="dex" value="<?= (int)$monster['dex'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="wis" class="form-label">WIS</label>
+                                            <input type="number" class="form-control no-spinner" id="wis" name="wis" value="<?= (int)$monster['wis'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="intel" class="form-label">INT</label>
+                                            <input type="number" class="form-control no-spinner" id="intel" name="intel" value="<?= (int)$monster['intel'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="mr" class="form-label">Magic Resistance</label>
+                                            <input type="number" class="form-control no-spinner" id="mr" name="mr" value="<?= (int)$monster['mr'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="exp" class="form-label">EXP</label>
+                                            <input type="number" class="form-control no-spinner" id="exp" name="exp" value="<?= (int)$monster['exp'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="lawful" class="form-label">Lawful</label>
+                                            <input type="number" class="form-control no-spinner" id="lawful" name="lawful" value="<?= (int)$monster['lawful'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="karma" class="form-label">Karma</label>
+                                            <input type="number" class="form-control no-spinner" id="karma" name="karma" value="<?= (int)$monster['karma'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card bg-dark mt-4">
+                                <div class="card-header">
+                                    Regeneration
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="hpr" class="form-label">HP Regen</label>
+                                            <input type="number" class="form-control no-spinner" id="hpr" name="hpr" value="<?= (int)$monster['hpr'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="hprinterval" class="form-label">HP Regen Interval</label>
+                                            <input type="number" class="form-control no-spinner" id="hprinterval" name="hprinterval" value="<?= (int)$monster['hprinterval'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="mpr" class="form-label">MP Regen</label>
+                                            <input type="number" class="form-control no-spinner" id="mpr" name="mpr" value="<?= (int)$monster['mpr'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="mprinterval" class="form-label">MP Regen Interval</label>
+                                            <input type="number" class="form-control no-spinner" id="mprinterval" name="mprinterval" value="<?= (int)$monster['mprinterval'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attributes Section -->
+                        <div class="col-lg-12 form-section" id="attributes-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Elemental Attributes
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="attr" class="form-label">Primary Attribute</label>
+                                            <select class="form-select" id="attr" name="attr">
+                                                <?php foreach ($attributeOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['attr'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="attr1_power" class="form-label">Primary Attribute Power</label>
+                                            <input type="number" class="form-control no-spinner" id="attr1_power" name="attr1_power" value="<?= (int)$monster['attr1_power'] ?>">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="weakAttr" class="form-label">Weak Attribute</label>
+                                            <select class="form-select" id="weakAttr" name="weakAttr">
+                                                <?php foreach ($attributeOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['weakAttr'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="undead" class="form-label">Undead Type</label>
+                                            <select class="form-select" id="undead" name="undead">
+                                                <?php foreach ($undeadOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['undead'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="poison_atk" class="form-label">Poison Attack</label>
+                                            <select class="form-select" id="poison_atk" name="poison_atk">
+                                                <?php foreach ($poisonAtkOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= isset($monster['poison_atk']) && $monster['poison_atk'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card bg-dark mt-4">
+                                <div class="card-header">
+                                    Damage Reduction
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="damage_reduction" class="form-label">Damage Reduction</label>
+                                            <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="<?= (int)$monster['damage_reduction'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="damagereduction" class="form-label">Physical Damage Reduction</label>
+                                            <input type="number" class="form-control no-spinner" id="damagereduction" name="damagereduction" value="<?= (int)$monster['damagereduction'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="mdamagereduction" class="form-label">Magic Damage Reduction</label>
+                                            <input type="number" class="form-control no-spinner" id="mdamagereduction" name="mdamagereduction" value="<?= (int)$monster['mdamagereduction'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Behavior Section -->
+                        <div class="col-lg-12 form-section" id="behavior-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Movement & Combat Behavior
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="passispeed" class="form-label">Passive Speed</label>
+                                            <input type="number" class="form-control no-spinner" id="passispeed" name="passispeed" value="<?= (int)$monster['passispeed'] ?>">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="atkspeed" class="form-label">Attack Speed</label>
+                                            <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="<?= (int)$monster['atkspeed'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="ranged" class="form-label">Ranged Attack Distance</label>
+                                            <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="<?= (int)$monster['ranged'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="is_atk_magic" class="form-label">Magic Attack</label>
+                                            <select class="form-select" id="is_atk_magic" name="is_atk_magic">
+                                                <?php foreach ($yesNoOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['is_atk_magic'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="brain" class="form-label">Brain Type</label>
+                                            <select class="form-select" id="brain" name="brain">
+                                                <?php foreach ($brainOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['brain'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro">
+                                                    Aggressive
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro_poly">
+                                                    Aggressive to Poly
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_agro_invis">
+                                                    Aggressive to Invisible
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_teleport">
+                                                    Can Teleport
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_taming">
+                                                    Can Be Tamed
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_picupitem">
+                                                    Picks Up Items
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead" <?= $monster['can_turnundead'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="can_turnundead">
+                                                    Affected by Turn Undead
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= $monster['cant_resurrect'] === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="cant_resurrect">
+                                                    Cannot Be Resurrected
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card bg-dark mt-4">
+                                <div class="card-header">
+                                    Sound Settings
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="atksound" class="form-label">Attack Sound</label>
+                                            <input type="number" class="form-control no-spinner" id="atksound" name="atksound" value="<?= (int)$monster['atksound'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="deadsound" class="form-label">Death Sound</label>
+                                            <input type="number" class="form-control no-spinner" id="deadsound" name="deadsound" value="<?= (int)$monster['deadsound'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="movesound" class="form-label">Move Sound</label>
+                                            <input type="number" class="form-control no-spinner" id="movesound" name="movesound" value="<?= (int)$monster['movesound'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="altsound" class="form-label">Alt Sound</label>
+                                            <input type="number" class="form-control no-spinner" id="altsound" name="altsound" value="<?= (int)$monster['altsound'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Section -->
+                        <div class="col-lg-12 form-section" id="advanced-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Advanced Settings
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="is_hard" class="form-label">Is Hard</label>
+                                            <select class="form-select" id="is_hard" name="is_hard">
+                                                <?php foreach ($yesNoOptions as $value => $label): ?>
+                                                    <option value="<?= $value ?>" <?= $monster['is_hard'] === $value ? 'selected' : '' ?>>
+                                                        <?= $label ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="scale" class="form-label">Scale</label>
+                                            <input type="number" class="form-control no-spinner" id="scale" name="scale" value="<?= (int)$monster['scale'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="digestitem" class="form-label">Digest Item</label>
+                                            <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="<?= (int)$monster['digestitem'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="bowActId" class="form-label">Bow Action ID</label>
+                                            <input type="number" class="form-control no-spinner" id="bowActId" name="bowActId" value="<?= (int)$monster['bowActId'] ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="bowx" class="form-label">Bow X</label>
+                                            <input type="number" class="form-control no-spinner" id="bowx" name="bowx" value="<?= (int)$monster['bowx'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="bowy" class="form-label">Bow Y</label>
+                                            <input type="number" class="form-control no-spinner" id="bowy" name="bowy" value="<?= (int)$monster['bowy'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="agrofamily" class="form-label">Aggro Family</label>
+                                            <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="<?= (int)$monster['agrofamily'] ?>">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="use_item_id" class="form-label">Use Item ID</label>
+                                            <input type="number" class="form-control no-spinner" id="use_item_id" name="use_item_id" value="<?= (int)$monster['use_item_id'] ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="use_item_name" class="form-label">Use Item Name</label>
+                                            <input type="text" class="form-control" id="use_item_name" name="use_item_name" value="<?= htmlspecialchars($monster['use_item_name'] ?? '') ?>">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="use_type" class="form-label">Use Type</label>
+                                            <input type="number" class="form-control no-spinner" id="use_type" name="use_type" value="<?= (int)$monster['use_type'] ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_doppel" name="is_doppel" <?= ($monster['is_doppel'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_doppel">
+                                                    Doppelganger
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_perceptive" name="is_perceptive" <?= ($monster['is_perceptive'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_perceptive">
+                                                    Is Perceptive
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_haste" name="is_haste" <?= ($monster['is_haste'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_haste">
+                                                    Is Haste
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_crusuitem" name="is_crusuitem" <?= ($monster['is_crusuitem'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="is_crusuitem">
+                                                    Is Crusuitem
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card bg-dark mt-4">
+                                <div class="card-header">
+                                    Random Value Settings
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randomlevel" class="form-label">Random Level</label>
+                                            <input type="number" class="form-control no-spinner" id="randomlevel" name="randomlevel" value="<?= (int)$monster['randomlevel'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randomhp" class="form-label">Random HP</label>
+                                            <input type="number" class="form-control no-spinner" id="randomhp" name="randomhp" value="<?= (int)$monster['randomhp'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randommp" class="form-label">Random MP</label>
+                                            <input type="number" class="form-control no-spinner" id="randommp" name="randommp" value="<?= (int)$monster['randommp'] ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randomac" class="form-label">Random AC</label>
+                                            <input type="number" class="form-control no-spinner" id="randomac" name="randomac" value="<?= (int)$monster['randomac'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randomexp" class="form-label">Random EXP</label>
+                                            <input type="number" class="form-control no-spinner" id="randomexp" name="randomexp" value="<?= (int)$monster['randomexp'] ?>">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="randomlawful" class="form-label">Random Lawful</label>
+                                            <input type="number" class="form-control no-spinner" id="randomlawful" name="randomlawful" value="<?= (int)$monster['randomlawful'] ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="col-lg-12 form-section" id="notes-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Additional Notes
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="note" class="form-label">Notes</label>
+                                        <textarea class="form-control" id="note" name="note" rows="5"><?= htmlspecialchars($monster['note'] ?? '') ?></textarea>
+                                        <small>Enter any additional information about this monster.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions mt-4">
+                        <button type="submit" class="btn btn-primary">Update Monster</button>
+                        <a href="index.php" class="btn btn-secondary">Cancel</a>
+                        <a href="drops.php?id=<?= $monsterId ?>" class="btn" style="background-color: #212121; color: #e0e0e0;">
+                            <i class="fas fa-coins me-1"></i> Manage Drops
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -883,14 +921,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
+            // Remove active class from all tabs
             tabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
             this.classList.add('active');
             
-            sections.forEach(section => section.classList.remove('active'));
+            // Hide all sections
+            sections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+            
+            // Show the selected section
             const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId + '-section').classList.add('active');
+            const activeSection = document.getElementById(tabId + '-section');
+            activeSection.style.display = 'block';
+            setTimeout(() => {
+                activeSection.classList.add('active');
+            }, 10);
         });
     });
+    
+    // Initialize first tab as active if none is active
+    if (!document.querySelector('.form-tab.active') && tabs.length > 0) {
+        tabs[0].click();
+    }
     
     // Live update stats in the sidebar
     const hpInput = document.getElementById('hp');

@@ -351,12 +351,12 @@ $yesNoOptions = [
 <div class="container mt-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
-        <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
-    </ol>
-</nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="index.php">Armor</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
+        </ol>
+    </nav>
     
     <!-- Messages -->
     <?php if (!empty($errors)): ?>
@@ -452,8 +452,8 @@ $yesNoOptions = [
                     <div class="acquisition-card-body">
                         <h6 class="text-center"><?= htmlspecialchars($setInfo['note'] ?: 'Set #'.$setInfo['id']) ?></h6>
                         <?php if (!empty($setInfo['sets'])): ?>
-							<br/>
-							<br/>
+                            <br/>
+                            <br/>
                             <ul class="list-group list-group-flush bg-transparent">
                                 <?php if ($setInfo['str'] > 0): ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
@@ -528,7 +528,7 @@ $yesNoOptions = [
                     <form method="POST" action="" id="editForm">
                         <div class="row">
                             <!-- Form Tabs -->
-                            <div class="col-lg-12 mb-4">
+                            <div class="col-lg-12 mb-0">
                                 <div class="form-tabs">
                                     <button type="button" class="form-tab active" data-tab="basic">Basic</button>
                                     <button type="button" class="form-tab" data-tab="properties">Properties</button>
@@ -763,9 +763,9 @@ $yesNoOptions = [
                                 </div>
                             </div>
 
-                            <!-- Resistance Section (Updated) -->
+                            <!-- Resistance Section -->
                             <div class="col-lg-12 form-section" id="resistance-section">
-                                <div class="row"> <!-- Add a row to contain both cards -->
+                                <div class="row"> 
                                     <!-- Elemental Resistance Card -->
                                     <div class="col-lg-12 mb-4">
                                         <div class="card bg-dark">
@@ -850,7 +850,7 @@ $yesNoOptions = [
                                 </div>
                             </div>
                             
-                            <!-- Bonus Section (New) -->
+                            <!-- Bonus Section -->
                             <div class="col-lg-12 form-section" id="bonus-section">
                                 <div class="card bg-dark">
                                     <div class="card-header">
@@ -943,7 +943,7 @@ $yesNoOptions = [
                                                     <label class="form-check-label" for="use_warrior">Warrior</label>
                                                 </div>
                                             </div>
-											<div class="col-md-4 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="use_fencer" name="use_fencer" <?= $armor['use_fencer'] ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="use_fencer">Fencer</label>
@@ -1333,13 +1333,25 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             
             // Hide all sections
-            sections.forEach(section => section.classList.remove('active'));
+            sections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
             
             // Show the selected section
             const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId + '-section').classList.add('active');
+            const activeSection = document.getElementById(tabId + '-section');
+            activeSection.style.display = 'block';
+            setTimeout(() => {
+                activeSection.classList.add('active');
+            }, 10);
         });
     });
+    
+    // Initialize first tab as active if none is active
+    if (!document.querySelector('.form-tab.active') && tabs.length > 0) {
+        tabs[0].click();
+    }
     
     // Image preview functionality
     const iconIdInput = document.getElementById('iconId');

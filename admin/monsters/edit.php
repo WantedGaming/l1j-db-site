@@ -498,7 +498,7 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
             <div class="col-lg-10 mx-auto text-center">
                 <h1 class="hero-title"><?= htmlspecialchars($monster['desc_en']) ?></h1>
                 <div class="item-id-display mb-3">
-                    <span class="badge bg-primary fs-4 px-3 py-2">
+                    <span class="badge bg-secondary fs-4 px-3 py-2">
                         <i class="fas fa-dragon me-2"></i>Monster ID: <?= $monsterId ?>
                     </span>
                     <span class="mx-3 text-muted">|</span>

@@ -23,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect monster data from form
     $monster = [
         'npcid' => intval($_POST['npcid'] ?? 0),
+        'classId' => intval($_POST['classId'] ?? 0),
         'desc_en' => $_POST['desc_en'] ?? '',
+        'desc_powerbook' => $_POST['desc_powerbook'] ?? '',
         'desc_kr' => $_POST['desc_kr'] ?? '',
         'desc_id' => $_POST['desc_id'] ?? '',
-        'cls_desc' => $_POST['cls_desc'] ?? '',
         'note' => $_POST['note'] ?? '',
+        'impl' => $_POST['impl'] ?? 'L1Monster',
+        'spriteId' => intval($_POST['spriteId'] ?? 0),
         'lvl' => intval($_POST['lvl'] ?? 0),
         'hp' => intval($_POST['hp'] ?? 0),
         'mp' => intval($_POST['mp'] ?? 0),
@@ -39,73 +42,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'intel' => intval($_POST['intel'] ?? 0),
         'mr' => intval($_POST['mr'] ?? 0),
         'exp' => intval($_POST['exp'] ?? 0),
-        'lawful' => intval($_POST['lawful'] ?? 0),
-        'size' => $_POST['size'] ?? 'small',
-        'weak_attr' => $_POST['weak_attr'] ?? '',
+        'alignment' => intval($_POST['alignment'] ?? 0),
+        'big' => isset($_POST['big']) ? 'true' : 'false',
+        'weakAttr' => $_POST['weakAttr'] ?? 'NONE',
         'ranged' => intval($_POST['ranged'] ?? 0),
-        'is_atk_magic' => $_POST['is_atk_magic'] ?? 'false',
-        'is_bossmonster' => isset($_POST['is_bossmonster']) ? 'true' : 'false',
-        'attr' => $_POST['attr'] ?? '',
-        'undead' => $_POST['undead'] ?? '',
-        'karma' => intval($_POST['karma'] ?? 0),
+        'is_taming' => isset($_POST['is_taming']) ? 'true' : 'false',
         'passispeed' => intval($_POST['passispeed'] ?? 0),
         'atkspeed' => intval($_POST['atkspeed'] ?? 0),
-        'agro' => isset($_POST['agro']) ? 1 : 0,
-        'agrososc' => isset($_POST['agrososc']) ? 1 : 0,
-        'agrocoi' => isset($_POST['agrocoi']) ? 1 : 0,
+        'atk_magic_speed' => intval($_POST['atk_magic_speed'] ?? 0),
+        'sub_magic_speed' => intval($_POST['sub_magic_speed'] ?? 0),
+        'undead' => $_POST['undead'] ?? 'NONE',
+        'poison_atk' => $_POST['poison_atk'] ?? 'NONE',
+        'is_agro' => isset($_POST['is_agro']) ? 'true' : 'false',
+        'is_agro_poly' => isset($_POST['is_agro_poly']) ? 'true' : 'false',
+        'is_agro_invis' => isset($_POST['is_agro_invis']) ? 'true' : 'false',
         'family' => $_POST['family'] ?? '',
         'agrofamily' => intval($_POST['agrofamily'] ?? 0),
-        'scale' => intval($_POST['scale'] ?? 0),
-        'altsound' => intval($_POST['altsound'] ?? 0),
-        'atksound' => intval($_POST['atksound'] ?? 0),
-        'deadsound' => intval($_POST['deadsound'] ?? 0),
-        'movesound' => intval($_POST['movesound'] ?? 0),
-        'damage_reduction' => intval($_POST['damage_reduction'] ?? 0),
-        'hard' => intval($_POST['hard'] ?? 0),
-        'doppel' => isset($_POST['doppel']) ? 1 : 0,
-        'tu_point' => intval($_POST['tu_point'] ?? 0),
-        'eris' => intval($_POST['eris'] ?? 0),
-        'is_teleport' => isset($_POST['is_teleport']) ? 1 : 0,
-        'is_tam' => isset($_POST['is_tam']) ? 1 : 0,
-        'is_perceptive' => isset($_POST['is_perceptive']) ? 1 : 0,
-        'bowActId' => intval($_POST['bowActId'] ?? 0),
+        'agrogfxid1' => intval($_POST['agrogfxid1'] ?? -1),
+        'agrogfxid2' => intval($_POST['agrogfxid2'] ?? -1),
+        'is_picupitem' => isset($_POST['is_picupitem']) ? 'true' : 'false',
         'digestitem' => intval($_POST['digestitem'] ?? 0),
-        'bowx' => intval($_POST['bowx'] ?? 0),
-        'bowy' => intval($_POST['bowy'] ?? 0),
+        'is_bravespeed' => isset($_POST['is_bravespeed']) ? 'true' : 'false',
         'hprinterval' => intval($_POST['hprinterval'] ?? 0),
         'hpr' => intval($_POST['hpr'] ?? 0),
         'mprinterval' => intval($_POST['mprinterval'] ?? 0),
         'mpr' => intval($_POST['mpr'] ?? 0),
-        'teleport' => isset($_POST['teleport']) ? 1 : 0,
+        'is_teleport' => isset($_POST['is_teleport']) ? 'true' : 'false',
         'randomlevel' => intval($_POST['randomlevel'] ?? 0),
         'randomhp' => intval($_POST['randomhp'] ?? 0),
         'randommp' => intval($_POST['randommp'] ?? 0),
         'randomac' => intval($_POST['randomac'] ?? 0),
         'randomexp' => intval($_POST['randomexp'] ?? 0),
-        'randomlawful' => intval($_POST['randomlawful'] ?? 0),
-        'damage_iwrench' => intval($_POST['damage_iwrench'] ?? 0),
-        'brain' => $_POST['brain'] ?? '',
-        'polyid' => intval($_POST['polyid'] ?? 0),
-        'imageid' => intval($_POST['imageid'] ?? 0),
-        'itempercentchart' => intval($_POST['itempercentchart'] ?? 0),
-        'culture' => intval($_POST['culture'] ?? 0),
-        'damagereduction' => intval($_POST['damagereduction'] ?? 0),
-        'mdamagereduction' => intval($_POST['mdamagereduction'] ?? 0),
-        'attr1_power' => intval($_POST['attr1_power'] ?? 0),
-        'attr2' => $_POST['attr2'] ?? '',
-        'attr2_power' => intval($_POST['attr2_power'] ?? 0),
-        'attr3' => $_POST['attr3'] ?? '',
-        'attr3_power' => intval($_POST['attr3_power'] ?? 0),
-        'attr4' => $_POST['attr4'] ?? '',
-        'attr4_power' => intval($_POST['attr4_power'] ?? 0),
-        'attr5' => $_POST['attr5'] ?? '',
-        'attr5_power' => intval($_POST['attr5_power'] ?? 0),
-        'use_item_name' => $_POST['use_item_name'] ?? '',
-        'use_item_id' => intval($_POST['use_item_id'] ?? 0),
-        'use_type' => intval($_POST['use_type'] ?? 0),
-        'is_crusuitem' => isset($_POST['is_crusuitem']) ? 1 : 0,
-        'is_haste' => isset($_POST['is_haste']) ? 1 : 0,
-        'impl' => $_POST['impl'] ?? 'L1Monster'
+        'randomAlign' => intval($_POST['randomAlign'] ?? 0),
+        'damage_reduction' => intval($_POST['damage_reduction'] ?? 0),
+        'is_hard' => isset($_POST['is_hard']) ? 'true' : 'false',
+        'is_bossmonster' => isset($_POST['is_bossmonster']) ? 'true' : 'false',
+        'can_turnundead' => isset($_POST['can_turnundead']) ? 'true' : 'false',
+        'bowSpritetId' => intval($_POST['bowSpritetId'] ?? 0),
+        'karma' => intval($_POST['karma'] ?? 0),
+        'transform_id' => intval($_POST['transform_id'] ?? -1),
+        'transform_gfxid' => intval($_POST['transform_gfxid'] ?? 0),
+        'light_size' => intval($_POST['light_size'] ?? 0),
+        'is_amount_fixed' => isset($_POST['is_amount_fixed']) ? 'true' : 'false',
+        'is_change_head' => isset($_POST['is_change_head']) ? 'true' : 'false',
+        'spawnlist_door' => intval($_POST['spawnlist_door'] ?? 0),
+        'count_map' => intval($_POST['count_map'] ?? 0),
+        'cant_resurrect' => isset($_POST['cant_resurrect']) ? 'true' : 'false',
+        'isHide' => isset($_POST['isHide']) ? 'true' : 'false'
     ];
     
     // Validation
@@ -153,10 +136,11 @@ $nextNpcId = $monsterModel->getNextNpcId();
 // Initialize default monster values
 $monster = [
     'npcid' => $nextNpcId,
+    'classId' => 0,
     'desc_en' => '',
+    'desc_powerbook' => '',
     'desc_kr' => '',
     'desc_id' => '',
-    'cls_desc' => '',
     'note' => '',
     'lvl' => 1,
     'hp' => 100,
@@ -169,111 +153,89 @@ $monster = [
     'intel' => 10,
     'mr' => 0,
     'exp' => 10,
-    'lawful' => 0,
-    'size' => 'small',
-    'weak_attr' => '',
+    'alignment' => 0,
+    'big' => 'false',
+    'weakAttr' => 'NONE',
     'ranged' => 0,
-    'is_atk_magic' => 'false',
-    'is_bossmonster' => 'false',
-    'attr' => '',
-    'undead' => '',
-    'karma' => 0,
+    'is_taming' => 'false',
     'passispeed' => 480,
     'atkspeed' => 480,
-    'agro' => 0,
-    'agrososc' => 0,
-    'agrocoi' => 0,
+    'atk_magic_speed' => 0,
+    'sub_magic_speed' => 0,
+    'undead' => 'NONE',
+    'poison_atk' => 'NONE',
+    'is_agro' => 'false',
+    'is_agro_poly' => 'false',
+    'is_agro_invis' => 'false',
     'family' => '',
     'agrofamily' => 0,
-    'scale' => 0,
-    'altsound' => 0,
-    'atksound' => 0,
-    'deadsound' => 0,
-    'movesound' => 0,
-    'damage_reduction' => 0,
-    'hard' => 0,
-    'doppel' => 0,
-    'tu_point' => 0,
-    'eris' => 0,
-    'is_teleport' => 0,
-    'is_tam' => 0,
-    'is_perceptive' => 0,
-    'bowActId' => 0,
+    'agrogfxid1' => -1,
+    'agrogfxid2' => -1,
+    'is_picupitem' => 'false',
     'digestitem' => 0,
-    'bowx' => 0,
-    'bowy' => 0,
+    'is_bravespeed' => 'false',
     'hprinterval' => 0,
     'hpr' => 0,
     'mprinterval' => 0,
     'mpr' => 0,
-    'teleport' => 0,
+    'is_teleport' => 'false',
     'randomlevel' => 0,
     'randomhp' => 0,
     'randommp' => 0,
     'randomac' => 0,
     'randomexp' => 0,
-    'randomlawful' => 0,
-    'damage_iwrench' => 0,
-    'brain' => '',
-    'polyid' => 0,
-    'imageid' => 0,
-    'itempercentchart' => 0,
-    'culture' => 0,
-    'damagereduction' => 0,
-    'mdamagereduction' => 0,
-    'attr1_power' => 0,
-    'attr2' => '',
-    'attr2_power' => 0,
-    'attr3' => '',
-    'attr3_power' => 0,
-    'attr4' => '',
-    'attr4_power' => 0,
-    'attr5' => '',
-    'attr5_power' => 0,
-    'use_item_name' => '',
-    'use_item_id' => 0,
-    'use_type' => 0,
-    'is_crusuitem' => 0,
-    'is_haste' => 0,
-    'impl' => 'L1Monster'
+    'randomAlign' => 0,
+    'damage_reduction' => 0,
+    'is_hard' => 'false',
+    'is_bossmonster' => 'false',
+    'can_turnundead' => 'false',
+    'bowSpritetId' => 0,
+    'karma' => 0,
+    'transform_id' => -1,
+    'transform_gfxid' => 0,
+    'light_size' => 0,
+    'is_amount_fixed' => 'false',
+    'is_change_head' => 'false',
+    'spawnlist_door' => 0,
+    'count_map' => 0,
+    'cant_resurrect' => 'false',
+    'isHide' => 'false',
+    'spriteId' => 0
 ];
 
-// Monster size options
-$sizeOptions = [
-    'small' => 'Small',
-    'medium' => 'Medium',
-    'large' => 'Large'
-];
+// Size options
+$sizeOptions = ['false' => 'Normal', 'true' => 'Big'];
 
-// Monster attribute options
+// Attribute options
 $attributeOptions = [
-    '' => 'None',
-    'earth' => 'Earth',
-    'fire' => 'Fire',
-    'water' => 'Water',
-    'wind' => 'Wind'
+    'NONE' => 'None',
+    'EARTH' => 'Earth',
+    'FIRE' => 'Fire',
+    'WATER' => 'Water',
+    'WIND' => 'Wind'
 ];
 
 // Undead type options
 $undeadOptions = [
-    '' => 'None',
-    'undead' => 'Undead',
-    'undead boss' => 'Undead Boss'
-];
-
-// Brain type options
-$brainOptions = [
-    '' => 'None',
-    'guard' => 'Guard',
-    'atak' => 'Attack',
-    'shop' => 'Shop',
-    'guild' => 'Guild'
+    'NONE' => 'None',
+    'UNDEAD' => 'Undead',
+    'DEMON' => 'Demon',
+    'UNDEAD_BOSS' => 'Undead Boss',
+    'DRANIUM' => 'Dranium'
 ];
 
 // Yes/No options
 $yesNoOptions = [
     'true' => 'Yes',
     'false' => 'No'
+];
+
+// Poison attack options
+$poisonAtkOptions = [
+    'NONE' => 'None',
+    'DAMAGE' => 'Damage',
+    'PARALYSIS' => 'Paralysis',
+    'SILENCE' => 'Silence'
 ];
 ?>
 
@@ -380,7 +342,7 @@ $yesNoOptions = [
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>Type</span>
-                            <span class="badge" id="boss-preview">Normal</span>
+                            <span class="badge bg-secondary" id="boss-preview">Normal</span>
                         </li>
                     </ul>
                 </div>
@@ -425,6 +387,10 @@ $yesNoOptions = [
                                                 <input type="text" class="form-control" id="desc_en" name="desc_en" required>
                                             </div>
                                             <div class="col-md-4 mb-3">
+                                                <label for="desc_powerbook" class="form-label">Monster Name (Powerbook)</label>
+                                                <input type="text" class="form-control" id="desc_powerbook" name="desc_powerbook">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
                                                 <label for="desc_kr" class="form-label">Monster Name (Korean)</label>
                                                 <input type="text" class="form-control" id="desc_kr" name="desc_kr">
                                             </div>
@@ -433,22 +399,22 @@ $yesNoOptions = [
                                                 <input type="text" class="form-control" id="desc_id" name="desc_id">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="family" class="form-label">Family</label>
-                                                <input type="text" class="form-control" id="family" name="family">
+                                                <label for="classId" class="form-label">Class ID</label>
+                                                <input type="number" class="form-control no-spinner" id="classId" name="classId" value="0">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="cls_desc" class="form-label">Class Description</label>
-                                                <input type="text" class="form-control" id="cls_desc" name="cls_desc">
+                                                <label for="family" class="form-label">Family</label>
+                                                <input type="text" class="form-control" id="family" name="family">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="lvl" class="form-label">Level</label>
                                                 <input type="number" class="form-control no-spinner" id="lvl" name="lvl" value="1">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="size" class="form-label">Size</label>
-                                                <select class="form-select" id="size" name="size">
+                                                <label for="big" class="form-label">Size</label>
+                                                <select class="form-select" id="big" name="big">
                                                     <?php foreach ($sizeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>" <?= $value === 'small' ? 'selected' : '' ?>>
+                                                        <option value="<?= $value ?>" <?= $value === 'false' ? 'selected' : '' ?>>
                                                             <?= $label ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -467,12 +433,8 @@ $yesNoOptions = [
                                                 </div>
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="imageid" class="form-label">Image ID</label>
-                                                <input type="number" class="form-control no-spinner" id="imageid" name="imageid" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="polyid" class="form-label">Polymorph ID</label>
-                                                <input type="number" class="form-control no-spinner" id="polyid" name="polyid" value="0">
+                                                <label for="spriteId" class="form-label">Sprite ID</label>
+                                                <input type="number" class="form-control no-spinner" id="spriteId" name="spriteId" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -528,8 +490,8 @@ $yesNoOptions = [
                                                 <input type="number" class="form-control no-spinner" id="exp" name="exp" value="10">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="lawful" class="form-label">Lawful</label>
-                                                <input type="number" class="form-control no-spinner" id="lawful" name="lawful" value="0">
+                                                <label for="alignment" class="form-label">Alignment</label>
+                                                <input type="number" class="form-control no-spinner" id="alignment" name="alignment" value="0">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="karma" class="form-label">Karma</label>
@@ -575,32 +537,8 @@ $yesNoOptions = [
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="attr" class="form-label">Primary Attribute</label>
-                                                <select class="form-select" id="attr" name="attr">
-                                                    <?php foreach ($attributeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr1_power" class="form-label">Primary Attribute Power</label>
-                                                <input type="number" class="form-control no-spinner" id="attr1_power" name="attr1_power" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr2" class="form-label">Secondary Attribute</label>
-                                                <select class="form-select" id="attr2" name="attr2">
-                                                    <?php foreach ($attributeOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attr2_power" class="form-label">Secondary Attribute Power</label>
-                                                <input type="number" class="form-control no-spinner" id="attr2_power" name="attr2_power" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="weak_attr" class="form-label">Weak Attribute</label>
-                                                <select class="form-select" id="weak_attr" name="weak_attr">
+                                                <label for="weakAttr" class="form-label">Weak Attribute</label>
+                                                <select class="form-select" id="weakAttr" name="weakAttr">
                                                     <?php foreach ($attributeOptions as $value => $label): ?>
                                                         <option value="<?= $value ?>"><?= $label ?></option>
                                                     <?php endforeach; ?>
@@ -614,6 +552,22 @@ $yesNoOptions = [
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="poison_atk" class="form-label">Poison Attack</label>
+                                                <select class="form-select" id="poison_atk" name="poison_atk">
+                                                    <?php foreach ($poisonAtkOptions as $value => $label): ?>
+                                                        <option value="<?= $value ?>"><?= $label ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check mt-4">
+												<input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead">
+                                                    <label class="form-check-label" for="can_turnundead">
+                                                        Affected by Turn Undead
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -624,17 +578,9 @@ $yesNoOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-4 mb-3">
+                                            <div class="col-md-12 mb-3">
                                                 <label for="damage_reduction" class="form-label">Damage Reduction</label>
                                                 <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="damagereduction" class="form-label">Physical Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="damagereduction" name="damagereduction" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="mdamagereduction" class="form-label">Magic Damage Reduction</label>
-                                                <input type="number" class="form-control no-spinner" id="mdamagereduction" name="mdamagereduction" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -657,47 +603,42 @@ $yesNoOptions = [
                                                 <label for="atkspeed" class="form-label">Attack Speed</label>
                                                 <input type="number" class="form-control no-spinner" id="atkspeed" name="atkspeed" value="480">
                                             </div>
-                                            <div class="col-md-4 mb-3">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="atk_magic_speed" class="form-label">Magic Attack Speed</label>
+                                                <input type="number" class="form-control no-spinner" id="atk_magic_speed" name="atk_magic_speed" value="0">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="sub_magic_speed" class="form-label">Sub Magic Speed</label>
+                                                <input type="number" class="form-control no-spinner" id="sub_magic_speed" name="sub_magic_speed" value="0">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
                                                 <label for="ranged" class="form-label">Ranged Attack Distance</label>
                                                 <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="0">
                                             </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="is_atk_magic" class="form-label">Magic Attack</label>
-                                                <select class="form-select" id="is_atk_magic" name="is_atk_magic">
-                                                    <?php foreach ($yesNoOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="brain" class="form-label">Brain Type</label>
-                                                <select class="form-select" id="brain" name="brain">
-                                                    <?php foreach ($brainOptions as $value => $label): ?>
-                                                        <option value="<?= $value ?>"><?= $label ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="agro" name="agro">
-                                                    <label class="form-check-label" for="agro">
+                                                    <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro">
+                                                    <label class="form-check-label" for="is_agro">
                                                         Aggressive
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="agrososc" name="agrososc">
-                                                    <label class="form-check-label" for="agrososc">
-                                                        Aggressive (Sound)
+                                                    <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly">
+                                                    <label class="form-check-label" for="is_agro_poly">
+                                                        Aggressive to Poly
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
                                                 <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" id="agrocoi" name="agrocoi">
-                                                    <label class="form-check-label" for="agrocoi">
-                                                        Aggressive (Invisible)
+                                                    <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis">
+                                                    <label class="form-check-label" for="is_agro_invis">
+                                                        Aggressive to Invisible
                                                     </label>
                                                 </div>
                                             </div>
@@ -710,30 +651,61 @@ $yesNoOptions = [
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming">
+                                                    <label class="form-check-label" for="is_taming">
+                                                        Can Be Tamed
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem">
+                                                    <label class="form-check-label" for="is_picupitem">
+                                                        Picks Up Items
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed">
+                                                    <label class="form-check-label" for="is_bravespeed">
+                                                        Brave Speed
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect">
+                                                    <label class="form-check-label" for="cant_resurrect">
+                                                        Cannot Be Resurrected
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <div class="card bg-dark mt-4">
                                     <div class="card-header">
-                                        Sound Settings
+                                        Family Settings
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="atksound" class="form-label">Attack Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="atksound" name="atksound" value="0">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="agrofamily" class="form-label">Aggro Family</label>
+                                                <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="0">
                                             </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="deadsound" class="form-label">Death Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="deadsound" name="deadsound" value="0">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="agrogfxid1" class="form-label">Aggro GFX ID 1</label>
+                                                <input type="number" class="form-control no-spinner" id="agrogfxid1" name="agrogfxid1" value="-1">
                                             </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="movesound" class="form-label">Move Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="movesound" name="movesound" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="altsound" class="form-label">Alt Sound</label>
-                                                <input type="number" class="form-control no-spinner" id="altsound" name="altsound" value="0">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="agrogfxid2" class="form-label">Aggro GFX ID 2</label>
+                                                <input type="number" class="form-control no-spinner" id="agrogfxid2" name="agrogfxid2" value="-1">
                                             </div>
                                         </div>
                                     </div>
@@ -748,80 +720,74 @@ $yesNoOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="hard" class="form-label">Hardness</label>
-                                                <input type="number" class="form-control no-spinner" id="hard" name="hard" value="0">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="is_hard" name="is_hard">
+                                                    <label class="form-check-label" for="is_hard">
+                                                        Is Hard
+                                                    </label>
+                                                </div>
                                             </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="scale" class="form-label">Scale</label>
-                                                <input type="number" class="form-control no-spinner" id="scale" name="scale" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="digestitem" class="form-label">Digest Item</label>
                                                 <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="0">
                                             </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowActId" class="form-label">Bow Action ID</label>
-                                                <input type="number" class="form-control no-spinner" id="bowActId" name="bowActId" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowx" class="form-label">Bow X</label>
-                                                <input type="number" class="form-control no-spinner" id="bowx" name="bowx" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="bowy" class="form-label">Bow Y</label>
-                                                <input type="number" class="form-control no-spinner" id="bowy" name="bowy" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="agrofamily" class="form-label">Aggro Family</label>
-                                                <input type="number" class="form-control no-spinner" id="agrofamily" name="agrofamily" value="0">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="use_item_id" class="form-label">Use Item ID</label>
-                                                <input type="number" class="form-control no-spinner" id="use_item_id" name="use_item_id" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="use_item_name" class="form-label">Use Item Name</label>
-                                                <input type="text" class="form-control" id="use_item_name" name="use_item_name" value="">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="use_type" class="form-label">Use Type</label>
-                                                <input type="number" class="form-control no-spinner" id="use_type" name="use_type" value="0">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
+                                                <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="0">
                                             </div>
                                         </div>
                                         
-                                        <div class="row mt-3">
-                                            <div class="col-md-3 mb-3">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="light_size" class="form-label">Light Size</label>
+                                                <input type="number" class="form-control no-spinner" id="light_size" name="light_size" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="transform_id" class="form-label">Transform ID</label>
+                                                <input type="number" class="form-control no-spinner" id="transform_id" name="transform_id" value="-1">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="transform_gfxid" class="form-label">Transform GFX ID</label>
+                                                <input type="number" class="form-control no-spinner" id="transform_gfxid" name="transform_gfxid" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="doppel" name="doppel">
-                                                    <label class="form-check-label" for="doppel">
-                                                        Doppelganger
+                                                    <input class="form-check-input" type="checkbox" id="is_amount_fixed" name="is_amount_fixed">
+                                                    <label class="form-check-label" for="is_amount_fixed">
+                                                        Amount Fixed
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_tam" name="is_tam">
-                                                    <label class="form-check-label" for="is_tam">
-                                                        Is Tame
+                                                    <input class="form-check-input" type="checkbox" id="is_change_head" name="is_change_head">
+                                                    <label class="form-check-label" for="is_change_head">
+                                                        Change Head
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_perceptive" name="is_perceptive">
-                                                    <label class="form-check-label" for="is_perceptive">
-                                                        Is Perceptive
+                                                    <input class="form-check-input" type="checkbox" id="isHide" name="isHide">
+                                                    <label class="form-check-label" for="isHide">
+                                                        Is Hidden
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_haste" name="is_haste">
-                                                    <label class="form-check-label" for="is_haste">
-                                                        Is Haste
-                                                    </label>
-                                                </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="spawnlist_door" class="form-label">Spawnlist Door</label>
+                                                <input type="number" class="form-control no-spinner" id="spawnlist_door" name="spawnlist_door" value="0">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="count_map" class="form-label">Count Map</label>
+                                                <input type="number" class="form-control no-spinner" id="count_map" name="count_map" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -845,6 +811,9 @@ $yesNoOptions = [
                                                 <label for="randommp" class="form-label">Random MP</label>
                                                 <input type="number" class="form-control no-spinner" id="randommp" name="randommp" value="0">
                                             </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="randomac" class="form-label">Random AC</label>
                                                 <input type="number" class="form-control no-spinner" id="randomac" name="randomac" value="0">
@@ -854,8 +823,8 @@ $yesNoOptions = [
                                                 <input type="number" class="form-control no-spinner" id="randomexp" name="randomexp" value="0">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <label for="randomlawful" class="form-label">Random Lawful</label>
-                                                <input type="number" class="form-control no-spinner" id="randomlawful" name="randomlawful" value="0">
+                                                <label for="randomAlign" class="form-label">Random Alignment</label>
+                                                <input type="number" class="form-control no-spinner" id="randomAlign" name="randomAlign" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -1016,4 +985,3 @@ document.addEventListener('DOMContentLoaded', function() {
 // Include the admin footer
 require_once '../../includes/admin-footer.php';
 ?>
-                

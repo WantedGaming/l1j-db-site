@@ -42,7 +42,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
 }
 
 // Build query for monster list
-$query = "SELECT npcid, desc_en, desc_kr, lvl, hp, mp, is_bossmonster FROM npc 
+$query = "SELECT npcid, desc_en, lvl, is_bossmonster, spriteId FROM npc 
           WHERE impl LIKE '%L1Monster%'";
 
 // Handle search and boss filter
@@ -140,12 +140,10 @@ $monsters = $db->getRows($query, $params);
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th width="80">Image</th>
                         <th width="60">ID</th>
-                        <th>Name (EN)</th>
-                        <th>Name (KR)</th>
+                        <th>Name</th>
                         <th>Level</th>
-                        <th>HP</th>
-                        <th>MP</th>
                         <th>Boss</th>
                         <th width="150">Actions</th>
                     </tr>
@@ -153,17 +151,22 @@ $monsters = $db->getRows($query, $params);
                 <tbody>
                     <?php if (empty($monsters)): ?>
                         <tr>
-                            <td colspan="8" class="text-center">No monsters found.</td>
+                            <td colspan="6" class="text-center">No monsters found.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($monsters as $monster): ?>
                             <tr>
+                                <td class="text-center">
+                                    <img src="<?= get_monster_image($monster['spriteId']) ?>" 
+                                         alt="<?= htmlspecialchars($monster['desc_en']) ?>"
+                                         class="monster-list-icon"
+                                         width="40"
+                                         height="40"
+                                         onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
+                                </td>
                                 <td><?= $monster['npcid'] ?></td>
                                 <td><?= htmlspecialchars($monster['desc_en']) ?></td>
-                                <td><?= htmlspecialchars($monster['desc_kr']) ?></td>
                                 <td><?= $monster['lvl'] ?></td>
-                                <td><?= $monster['hp'] ?></td>
-                                <td><?= $monster['mp'] ?></td>
                                 <td>
                                     <?php if ($monster['is_bossmonster'] === 'true'): ?>
                                         <span class="badge badge-danger">Boss</span>
@@ -176,7 +179,7 @@ $monsters = $db->getRows($query, $params);
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="#" class="btn btn-sm btn-delete" title="Delete" 
-                                       onclick="confirmDelete(<?= $monster['npcid'] ?>, '<?= addslashes($monster['desc_en']) ?>')">
+                                       onclick="confirmDelete(<?= $monster['npcid'] ?>, '<?= addslashes($monster['desc_en']) ?>', '<?= get_monster_image($monster['spriteId']) ?>')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                     <a href="<?= SITE_URL ?>/pages/monsters/monster-detail.php?id=<?= $monster['npcid'] ?>" class="btn btn-sm btn-view" title="View" target="_blank">
@@ -255,7 +258,11 @@ $monsters = $db->getRows($query, $params);
             <span class="close">&times;</span>
         </div>
         <div class="modal-body">
-            <p>Are you sure you want to delete the monster: <span id="deleteItemName"></span>?</p>
+            <div class="text-center mb-3">
+                <img id="deleteMonsterImage" src="" alt="Monster" class="delete-preview-image" style="max-width: 100px; max-height: 100px;">
+                <h4 id="deleteItemName" class="mt-2"></h4>
+            </div>
+            <p>Are you sure you want to delete this monster?</p>
             <p class="warning">This action cannot be undone! All related drops, skills, and spawn data will also be deleted.</p>
         </div>
         <div class="modal-footer">
@@ -268,10 +275,36 @@ $monsters = $db->getRows($query, $params);
     </div>
 </div>
 
+<style>
+.monster-list-icon {
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.delete-preview-image {
+    border-radius: 8px;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+    background-color: rgba(0, 0, 0, 0.1);
+    width: 180px;
+    height: 180px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Make the modal wider to accommodate the larger image */
+.modal-content {
+    max-width: 600px;
+}
+</style>
+
 <script>
 // Delete confirmation modal functionality
-function confirmDelete(id, name) {
+function confirmDelete(id, name, imageUrl) {
     document.getElementById('deleteItemName').textContent = name;
+    document.getElementById('deleteMonsterImage').src = imageUrl;
     document.getElementById('deleteForm').action = 'index.php?action=delete&id=' + id;
     
     // Show the modal

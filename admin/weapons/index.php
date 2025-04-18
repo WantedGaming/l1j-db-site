@@ -122,12 +122,13 @@ $weapons = $db->getRows($query, $params);
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th width="60">ID</th>
-                        <th width="60">Icon</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Dmg(S/L)</th>
-                        <th width="150">Actions</th>
+                        <th width="80">Icon</th>
+                        <th width="80">Name</th>
+                        <th width="80">Item ID</th>
+                        <th width="80">Type</th>
+                        <th width="80">Small</th>
+						<th width="80">Large</th>
+                        <th width="80">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,16 +139,17 @@ $weapons = $db->getRows($query, $params);
                     <?php else: ?>
                         <?php foreach ($weapons as $weapon): ?>
                             <tr>
-                                <td><?= $weapon['item_id'] ?></td>
-                                <td>
+								<td>
                                     <img src="<?= SITE_URL ?>/assets/img/items/<?= $weapon['iconId'] ?>.png" 
                                          alt="<?= htmlspecialchars($weapon['desc_en']) ?>" 
                                          class="admin-item-icon"
                                          onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
                                 </td>
-                                <td><?= htmlspecialchars($weapon['desc_en']) ?></td>
+                                <td><?= $weapon['desc_en'] ?></td>
+                                <td><?= htmlspecialchars($weapon['item_id']) ?></td>
                                 <td><?= formatWeaponType($weapon['type']) ?></td>
-                                <td><?= $weapon['dmg_small'] ?>/<?= $weapon['dmg_large'] ?></td>
+                                <td><?= $weapon['dmg_small'] ?></td>
+								<td><?= $weapon['dmg_large'] ?></td>
                                 <td class="actions">
                                     <a href="edit.php?id=<?= $weapon['item_id'] ?>" class="btn btn-sm btn-edit" title="Edit">
                                         <i class="fas fa-edit"></i>

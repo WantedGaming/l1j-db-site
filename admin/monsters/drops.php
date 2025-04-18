@@ -154,9 +154,9 @@ if(!$monster) {
 }
 
 // Get all possible items for dropdown
-$weapons = $db->getRows("SELECT item_id, desc_en FROM weapon ORDER BY desc_en");
-$armor = $db->getRows("SELECT item_id, desc_en FROM armor ORDER BY desc_en");
-$etcItems = $db->getRows("SELECT item_id, desc_en FROM etcitem ORDER BY desc_en");
+$weapons = $db->getRows("SELECT item_id, desc_en, iconId FROM weapon ORDER BY desc_en");
+$armor = $db->getRows("SELECT item_id, desc_en, iconId FROM armor ORDER BY desc_en");
+$etcItems = $db->getRows("SELECT item_id, desc_en, iconId FROM etcitem ORDER BY desc_en");
 
 // Combine all items for the dropdown
 $allItems = [];
@@ -164,7 +164,8 @@ foreach ($weapons as $weapon) {
     $allItems[] = [
         'id' => $weapon['item_id'],
         'name' => $weapon['desc_en'] . ' [Weapon]',
-        'type' => 'weapon'
+        'type' => 'weapon',
+        'iconId' => $weapon['iconId']
     ];
 }
 
@@ -172,7 +173,8 @@ foreach ($armor as $item) {
     $allItems[] = [
         'id' => $item['item_id'],
         'name' => $item['desc_en'] . ' [Armor]',
-        'type' => 'armor'
+        'type' => 'armor',
+        'iconId' => $item['iconId']
     ];
 }
 
@@ -180,7 +182,8 @@ foreach ($etcItems as $item) {
     $allItems[] = [
         'id' => $item['item_id'],
         'name' => $item['desc_en'] . ' [Etc]',
-        'type' => 'etc'
+        'type' => 'etc',
+        'iconId' => $item['iconId']
     ];
 }
 
@@ -188,6 +191,15 @@ foreach ($etcItems as $item) {
 usort($allItems, function($a, $b) {
     return strcasecmp($a['name'], $b['name']);
 });
+
+// Create an associative array with item ID as key for easy access in JavaScript
+$itemsById = [];
+foreach ($allItems as $item) {
+    $itemsById[$item['id']] = [
+        'name' => $item['name'],
+        'iconId' => $item['iconId']
+    ];
+}
 ?>
 
 <!-- Hero Section -->
@@ -279,30 +291,31 @@ usort($allItems, function($a, $b) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($monster['drops'] as $drop): ?>
-                                        <tr>
-                                            <td>
-                                                <img src="<?= SITE_URL ?>/assets/img/items/<?= $drop['itemId'] ?>.png" 
-                                                     alt="<?= htmlspecialchars($drop['item_name']) ?>"
-                                                     class="admin-item-icon"
-                                                     onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
-                                            </td>
-                                            <td><?= $drop['itemId'] ?></td>
-                                            <td><?= htmlspecialchars($drop['item_name']) ?></td>
-                                            <td><?= $drop['min'] ?></td>
-                                            <td><?= $drop['max'] ?></td>
-                                            <td><?= number_format($drop['chance'] / 10000, 4) ?>% (<?= $drop['chance'] ?>)</td>
-                                            <td class="actions">
-                                                <button class="btn btn-sm btn-edit" title="Edit" onclick="editDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['min'] ?>, <?= $drop['max'] ?>, <?= $drop['chance'] ?>)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
+									<?php foreach ($monster['drops'] as $drop): ?>
+										<tr>
+											<td>
+												<!-- In drops.php, modify the image tag -->
+												<img src="<?= SITE_URL ?>/assets/img/items/<?= $drop['itemId'] ?>.png" 
+													 alt="<?= htmlspecialchars($drop['item_name']) ?>"
+													 class="admin-item-icon"
+													 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+											</td>
+											<td><?= $drop['itemId'] ?></td>
+											<td><?= htmlspecialchars($drop['item_name']) ?></td>
+											<td><?= $drop['min'] ?></td>
+											<td><?= $drop['max'] ?></td>
+											<td><?= number_format($drop['chance'] / 10000, 4) ?>% (<?= $drop['chance'] ?>)</td>
+											<td class="actions">
+												<button class="btn btn-sm btn-edit" title="Edit" onclick="editDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['min'] ?>, <?= $drop['max'] ?>, <?= $drop['chance'] ?>, <?= isset($drop['iconId']) ? $drop['iconId'] : $drop['itemId'] ?>)">
+													<i class="fas fa-edit"></i>
+												</button>
+												<button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= isset($drop['iconId']) ? $drop['iconId'] : $drop['itemId'] ?>)">
+													<i class="fas fa-trash"></i>
+												</button>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
                             </table>
                         </div>
                     <?php endif; ?>
@@ -323,16 +336,30 @@ usort($allItems, function($a, $b) {
             <form id="addDropForm" method="POST" action="">
                 <input type="hidden" name="action" value="add_drop">
                 
-                <div class="mb-3">
-                    <label for="itemId" class="form-label">Item</label>
-                    <select class="form-select" id="itemId" name="itemId" required>
-                        <option value="">Select an item...</option>
-                        <?php foreach ($allItems as $item): ?>
-                            <option value="<?= $item['id'] ?>" data-type="<?= $item['type'] ?>">
-                                <?= htmlspecialchars($item['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="itemId" class="form-label">Item</label>
+                            <select class="form-select" id="itemId" name="itemId" required onchange="updateItemPreview()">
+                                <option value="">Select an item...</option>
+                                <?php foreach ($allItems as $item): ?>
+                                    <option value="<?= $item['id'] ?>" data-type="<?= $item['type'] ?>" data-icon="<?= $item['iconId'] ?>">
+                                        <?= htmlspecialchars($item['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="item-preview text-center mb-3">
+                            <h5>Item Preview</h5>
+                            <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <img id="add-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 64px; max-height: 64px;">
+                            </div>
+                            <div id="add-item-name" class="item-name">No item selected</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="row">
@@ -378,9 +405,22 @@ usort($allItems, function($a, $b) {
                 <input type="hidden" name="action" value="update_drop">
                 <input type="hidden" name="itemId" id="edit_itemId">
                 
-                <div class="mb-3">
-                    <label for="edit_itemName" class="form-label">Item</label>
-                    <input type="text" class="form-control" id="edit_itemName" readonly>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="edit_itemName" class="form-label">Item</label>
+                            <input type="text" class="form-control" id="edit_itemName" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="item-preview text-center mb-3">
+                            <h5>Item Preview</h5>
+                            <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <img id="edit-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 64px; max-height: 64px;">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="row">
@@ -422,7 +462,13 @@ usort($allItems, function($a, $b) {
             <span class="close" data-bs-dismiss="modal">&times;</span>
         </div>
         <div class="modal-body">
-            <p>Are you sure you want to delete the drop: <span id="deleteDropItemName"></span>?</p>
+            <div class="item-preview text-center mb-4">
+                <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <img id="delete-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 96px; max-height: 96px;">
+                </div>
+                <div id="delete-item-name" class="item-name fs-5 mb-3"></div>
+            </div>
+            <p>Are you sure you want to delete this drop?</p>
             <p class="warning">This action cannot be undone!</p>
         </div>
         <div class="modal-footer">
@@ -437,6 +483,9 @@ usort($allItems, function($a, $b) {
 </div>
 
 <script>
+// Item data from PHP for JavaScript access
+const itemsData = <?= json_encode($itemsById) ?>;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize modal functionality
     function initModal(modalId) {
@@ -477,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Update percent chance display on change
+    // Update percent chance display on change for add modal
     const chanceInput = document.getElementById('chance');
     const chancePercentSpan = document.getElementById('chancePercent');
     if (chanceInput && chancePercentSpan) {
@@ -487,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Update edit percent chance display on change
+    // Update percent chance display on change for edit modal
     const editChanceInput = document.getElementById('edit_chance');
     const editChancePercentSpan = document.getElementById('edit_chancePercent');
     if (editChanceInput && editChancePercentSpan) {
@@ -498,13 +547,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Update item preview in add modal
+function updateItemPreview() {
+    const selectElement = document.getElementById('itemId');
+    const previewImage = document.getElementById('add-item-preview');
+    const previewName = document.getElementById('add-item-name');
+    
+    if (selectElement.value) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const iconId = selectedOption.getAttribute('data-icon');
+        
+        previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+        previewImage.onerror = function() {
+            this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+        };
+        
+        previewName.textContent = selectedOption.text;
+    } else {
+        previewImage.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+        previewName.textContent = 'No item selected';
+    }
+}
+
 // Edit drop function
-function editDrop(itemId, itemName, min, max, chance) {
+function editDrop(itemId, itemName, min, max, chance, iconId) {
     document.getElementById('edit_itemId').value = itemId;
     document.getElementById('edit_itemName').value = itemName;
     document.getElementById('edit_min').value = min;
     document.getElementById('edit_max').value = max;
     document.getElementById('edit_chance').value = chance;
+    
+    // Update preview image
+    const previewImage = document.getElementById('edit-item-preview');
+    previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+    previewImage.onerror = function() {
+        this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+    };
     
     // Update percent display
     const percent = (parseFloat(chance) / 10000).toFixed(4);
@@ -515,14 +593,53 @@ function editDrop(itemId, itemName, min, max, chance) {
 }
 
 // Confirm delete drop function
-function confirmDeleteDrop(itemId, itemName) {
+function confirmDeleteDrop(itemId, itemName, iconId) {
     document.getElementById('delete_itemId').value = itemId;
-    document.getElementById('deleteDropItemName').textContent = itemName;
+    document.getElementById('delete-item-name').textContent = itemName;
+    
+    // Update preview image
+    const previewImage = document.getElementById('delete-item-preview');
+    previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+    previewImage.onerror = function() {
+        this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+    };
     
     // Show the modal
     showModal('deleteDropModal');
 }
 </script>
+
+<style>
+/* Additional custom styles */
+.item-preview {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.preview-container {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.preview-container:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.item-name {
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+.admin-item-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 3px;
+}
+</style>
 
 <?php
 // Include the admin footer

@@ -148,13 +148,13 @@ $armors = $db->getRows($query, $params);
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th width="60">ID</th>
-                        <th width="60">Icon</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>AC</th>
-                        <th>Grade</th>
-                        <th width="150">Actions</th>
+                        <th width="80">Icon</th>
+                        <th width="80">Name</th>
+                        <th width="80">Item ID</th>
+                        <th width="80">Type</th>
+                        <th width="80">AC</th>
+                        <th width="80">Grade</th>
+                        <th width="80">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,14 +165,14 @@ $armors = $db->getRows($query, $params);
                     <?php else: ?>
                         <?php foreach ($armors as $armor): ?>
                             <tr>
-                                <td><?= $armor['item_id'] ?></td>
-                                <td>
+								<td>
                                     <img src="<?= SITE_URL ?>/assets/img/items/<?= $armor['iconId'] ?>.png" 
                                          alt="<?= htmlspecialchars($armor['desc_en']) ?>" 
                                          class="admin-item-icon"
                                          onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
                                 </td>
                                 <td><?= htmlspecialchars($armor['desc_en']) ?></td>
+                                <td><?= $armor['item_id'] ?></td>
                                 <td><?= formatArmorType($armor['type']) ?></td>
                                 <td><?= $armor['ac'] ?></td>
                                 <td>

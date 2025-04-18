@@ -217,12 +217,12 @@ $availableGrades = $db->getRows($gradeQuery);
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th width="60">ID</th>
-                        <th width="60">Icon</th>
-                        <th>Name</th>
-                        <th>Grade</th>
-                        <th>Type</th>
-                        <th width="150">Actions</th>
+                        <th width="80">Icon</th>
+                        <th width="80">Name</th>
+                        <th width="80">Item ID</th>
+                        <th width="80">Grade</th>
+                        <th width="80">Type</th>
+                        <th width="80">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -238,14 +238,14 @@ $availableGrades = $db->getRows($gradeQuery);
                                 $hasImage = file_exists($iconPath);
                             ?>
                             <tr>
-                                <td><?= $doll['item_id'] ?></td>
-                                <td>
+								<td>
                                     <img src="<?= SITE_URL ?>/assets/img/items/<?= $doll['iconId'] ?>.png" 
                                          alt="<?= htmlspecialchars(cleanItemName($doll['desc_en'])) ?>" 
                                          class="admin-item-icon <?= $hasImage ? '' : 'no-image' ?>"
                                          onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'; this.classList.add('no-image');">
                                 </td>
-                                <td><?= htmlspecialchars(cleanItemName($doll['desc_en'])) ?></td>
+                                <td><?= $doll['desc_en'] ?></td>
+                                <td><?= htmlspecialchars(cleanItemName($doll['item_id'])) ?></td>
                                 <td>
                                     <?php if (isset($doll['doll_grade'])): ?>
                                         <span class="badge <?= getGradeBadgeClass('grade-' . $doll['doll_grade']) ?>">

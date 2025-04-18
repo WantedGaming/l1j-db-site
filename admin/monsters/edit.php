@@ -27,8 +27,8 @@ if($monsterId <= 0) {
     exit;
 }
 
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Process form submission for updating monster
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_monster') {
     // Collect monster data from form
     $monster = [
         'desc_en' => $_POST['desc_en'] ?? '',
@@ -121,6 +121,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Process form submission for adding new drop
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_drop') {
+    $itemId = intval($_POST['itemId'] ?? 0);
+    $min = intval($_POST['min'] ?? 1);
+    $max = intval($_POST['max'] ?? 1);
+    $chance = intval($_POST['chance'] ?? 0);
+    
+    // Validation
+    $errors = [];
+    
+    if ($itemId <= 0) {
+        $errors[] = "Item ID is required";
+    }
+    
+    if ($chance <= 0) {
+        $errors[] = "Drop chance must be greater than 0";
+    }
+    
+    if ($min > $max) {
+        $errors[] = "Minimum amount cannot be greater than maximum amount";
+    }
+    
+    // If no errors, add the drop
+    if (empty($errors)) {
+        $result = $monsterModel->addDrop($monsterId, $itemId, $min, $max, $chance);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Drop added successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to add drop. Please check the item ID exists."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
+// Process form submission for updating drop
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_drop') {
+    $itemId = intval($_POST['itemId'] ?? 0);
+    $min = intval($_POST['min'] ?? 1);
+    $max = intval($_POST['max'] ?? 1);
+    $chance = intval($_POST['chance'] ?? 0);
+    
+    // Validation
+    $errors = [];
+    
+    if ($itemId <= 0) {
+        $errors[] = "Item ID is required";
+    }
+    
+    if ($chance <= 0) {
+        $errors[] = "Drop chance must be greater than 0";
+    }
+    
+    if ($min > $max) {
+        $errors[] = "Minimum amount cannot be greater than maximum amount";
+    }
+    
+    // If no errors, update the drop
+    if (empty($errors)) {
+        $result = $monsterModel->updateDrop($monsterId, $itemId, $min, $max, $chance);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Drop updated successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to update drop."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
+// Process drop deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_drop') {
+    $itemId = intval($_POST['itemId'] ?? 0);
+    
+    if ($itemId > 0) {
+        $result = $monsterModel->deleteDrop($monsterId, $itemId);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Drop deleted successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to delete drop."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
 // Get monster details
 $monster = $monsterModel->getMonsterById($monsterId);
 
@@ -148,13 +261,67 @@ foreach ($defaultMonsterFields as $field => $defaultValue) {
     }
 }
 
-// Get monster drops for sidebar
+// Get all possible items for drop selection dropdown
+$weapons = $db->getRows("SELECT item_id, desc_en, iconId FROM weapon ORDER BY desc_en");
+$armor = $db->getRows("SELECT item_id, desc_en, iconId FROM armor ORDER BY desc_en");
+$etcItems = $db->getRows("SELECT item_id, desc_en, iconId FROM etcitem ORDER BY desc_en");
+
+// Combine all items for the dropdown
+$allItems = [];
+foreach ($weapons as $weapon) {
+    $allItems[] = [
+        'id' => $weapon['item_id'],
+        'name' => $weapon['desc_en'] . ' [Weapon]',
+        'type' => 'weapon',
+        'iconId' => $weapon['iconId']
+    ];
+}
+
+foreach ($armor as $item) {
+    $allItems[] = [
+        'id' => $item['item_id'],
+        'name' => $item['desc_en'] . ' [Armor]',
+        'type' => 'armor',
+        'iconId' => $item['iconId']
+    ];
+}
+
+foreach ($etcItems as $item) {
+    $allItems[] = [
+        'id' => $item['item_id'],
+        'name' => $item['desc_en'] . ' [Etc]',
+        'type' => 'etc',
+        'iconId' => $item['iconId']
+    ];
+}
+
+// Sort by name
+usort($allItems, function($a, $b) {
+    return strcasecmp($a['name'], $b['name']);
+});
+
+// Create an associative array with item ID as key for easy access in JavaScript
+$itemsById = [];
+foreach ($allItems as $item) {
+    $itemsById[$item['id']] = [
+        'name' => $item['name'],
+        'iconId' => $item['iconId']
+    ];
+}
+
+// Get monster drops
 $dropQuery = "SELECT d.*, 
               CASE 
                 WHEN w.item_id IS NOT NULL THEN w.desc_en
                 WHEN a.item_id IS NOT NULL THEN a.desc_en
                 ELSE e.desc_en
               END as item_name,
+              CASE 
+                WHEN w.item_id IS NOT NULL THEN 'weapon'
+                WHEN a.item_id IS NOT NULL THEN 'armor'
+                ELSE 'etc'
+              END as item_type,
+              COALESCE(w.iconId, a.iconId, e.iconId, 0) as icon_id,
               d.chance
               FROM droplist d
               LEFT JOIN weapon w ON d.itemId = w.item_id
@@ -289,37 +456,6 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                     </ul>
                 </div>
             </div>
-            
-            <!-- Monster Drops Preview -->
-            <?php if (!empty($drops)): ?>
-            <div class="acquisition-card mb-4">
-                <div class="acquisition-card-header">
-                    Monster Drops
-                </div>
-                <div class="acquisition-card-body">
-                    <ul class="list-group list-group-flush bg-transparent">
-                        <?php $displayedDrops = 0; ?>
-                        <?php foreach ($drops as $drop): ?>
-                            <?php if ($displayedDrops < 5): ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
-                                    <span><?= htmlspecialchars($drop['item_name']) ?></span>
-                                    <span class="badge bg-info rounded-pill"><?= number_format($drop['chance'] / 10000, 2) ?>%</span>
-                                </li>
-                                <?php $displayedDrops++; ?>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                        
-                        <?php if (count($drops) > 5): ?>
-                            <li class="list-group-item text-center" style="background-color: transparent; border-color: #2d2d2d;">
-                                <a href="drops.php?id=<?= $monsterId ?>">
-                                    View all <?= count($drops) ?> drops
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-            </div>
-            <?php endif; ?>
         </div>
         
         <!-- Main Form Column -->
@@ -330,6 +466,8 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                 </div>
                 <div class="acquisition-card-body p-4">
                     <form method="POST" action="" id="editForm">
+                        <input type="hidden" name="action" value="update_monster">
+                        
                         <!-- Form Tabs -->
                         <div class="col-lg-12 mb-0">
                             <div class="form-tabs">
@@ -608,74 +746,74 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                     </div>
                                     
                                     <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_agro">
-                                                    Aggressive
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_agro_poly">
-                                                    Aggressive (Poly)
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_agro_invis">
-                                                    Aggressive (Invisible)
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_teleport">
-                                                    Can Teleport
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_taming">
-                                                    Can Be Tamed
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_picupitem">
-                                                    Loot Items
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed" <?= ($monster['is_bravespeed'] ?? 'false') === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_bravespeed">
-                                                    Brave Speed
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= ($monster['cant_resurrect'] ?? 'false') === 'true' ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="cant_resurrect">
-                                                    Cannot Be Resurrected
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_agro" name="is_agro" <?= $monster['is_agro'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_agro">
+													Aggressive
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly" <?= $monster['is_agro_poly'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_agro_poly">
+													Aggressive (Poly)
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis" <?= $monster['is_agro_invis'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_agro_invis">
+													Aggressive (Invisible)
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport" <?= $monster['is_teleport'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_teleport">
+													Can Teleport
+												</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_taming" name="is_taming" <?= $monster['is_taming'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_taming">
+													Can Be Tamed
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem" <?= $monster['is_picupitem'] === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_picupitem">
+													Loot Items
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed" <?= ($monster['is_bravespeed'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="is_bravespeed">
+													Brave Speed
+												</label>
+											</div>
+										</div>
+										<div class="col-md-3 mb-3">
+											<div class="form-check form-switch mt-4">
+												<input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect" <?= ($monster['cant_resurrect'] ?? 'false') === 'true' ? 'checked' : '' ?>>
+												<label class="form-check-label" for="cant_resurrect">
+													Cannot Be Resurrected
+												</label>
+											</div>
+										</div>
+									</div>
                                 </div>
                             </div>
                             
@@ -826,19 +964,239 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                     <div class="form-actions mt-4">
                         <button type="submit" class="btn btn-primary">Update Monster</button>
                         <a href="index.php" class="btn btn-secondary">Cancel</a>
-                        <a href="drops.php?id=<?= $monsterId ?>" class="btn" style="background-color: #212121; color: #e0e0e0;">
-                            <i class="fas fa-coins me-1"></i> Manage Drops
-                        </a>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monster Drops Table (Full Width) -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="acquisition-card">
+                <div class="acquisition-card-header d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-coins me-2"></i> Monster Drops</h4>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDropModal">
+                        <i class="fas fa-plus me-1"></i> Add New Drop
+                    </button>
+                </div>
+                <div class="acquisition-card-body p-4">
+                    <?php if (empty($drops)): ?>
+						<div class="alert alert-info">
+							<p>This monster doesn't have any drops defined. Click the "Add New Drop" button to add drops.</p>
+						</div>
+					<?php else: ?>
+						<div class="table-responsive">
+							<table class="admin-table">
+								<thead>
+									<tr>
+										<th width="80">Icon</th>
+										<th width="80">Name</th>
+										<th width="80">Item ID</th>
+										<th width="80">Min</th>
+										<th width="80">Max</th>
+										<th width="80">Chance</th>
+										<th width="80">Raw</th>
+										<th width="80">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($drops as $drop): ?>
+										<tr>
+											<td class="text-center">
+												<img src="<?= SITE_URL ?>/assets/img/items/<?= $drop['icon_id'] ?>.png" 
+													 alt="<?= htmlspecialchars($drop['item_name']) ?>"
+													 class="admin-item-icon"
+													 onerror="this.src='<?= SITE_URL ?>/assets/img/items/default.png'">
+											</td>
+											<td><?= htmlspecialchars($drop['item_name']) ?></td>
+											<td><?= $drop['itemId'] ?></td>
+											<td><?= $drop['min'] ?></td>
+											<td><?= $drop['max'] ?></td>
+											<td><?= number_format($drop['chance'] / 10000, 4) ?>%</td>
+											<td><?= $drop['chance'] ?></td>
+											<td class="actions">
+												<button class="btn btn-sm btn-edit" title="Edit" onclick="editDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['min'] ?>, <?= $drop['max'] ?>, <?= $drop['chance'] ?>, <?= $drop['icon_id'] ?>)">
+													<i class="fas fa-edit"></i>
+												</button>
+												<button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteDrop(<?= $drop['itemId'] ?>, '<?= addslashes($drop['item_name']) ?>', <?= $drop['icon_id'] ?>)">
+													<i class="fas fa-trash"></i>
+												</button>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						</div>
+					<?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Add Drop Modal -->
+<div class="modal" id="addDropModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Drop</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addDropForm" method="POST" action="">
+                <input type="hidden" name="action" value="add_drop">
+                
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="itemId" class="form-label">Item</label>
+                            <select class="form-select" id="itemId" name="itemId" required onchange="updateItemPreview()">
+                                <option value="">Select an item...</option>
+                                <?php foreach ($allItems as $item): ?>
+                                    <option value="<?= $item['id'] ?>" data-type="<?= $item['type'] ?>" data-icon="<?= $item['iconId'] ?>">
+                                        <?= htmlspecialchars($item['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="item-preview text-center mb-3">
+                            <h5>Item Preview</h5>
+                            <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <img id="add-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 64px; max-height: 64px;">
+                            </div>
+                            <div id="add-item-name" class="item-name">No item selected</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="min" class="form-label">Min Amount</label>
+                        <input type="number" class="form-control no-spinner" id="min" name="min" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="max" class="form-label">Max Amount</label>
+                        <input type="number" class="form-control no-spinner" id="max" name="max" value="1" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="chance" class="form-label">Drop Chance (in 10000ths)</label>
+                    <input type="number" class="form-control no-spinner" id="chance" name="chance" value="10000" min="1" max="1000000" required>
+                    <small class="text-muted">10000 = 1.0000% chance, 1000000 = 100% chance</small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-text">
+                        <strong>Percent Chance:</strong> <span id="chancePercent">1.0000%</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="addDropForm" class="btn btn-primary">Add Drop</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Drop Modal -->
+<div class="modal" id="editDropModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Drop</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editDropForm" method="POST" action="">
+                <input type="hidden" name="action" value="update_drop">
+                <input type="hidden" name="itemId" id="edit_itemId">
+                
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="edit_itemName" class="form-label">Item</label>
+                            <input type="text" class="form-control" id="edit_itemName" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <div class="item-preview text-center mb-3">
+                            <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <img id="edit-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 128px; max-height: 128px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_min" class="form-label">Min</label>
+                        <input type="number" class="form-control no-spinner" id="edit_min" name="min" min="1" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_max" class="form-label">Max</label>
+                        <input type="number" class="form-control no-spinner" id="edit_max" name="max" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="edit_chance" class="form-label">Chance</label>
+                    <input type="number" class="form-control no-spinner" id="edit_chance" name="chance" min="1" max="1000000" required>
+                    <small class="text-muted">10000 = 1.0000% chance, 1000000 = 100% chance</small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-text">
+                        <strong>Chance: </strong> <span id="edit_chancePercent">1.0000%</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="editDropForm" class="btn btn-primary">Update Drop</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Drop Modal -->
+<div class="modal" id="deleteDropModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="item-preview text-center mb-4">
+                <div class="preview-container p-3 border rounded mb-2" style="background-color: rgba(0,0,0,0.1); min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <img id="delete-item-preview" src="<?= SITE_URL ?>/assets/img/items/default.png" alt="Item Preview" style="max-width: 96px; max-height: 96px;">
+                </div>
+                <div id="delete-item-name" class="item-name fs-5 mb-3"></div>
+            </div>
+            <p>Are you sure you want to delete this drop?</p>
+            <p class="warning">This action cannot be undone!</p>
+        </div>
+        <div class="modal-footer">
+            <form id="deleteDropForm" method="POST" action="">
+                <input type="hidden" name="action" value="delete_drop">
+                <input type="hidden" name="itemId" id="delete_itemId">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-// Tab switching functionality
+// Item data from PHP for JavaScript access
+const itemsData = <?= json_encode($itemsById) ?>;
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
     const tabs = document.querySelectorAll('.form-tab');
     const sections = document.querySelectorAll('.form-section');
     
@@ -870,6 +1228,45 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!document.querySelector('.form-tab.active') && tabs.length > 0) {
         tabs[0].click();
     }
+    
+    // Initialize modal functionality
+    function initModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+        
+        // Close buttons
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        });
+        
+        // Close when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Initialize all modals
+    initModal('addDropModal');
+    initModal('editDropModal');
+    initModal('deleteDropModal');
+    
+    // Show modal function (replacement for Bootstrap's modal show)
+    window.showModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'block';
+    };
+    
+    // Add button click event
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.getAttribute('data-bs-target').replace('#', '');
+            showModal(target);
+        });
+    });
     
     // Live update stats in the sidebar
     const hpInput = document.getElementById('hp');
@@ -961,8 +1358,196 @@ document.addEventListener('DOMContentLoaded', function() {
             levelBadgePreview.textContent = 'Level: ' + (level || '1');
         });
     }
+    
+    // Update percent chance display on change for add modal
+    const chanceInput = document.getElementById('chance');
+    const chancePercentSpan = document.getElementById('chancePercent');
+    if (chanceInput && chancePercentSpan) {
+        chanceInput.addEventListener('input', function() {
+            const percent = (parseFloat(this.value) / 10000).toFixed(4);
+            chancePercentSpan.textContent = percent + '%';
+        });
+    }
+    
+    // Update percent chance display on change for edit modal
+    const editChanceInput = document.getElementById('edit_chance');
+    const editChancePercentSpan = document.getElementById('edit_chancePercent');
+    if (editChanceInput && editChancePercentSpan) {
+        editChanceInput.addEventListener('input', function() {
+            const percent = (parseFloat(this.value) / 10000).toFixed(4);
+            editChancePercentSpan.textContent = percent + '%';
+        });
+    }
 });
+
+// Update item preview in add modal
+function updateItemPreview() {
+    const selectElement = document.getElementById('itemId');
+    const previewImage = document.getElementById('add-item-preview');
+    const previewName = document.getElementById('add-item-name');
+    
+    if (selectElement.value) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const iconId = selectedOption.getAttribute('data-icon');
+        
+        previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+        previewImage.onerror = function() {
+            this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+        };
+        
+        previewName.textContent = selectedOption.text;
+    } else {
+        previewImage.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+        previewName.textContent = 'No item selected';
+    }
+}
+
+// Edit drop function
+function editDrop(itemId, itemName, min, max, chance, iconId) {
+    document.getElementById('edit_itemId').value = itemId;
+    document.getElementById('edit_itemName').value = itemName;
+    document.getElementById('edit_min').value = min;
+    document.getElementById('edit_max').value = max;
+    document.getElementById('edit_chance').value = chance;
+    
+    // Update preview image
+    const previewImage = document.getElementById('edit-item-preview');
+    previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+    previewImage.onerror = function() {
+        this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+    };
+    
+    // Update percent display
+    const percent = (parseFloat(chance) / 10000).toFixed(4);
+    document.getElementById('edit_chancePercent').textContent = percent + '%';
+    
+    // Show the modal
+    showModal('editDropModal');
+}
+
+// Confirm delete drop function
+function confirmDeleteDrop(itemId, itemName, iconId) {
+    document.getElementById('delete_itemId').value = itemId;
+    document.getElementById('delete-item-name').textContent = itemName;
+    
+    // Update preview image
+    const previewImage = document.getElementById('delete-item-preview');
+    previewImage.src = `<?= SITE_URL ?>/assets/img/items/${iconId}.png`;
+    previewImage.onerror = function() {
+        this.src = '<?= SITE_URL ?>/assets/img/items/default.png';
+    };
+    
+    // Show the modal
+    showModal('deleteDropModal');
+}
 </script>
+
+<style>
+/* Additional styles for the drops section */
+.item-preview {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.preview-container {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.preview-container:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.item-name {
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+.admin-item-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 3px;
+}
+
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--primary);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 500px;
+    max-width: 90%;
+    animation: slideIn 0.3s;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.close {
+    color: var(--text);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+	
+}
+</style>
 
 <?php
 // Include the admin footer

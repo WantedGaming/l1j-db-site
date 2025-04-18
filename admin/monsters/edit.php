@@ -334,6 +334,14 @@ $drops = $db->getRows($dropQuery, [$monsterId]);
 // Get maps for dropdown
 $maps = $db->getRows("SELECT mapid, locationname FROM mapids ORDER BY locationname");
 
+// Get monster spawn locations
+$spawnQuery = "SELECT s.*, m.locationname as map_name, m.startX, m.startY, m.endX, m.endY, m.pngId
+               FROM spawnlist s
+               LEFT JOIN mapids m ON s.mapid = m.mapid
+               WHERE s.npc_templateid = ?
+               ORDER BY m.locationname";
+$spawns = $db->getRows($spawnQuery, [$monsterId]);
+
 // Options for dropdowns
 $sizeOptions = ['false' => 'Normal', 'true' => 'Big'];
 $attributeOptions = ['NONE' => 'None', 'EARTH' => 'Earth', 'FIRE' => 'Fire', 'WATER' => 'Water', 'WIND' => 'Wind'];
@@ -477,6 +485,7 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                 <button type="button" class="form-tab" data-tab="behavior">Behavior</button>
                                 <button type="button" class="form-tab" data-tab="advanced">Advanced</button>
                                 <button type="button" class="form-tab" data-tab="notes">Notes</button>
+                                <button type="button" class="form-tab" data-tab="spawns">Spawns</button>
                             </div>
                         </div>
                         
@@ -572,7 +581,6 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                             <input type="number" class="form-control no-spinner" id="ac" name="ac" value="<?= (int)$monster['ac'] ?>">
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label for="str" class="form-label">STR</label>
                                             <input type="number" class="form-control no-spinner" id="str" name="str" value="<?= (int)$monster['str'] ?>">
                                         </div>
                                         <div class="col-md-4 mb-3">
@@ -959,10 +967,100 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        
+                        <!-- Spawns Section -->
+                        <div class="col-lg-12 form-section" id="spawns-section">
+                            <div class="card bg-dark">
+                                <div class="card-header">
+                                    Spawn Locations
+                                </div>
+                                <div class="card-body">
+                                    <?php if (empty($spawns)): ?>
+                                        <div class="alert alert-info">
+                                            <p>This monster doesn't have any spawn locations defined.</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Map preview with spawn points -->
+                                        <div class="row">
+                                            <div class="col-md-12 mb-4">
+                                                <div class="card bg-dark">
+                                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                                        <h5 class="mb-0">Map Preview</h5>
+                                                        <div class="map-selector">
+                                                            <select id="mapSelector" class="form-select form-select-sm" style="width: 200px;">
+                                                                <?php 
+                                                                $uniqueMaps = [];
+                                                                foreach ($spawns as $spawn) {
+                                                                    if (!isset($uniqueMaps[$spawn['mapid']]) && !empty($spawn['map_name'])) {
+                                                                        $uniqueMaps[$spawn['mapid']] = $spawn['map_name'];
+                                                                    }
+                                                                }
+                                                                
+                                                                foreach ($uniqueMaps as $mapId => $mapName): 
+                                                                ?>
+                                                                    <option value="<?= $mapId ?>"><?= htmlspecialchars($mapName) ?> (Map ID: <?= $mapId ?>)</option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="map-container" style="position: relative; min-height: 400px; overflow: hidden;">
+                                                            <!-- Map image will be loaded here by JavaScript -->
+                                                            <img id="mapImage" src="" alt="Map" style="width: 100%; max-height: 500px; object-fit: contain;">
+                                                            
+                                                            <!-- Spawn markers will be added here by JavaScript -->
+                                                            <div id="spawnMarkers"></div>
+                                                            
+                                                            <!-- Map info -->
+                                                            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 4px;">
+                                                                <span id="mapInfo">Select a map to view spawns</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Spawn list table -->
+                                        <div class="table-responsive">
+                                            <table class="admin-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Map</th>
+                                                        <th>Coordinates</th>
+                                                        <th>Count</th>
+                                                        <th>Respawn Time</th>
+                                                        <th>View</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($spawns as $spawn): ?>
+                                                        <tr data-mapid="<?= $spawn['mapid'] ?>" class="spawn-row">
+                                                            <td><?= htmlspecialchars($spawn['map_name'] ?? 'Unknown Map') ?></td>
+                                                            <td>X: <?= $spawn['locx'] ?>, Y: <?= $spawn['locy'] ?></td>
+                                                            <td><?= $spawn['count'] ?></td>
+                                                            <td><?= $spawn['respawn_delay'] ?> sec</td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-view view-on-map" 
+                                                                        data-mapid="<?= $spawn['mapid'] ?>" 
+                                                                        data-x="<?= $spawn['locx'] ?>" 
+                                                                        data-y="<?= $spawn['locy'] ?>">
+                                                                    <i class="fas fa-map-marker-alt"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                     
-                    <div class="form-actions mt-4">
-                        <button type="submit" class="btn btn-primary">Update Monster</button>
+                    <div class="form-actions mt-4 p-3" style="background-color: var(--secondary); border-radius: 4px;">
+                        <button type="submit" form="editForm" class="btn btn-primary">Update Monster</button>
                         <a href="index.php" class="btn btn-secondary">Cancel</a>
                     </div>
                 </div>
@@ -1195,6 +1293,22 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
 // Item data from PHP for JavaScript access
 const itemsData = <?= json_encode($itemsById) ?>;
 
+// Map data
+const mapData = <?= json_encode(array_map(function($spawn) {
+    return [
+        'mapid' => $spawn['mapid'],
+        'map_name' => $spawn['map_name'] ?? 'Unknown Map',
+        'locx' => $spawn['locx'],
+        'locy' => $spawn['locy'],
+        'count' => $spawn['count'],
+        'startX' => $spawn['startX'] ?? 0,
+        'startY' => $spawn['startY'] ?? 0,
+        'endX' => $spawn['endX'] ?? 1000,
+        'endY' => $spawn['endY'] ?? 1000,
+        'pngId' => $spawn['pngId'] ?? null
+    ];
+}, $spawns)) ?>;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Tab switching functionality
     const tabs = document.querySelectorAll('.form-tab');
@@ -1378,7 +1492,148 @@ document.addEventListener('DOMContentLoaded', function() {
             editChancePercentSpan.textContent = percent + '%';
         });
     }
+    
+    // Map Selector and Visualization
+    const mapSelector = document.getElementById('mapSelector');
+    if (mapSelector) {
+        // Initialize map view on page load
+        if (mapSelector.options.length > 0) {
+            loadMapData(mapSelector.value);
+        }
+        
+        // Change map when selecting from dropdown
+        mapSelector.addEventListener('change', function() {
+            loadMapData(this.value);
+        });
+        
+        // Highlight corresponding row in table when selecting a map
+        mapSelector.addEventListener('change', function() {
+            const mapId = this.value;
+            document.querySelectorAll('.spawn-row').forEach(row => {
+                row.classList.remove('highlight-row');
+                if (row.getAttribute('data-mapid') === mapId) {
+                    row.classList.add('highlight-row');
+                }
+            });
+        });
+    }
+    
+    // View on map button
+    document.querySelectorAll('.view-on-map').forEach(button => {
+        button.addEventListener('click', function() {
+            const mapId = this.getAttribute('data-mapid');
+            const x = parseInt(this.getAttribute('data-x'));
+            const y = parseInt(this.getAttribute('data-y'));
+            
+            // Select the map in dropdown
+            if (mapSelector) {
+                mapSelector.value = mapId;
+                mapSelector.dispatchEvent(new Event('change'));
+            }
+            
+            // Highlight the marker
+            setTimeout(() => {
+                highlightMarker(x, y);
+            }, 300);
+        });
+    });
 });
+
+function loadMapData(mapId) {
+    // Filter spawns for this map
+    const mapSpawns = mapData.filter(spawn => spawn.mapid.toString() === mapId.toString());
+    if (mapSpawns.length === 0) return;
+    
+    // Get map details from first spawn in the map
+    const mapDetails = mapSpawns[0];
+    
+    // Load map image
+    let mapImage = document.getElementById('mapImage');
+    const pngId = mapDetails.pngId || mapId;
+    
+    // Try different image formats
+    const imagePath = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.indexOf('/admin'))}`;
+    const imageUrls = [
+        `${imagePath}/assets/img/maps/${pngId}.jpeg`,
+        `${imagePath}/assets/img/maps/${pngId}.png`,
+        `${imagePath}/assets/img/maps/${pngId}.jpg`,
+        `${imagePath}/assets/img/maps/default.jpg`
+    ];
+    
+    // Try loading the first image, fall back to next ones if it fails
+    mapImage.src = imageUrls[0];
+    mapImage.onerror = function() {
+        if (imageUrls.length > 1) {
+            const nextUrl = imageUrls.shift();
+            mapImage.src = nextUrl;
+        } else {
+            mapImage.src = `${imagePath}/assets/img/maps/default.jpg`;
+        }
+    };
+    
+    // Clear existing markers
+    const markersContainer = document.getElementById('spawnMarkers');
+    markersContainer.innerHTML = '';
+    
+    // Create markers for each spawn
+    mapSpawns.forEach(spawn => {
+        // Calculate position percentage based on map boundaries
+        const mapWidth = mapDetails.endX - mapDetails.startX || 1000;
+        const mapHeight = mapDetails.endY - mapDetails.startY || 1000;
+        
+        const markerX = ((spawn.locx - mapDetails.startX) / mapWidth) * 100;
+        const markerY = ((spawn.locy - mapDetails.startY) / mapHeight) * 100;
+        
+        // Create marker element
+        const marker = document.createElement('div');
+        marker.className = 'spawn-marker';
+        marker.style.position = 'absolute';
+        marker.style.left = `${Math.max(1, Math.min(99, markerX))}%`;
+        marker.style.top = `${Math.max(1, Math.min(99, markerY))}%`;
+        marker.style.color = '#f94b1f';
+        marker.style.fontSize = '1.3rem';
+        marker.setAttribute('data-x', spawn.locx);
+        marker.setAttribute('data-y', spawn.locy);
+        marker.setAttribute('title', `Coordinates: ${spawn.locx},${spawn.locy} (Count: ${spawn.count})`);
+        marker.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+        
+        // Add to container
+        markersContainer.appendChild(marker);
+    });
+    
+    // Update map info text
+    document.getElementById('mapInfo').textContent = `${mapDetails.map_name} - ${mapSpawns.length} spawn points`;
+}
+
+function highlightMarker(x, y) {
+    // Find marker with matching coordinates
+    const markers = document.querySelectorAll('.spawn-marker');
+    markers.forEach(marker => {
+        const markerX = parseInt(marker.getAttribute('data-x'));
+        const markerY = parseInt(marker.getAttribute('data-y'));
+        
+        // Reset all markers first
+        marker.style.color = '#f94b1f';
+        marker.style.fontSize = '1.3rem';
+        marker.style.zIndex = '1';
+        
+        // Highlight matching marker
+        if (markerX === x && markerY === y) {
+            marker.style.color = '#FFEB3B'; // Yellow highlight
+            marker.style.fontSize = '1.8rem';
+            marker.style.zIndex = '10';
+            
+            // Scroll into view if needed
+            marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Reset after a delay
+            setTimeout(() => {
+                marker.style.color = '#f94b1f';
+                marker.style.fontSize = '1.3rem';
+            }, 3000);
+        }
+    });
+}
 
 // Update item preview in add modal
 function updateItemPreview() {
@@ -1544,8 +1799,54 @@ function confirmDeleteDrop(itemId, itemName, iconId) {
         transform: translateY(0);
         opacity: 1;
     }
+}
 
-	
+/* Map visualization styles */
+.map-container {
+    position: relative;
+    min-height: 400px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.spawn-marker {
+    position: absolute;
+    z-index: 5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.spawn-marker:hover {
+    transform: scale(1.2);
+    color: #FFEB3B !important;
+}
+
+/* Highlight selected row in spawn table */
+.highlight-row {
+    background-color: rgba(249, 75, 31, 0.1) !important;
+}
+
+/* Form actions bottom bar */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background-color: var(--secondary);
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+/* Make sure spawn points table has proper width */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Make Monster Drops and Spawns table take full width */
+.acquisition-card {
+    width: 100%;
 }
 </style>
 

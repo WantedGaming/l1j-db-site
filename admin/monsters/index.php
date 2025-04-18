@@ -141,11 +141,11 @@ $monsters = $db->getRows($query, $params);
                 <thead>
                     <tr>
                         <th width="80">Image</th>
-                        <th width="60">ID</th>
-                        <th>Name</th>
-                        <th>Level</th>
-                        <th>Boss</th>
-                        <th width="150">Actions</th>
+                        <th width="80">Name</th>
+                        <th width="80">NPC ID</th>
+                        <th width="80">Level</th>
+                        <th width="80">Boss</th>
+                        <th width="80">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -159,13 +159,11 @@ $monsters = $db->getRows($query, $params);
                                 <td class="text-center">
                                     <img src="<?= get_monster_image($monster['spriteId']) ?>" 
                                          alt="<?= htmlspecialchars($monster['desc_en']) ?>"
-                                         class="monster-list-icon"
-                                         width="40"
-                                         height="40"
+                                         class="admin-item-icon"
                                          onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
                                 </td>
+								<td><?= htmlspecialchars($monster['desc_en']) ?></td>
                                 <td><?= $monster['npcid'] ?></td>
-                                <td><?= htmlspecialchars($monster['desc_en']) ?></td>
                                 <td><?= $monster['lvl'] ?></td>
                                 <td>
                                     <?php if ($monster['is_bossmonster'] === 'true'): ?>

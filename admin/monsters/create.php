@@ -319,7 +319,8 @@ $poisonAtkOptions = [
                 </div>
             </div>
             
-            <div class="acquisition-card-header">
+            <div class="acquisition-card mb-4">
+                <div class="acquisition-card-header">
                     Monster Stats
                 </div>
                 <div class="acquisition-card-body">
@@ -425,7 +426,7 @@ $poisonAtkOptions = [
                                                 <input type="text" class="form-control" id="impl" name="impl" value="L1Monster">
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_bossmonster" name="is_bossmonster">
                                                     <label class="form-check-label" for="is_bossmonster">
                                                         Boss Monster
@@ -561,8 +562,8 @@ $poisonAtkOptions = [
                                                 </select>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <div class="form-check mt-4">
-												<input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead">
+                                                <div class="form-check form-switch mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="can_turnundead" name="can_turnundead">
                                                     <label class="form-check-label" for="can_turnundead">
                                                         Affected by Turn Undead
                                                     </label>
@@ -578,9 +579,17 @@ $poisonAtkOptions = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-12 mb-3">
+                                            <div class="col-md-6 mb-3">
                                                 <label for="damage_reduction" class="form-label">Damage Reduction</label>
                                                 <input type="number" class="form-control no-spinner" id="damage_reduction" name="damage_reduction" value="0">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-switch mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="is_hard" name="is_hard">
+                                                    <label class="form-check-label" for="is_hard">
+                                                        Hard Monster (Resistant to damage)
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -611,15 +620,19 @@ $poisonAtkOptions = [
                                                 <label for="sub_magic_speed" class="form-label">Sub Magic Speed</label>
                                                 <input type="number" class="form-control no-spinner" id="sub_magic_speed" name="sub_magic_speed" value="0">
                                             </div>
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="ranged" class="form-label">Ranged Attack Distance</label>
                                                 <input type="number" class="form-control no-spinner" id="ranged" name="ranged" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
+                                                <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="0">
                                             </div>
                                         </div>
                                         
                                         <div class="row">
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_agro" name="is_agro">
                                                     <label class="form-check-label" for="is_agro">
                                                         Aggressive
@@ -627,23 +640,23 @@ $poisonAtkOptions = [
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_agro_poly" name="is_agro_poly">
                                                     <label class="form-check-label" for="is_agro_poly">
-                                                        Aggressive to Poly
+                                                        Aggressive (Poly)
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_agro_invis" name="is_agro_invis">
                                                     <label class="form-check-label" for="is_agro_invis">
-                                                        Aggressive to Invisible
+                                                        Aggressive (Invisible)
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_teleport" name="is_teleport">
                                                     <label class="form-check-label" for="is_teleport">
                                                         Can Teleport
@@ -651,10 +664,10 @@ $poisonAtkOptions = [
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_taming" name="is_taming">
                                                     <label class="form-check-label" for="is_taming">
                                                         Can Be Tamed
@@ -662,15 +675,15 @@ $poisonAtkOptions = [
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_picupitem" name="is_picupitem">
                                                     <label class="form-check-label" for="is_picupitem">
-                                                        Picks Up Items
+                                                        Loot Items
                                                     </label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="is_bravespeed" name="is_bravespeed">
                                                     <label class="form-check-label" for="is_bravespeed">
                                                         Brave Speed
@@ -678,7 +691,7 @@ $poisonAtkOptions = [
                                                 </div>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <div class="form-check mt-4">
+                                                <div class="form-check form-switch mt-4">
                                                     <input class="form-check-input" type="checkbox" id="cant_resurrect" name="cant_resurrect">
                                                     <label class="form-check-label" for="cant_resurrect">
                                                         Cannot Be Resurrected
@@ -721,27 +734,8 @@ $poisonAtkOptions = [
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="is_hard" name="is_hard">
-                                                    <label class="form-check-label" for="is_hard">
-                                                        Is Hard
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
                                                 <label for="digestitem" class="form-label">Digest Item</label>
                                                 <input type="number" class="form-control no-spinner" id="digestitem" name="digestitem" value="0">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="bowSpritetId" class="form-label">Bow Sprite ID</label>
-                                                <input type="number" class="form-control no-spinner" id="bowSpritetId" name="bowSpritetId" value="0">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="light_size" class="form-label">Light Size</label>
-                                                <input type="number" class="form-control no-spinner" id="light_size" name="light_size" value="0">
                                             </div>
                                             <div class="col-md-4 mb-3">
                                                 <label for="transform_id" class="form-label">Transform ID</label>
@@ -755,39 +749,43 @@ $poisonAtkOptions = [
                                         
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                <div class="form-check">
+                                                <label for="light_size" class="form-label">Light Size</label>
+                                                <input type="number" class="form-control no-spinner" id="light_size" name="light_size" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="spawnlist_door" class="form-label">Spawnlist Door</label>
+                                                <input type="number" class="form-control no-spinner" id="spawnlist_door" name="spawnlist_door" value="0">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="count_map" class="form-label">Count Map</label>
+                                                <input type="number" class="form-control no-spinner" id="count_map" name="count_map" value="0">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" id="is_amount_fixed" name="is_amount_fixed">
                                                     <label class="form-check-label" for="is_amount_fixed">
                                                         Amount Fixed
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 mb-3">
-                                                <div class="form-check">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" id="is_change_head" name="is_change_head">
                                                     <label class="form-check-label" for="is_change_head">
                                                         Change Head
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 mb-3">
-                                                <div class="form-check">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" id="isHide" name="isHide">
                                                     <label class="form-check-label" for="isHide">
                                                         Is Hidden
                                                     </label>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="spawnlist_door" class="form-label">Spawnlist Door</label>
-                                                <input type="number" class="form-control no-spinner" id="spawnlist_door" name="spawnlist_door" value="0">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="count_map" class="form-label">Count Map</label>
-                                                <input type="number" class="form-control no-spinner" id="count_map" name="count_map" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -859,8 +857,150 @@ $poisonAtkOptions = [
     </div>
 </div>
 
+<style>
+/* Additional styles for the drops section */
+.item-preview {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.preview-container {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.preview-container:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.item-name {
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+.admin-item-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 3px;
+}
+
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--primary);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 500px;
+    max-width: 90%;
+    animation: slideIn 0.3s;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.close {
+    color: var(--text);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Styling for spawn locations section */
+.nav-pills .nav-link {
+    color: #adb5bd;
+    background-color: #343a40;
+    margin: 0 3px;
+}
+
+.nav-pills .nav-link:hover {
+    color: #fff;
+    background-color: #495057;
+}
+
+.nav-pills .nav-link.active {
+    color: #fff;
+    background-color: #3d78db;
+}
+
+.table-dark {
+    background-color: #272b30;
+    color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.table-dark thead th {
+    background-color: #212529;
+}
+
+.table-dark td, .table-dark th {
+    padding: 0.5rem;
+    border-color: #373b3e;
+}
+
+/* Make list group items in the special tab more compact */
+.list-group-item {
+    padding: 0.75rem 1rem;
+}
+</style>
+
 <script>
-// Tab switching functionality
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.form-tab');
     const sections = document.querySelectorAll('.form-section');
@@ -874,13 +1014,28 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             
             // Hide all sections
-            sections.forEach(section => section.classList.remove('active'));
+            sections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
             
             // Show the selected section
             const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId + '-section').classList.add('active');
+            const activeSection = document.getElementById(tabId + '-section');
+            activeSection.style.display = 'block';
+            setTimeout(() => {
+                activeSection.classList.add('active');
+            }, 10);
         });
     });
+    
+    // Initialize first tab as active if none is active
+    if (!document.querySelector('.form-section.active') && sections.length > 0) {
+        sections[0].style.display = 'block';
+        setTimeout(() => {
+            sections[0].classList.add('active');
+        }, 10);
+    }
     
     // Image preview functionality
     const npcidInput = document.getElementById('npcid');
@@ -914,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Live update level in preview
     const levelInput = document.getElementById('lvl');
     const levelPreview = document.querySelector('.acquisition-card-body p');
-    const levelBadgePreview = document.querySelector('.monster-ids .badge-info');
+    const levelBadgePreview = document.querySelector('.monster-ids .badge.bg-info');
     
     if (levelInput && levelPreview && levelBadgePreview) {
         levelInput.addEventListener('input', function() {
@@ -930,6 +1085,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const acInput = document.getElementById('ac');
     const expInput = document.getElementById('exp');
     const bossCheck = document.getElementById('is_bossmonster');
+    const undeadSelect = document.getElementById('undead');
     
     // Get preview elements
     const hpPreview = document.getElementById('hp-preview');
@@ -966,16 +1122,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Update Boss preview
+    // Update Boss preview with undead type
+    function updateBossPreview() {
+        const isBoss = document.getElementById('is_bossmonster').checked;
+        const undeadValue = document.getElementById('undead').value;
+        
+        if (isBoss) {
+            bossPreview.textContent = 'Boss';
+            bossPreview.className = 'badge bg-danger';
+        } else if (undeadValue !== 'NONE') {
+            const undeadOptions = <?= json_encode($undeadOptions) ?>;
+            bossPreview.textContent = undeadOptions[undeadValue] || undeadValue;
+            bossPreview.className = 'badge bg-warning';
+        } else {
+            bossPreview.textContent = 'Normal';
+            bossPreview.className = 'badge bg-secondary';
+        }
+    }
+    
+    // Add event listeners for boss and undead changes
     if (bossCheck && bossPreview) {
         bossCheck.addEventListener('change', function() {
-            if (this.checked) {
-                bossPreview.textContent = 'Boss';
-                bossPreview.className = 'badge bg-danger';
-            } else {
-                bossPreview.textContent = 'Normal';
-                bossPreview.className = 'badge bg-secondary';
-            }
+            updateBossPreview();
+        });
+    }
+    
+    if (undeadSelect && bossPreview) {
+        undeadSelect.addEventListener('change', function() {
+            updateBossPreview();
         });
     }
 });

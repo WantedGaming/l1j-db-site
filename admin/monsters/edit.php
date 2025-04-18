@@ -234,6 +234,147 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Process form submission for adding new spawn
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_spawn') {
+    $mapId = intval($_POST['mapid'] ?? 0);
+    $count = intval($_POST['count'] ?? 1);
+    $locx = intval($_POST['locx'] ?? 0);
+    $locy = intval($_POST['locy'] ?? 0);
+    $randomx = intval($_POST['randomx'] ?? 0);
+    $randomy = intval($_POST['randomy'] ?? 0);
+    $min_respawn_delay = intval($_POST['min_respawn_delay'] ?? 0);
+    $max_respawn_delay = intval($_POST['max_respawn_delay'] ?? 0);
+    
+    // Validation
+    $errors = [];
+    
+    if ($mapId <= 0) {
+        $errors[] = "Map ID is required";
+    }
+    
+    if ($locx <= 0 || $locy <= 0) {
+        $errors[] = "Valid coordinates are required";
+    }
+    
+    // If no errors, add the spawn
+    if (empty($errors)) {
+        $spawnData = [
+            'npc_templateid' => $monsterId,
+            'count' => $count,
+            'locx' => $locx,
+            'locy' => $locy,
+            'randomx' => $randomx,
+            'randomy' => $randomy,
+            'mapid' => $mapId,
+            'min_respawn_delay' => $min_respawn_delay,
+            'max_respawn_delay' => $max_respawn_delay
+        ];
+        
+        $result = $db->insert('spawnlist', $spawnData);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Spawn location added successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to add spawn location."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
+// Process form submission for updating spawn
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_spawn') {
+    $spawnId = intval($_POST['spawn_id'] ?? 0);
+    $mapId = intval($_POST['mapid'] ?? 0);
+    $count = intval($_POST['count'] ?? 1);
+    $locx = intval($_POST['locx'] ?? 0);
+    $locy = intval($_POST['locy'] ?? 0);
+    $randomx = intval($_POST['randomx'] ?? 0);
+    $randomy = intval($_POST['randomy'] ?? 0);
+    $min_respawn_delay = intval($_POST['min_respawn_delay'] ?? 0);
+    $max_respawn_delay = intval($_POST['max_respawn_delay'] ?? 0);
+    
+    // Validation
+    $errors = [];
+    
+    if ($spawnId <= 0) {
+        $errors[] = "Invalid spawn ID";
+    }
+    
+    if ($mapId <= 0) {
+        $errors[] = "Map ID is required";
+    }
+    
+    if ($locx <= 0 || $locy <= 0) {
+        $errors[] = "Valid coordinates are required";
+    }
+    
+    // If no errors, update the spawn
+    if (empty($errors)) {
+        $spawnData = [
+            'count' => $count,
+            'locx' => $locx,
+            'locy' => $locy,
+            'randomx' => $randomx,
+            'randomy' => $randomy,
+            'mapid' => $mapId,
+            'min_respawn_delay' => $min_respawn_delay,
+            'max_respawn_delay' => $max_respawn_delay
+        ];
+        
+        $result = $db->update('spawnlist', $spawnData, 'id = :id', ['id' => $spawnId]);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Spawn location updated successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to update spawn location."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
+// Process spawn deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_spawn') {
+    $spawnId = intval($_POST['spawn_id'] ?? 0);
+    
+    if ($spawnId > 0) {
+        $result = $db->delete('spawnlist', 'id = :id', ['id' => $spawnId]);
+        
+        if ($result) {
+            $_SESSION['admin_message'] = [
+                'type' => 'success',
+                'message' => "Spawn location deleted successfully."
+            ];
+        } else {
+            $_SESSION['admin_message'] = [
+                'type' => 'error',
+                'message' => "Failed to delete spawn location."
+            ];
+        }
+        
+        // Redirect to avoid form resubmission
+        header("Location: edit.php?id={$monsterId}");
+        exit;
+    }
+}
+
 // Get monster details
 $monster = $monsterModel->getMonsterById($monsterId);
 
@@ -414,20 +555,19 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
             <!-- Monster Preview Card -->
             <div class="acquisition-card mb-4">
                 <div class="acquisition-card-header">
-                    Monster Preview
+                    Preview
                 </div>
                 <div class="acquisition-card-body d-flex flex-column align-items-center justify-content-center">
                     <img id="monster-image-preview" 
                          src="<?= get_monster_image($monster['spriteId']) ?>" 
                          alt="Monster Image Preview" 
-                         style="max-width: 128px;"
+                         style="max-width: 200px;"
                          onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
                     
                     <h5 class="mt-3"><?= htmlspecialchars($monster['desc_en']) ?></h5>
-                    <p class="mb-1">Level: <?= $monster['lvl'] ?></p>
                     <div class="monster-ids w-100 text-center mt-3">
-                        <div class="badge bg-secondary mb-1">Monster ID: <?= $monsterId ?></div>
-                        <div class="badge bg-info">Level: <?= $monster['lvl'] ?></div>
+                        <div class="badge bg-dark mb-1">Monster ID: <?= $monsterId ?></div>
+                        <div class="badge bg-dark">Level: <?= $monster['lvl'] ?></div>
                     </div>
                 </div>
             </div>
@@ -441,19 +581,19 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>HP</span>
-                            <span class="badge bg-danger rounded-pill" id="hp-preview"><?= $monster['hp'] ?></span>
+                            <span class="badge bg-danger" id="hp-preview"><?= $monster['hp'] ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>MP</span>
-                            <span class="badge bg-primary rounded-pill" id="mp-preview"><?= $monster['mp'] ?></span>
+                            <span class="badge bg-primary " id="mp-preview"><?= $monster['mp'] ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>AC</span>
-                            <span class="badge bg-success rounded-pill" id="ac-preview"><?= $monster['ac'] ?></span>
+                            <span class="badge bg-success " id="ac-preview"><?= $monster['ac'] ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>Exp</span>
-                            <span class="badge bg-warning rounded-pill" id="exp-preview"><?= $monster['exp'] ?></span>
+                            <span class="badge bg-warning " id="exp-preview"><?= $monster['exp'] ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>Type</span>
@@ -971,8 +1111,11 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                         <!-- Spawns Section -->
                         <div class="col-lg-12 form-section" id="spawns-section">
                             <div class="card bg-dark">
-                                <div class="card-header">
-                                    Spawn Locations
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4><i class="fas fa-map-marker-alt me-2"></i> Spawn Locations</h4>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSpawnModal">
+                                        <i class="fas fa-plus me-1"></i> Add New Spawn
+                                    </button>
                                 </div>
                                 <div class="card-body">
                                     <?php if (empty($spawns)): ?>
@@ -1029,8 +1172,9 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                                         <th>Map</th>
                                                         <th>Coordinates</th>
                                                         <th>Count</th>
+                                                        <th>Random Range</th>
                                                         <th>Respawn Time</th>
-                                                        <th>View</th>
+                                                        <th>Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1039,13 +1183,14 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
                                                             <td><?= htmlspecialchars($spawn['map_name'] ?? 'Unknown Map') ?></td>
                                                             <td>X: <?= $spawn['locx'] ?>, Y: <?= $spawn['locy'] ?></td>
                                                             <td><?= $spawn['count'] ?></td>
-                                                            <td><?= $spawn['respawn_delay'] ?> sec</td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-view view-on-map" 
-                                                                        data-mapid="<?= $spawn['mapid'] ?>" 
-                                                                        data-x="<?= $spawn['locx'] ?>" 
-                                                                        data-y="<?= $spawn['locy'] ?>">
-                                                                    <i class="fas fa-map-marker-alt"></i>
+                                                            <td>±<?= $spawn['randomx'] ?>, ±<?= $spawn['randomy'] ?></td>
+                                                            <td><?= $spawn['min_respawn_delay'] ?> - <?= $spawn['max_respawn_delay'] ?> sec</td>
+                                                            <td class="actions">
+                                                                <button class="btn btn-sm btn-edit" title="Edit" onclick="editSpawn(<?= $spawn['id'] ?>, <?= htmlspecialchars(json_encode($spawn), ENT_QUOTES, 'UTF-8') ?>)">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-delete" title="Delete" onclick="confirmDeleteSpawn(<?= $spawn['id'] ?>, '<?= htmlspecialchars($spawn['map_name']) ?>')">
+                                                                    <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </td>
                                                         </tr>
@@ -1289,6 +1434,170 @@ $poisonAtkOptions = ['NONE' => 'None', 'DAMAGE' => 'Damage', 'PARALYSIS' => 'Par
     </div>
 </div>
 
+<!-- Add Spawn Modal -->
+<div class="modal" id="addSpawnModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Spawn Location</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addSpawnForm" method="POST" action="">
+                <input type="hidden" name="action" value="add_spawn">
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mapid" class="form-label">Map</label>
+                        <select class="form-select" id="mapid" name="mapid" required>
+                            <option value="">Select a map...</option>
+                            <?php foreach ($maps as $map): ?>
+                                <option value="<?= $map['mapid'] ?>">
+                                    <?= htmlspecialchars($map['locationname']) ?> (<?= $map['mapid'] ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="count" class="form-label">Count</label>
+                        <input type="number" class="form-control no-spinner" id="count" name="count" value="1" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="locx" class="form-label">X Coordinate</label>
+                        <input type="number" class="form-control no-spinner" id="locx" name="locx" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="locy" class="form-label">Y Coordinate</label>
+                        <input type="number" class="form-control no-spinner" id="locy" name="locy" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="randomx" class="form-label">Random X Range</label>
+                        <input type="number" class="form-control no-spinner" id="randomx" name="randomx" value="0" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="randomy" class="form-label">Random Y Range</label>
+                        <input type="number" class="form-control no-spinner" id="randomy" name="randomy" value="0" min="0">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="min_respawn_delay" class="form-label">Min Respawn Delay (seconds)</label>
+                        <input type="number" class="form-control no-spinner" id="min_respawn_delay" name="min_respawn_delay" value="0" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="max_respawn_delay" class="form-label">Max Respawn Delay (seconds)</label>
+                        <input type="number" class="form-control no-spinner" id="max_respawn_delay" name="max_respawn_delay" value="0" min="0">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="addSpawnForm" class="btn btn-primary">Add Spawn</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Spawn Modal -->
+<div class="modal" id="editSpawnModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Spawn Location</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editSpawnForm" method="POST" action="">
+                <input type="hidden" name="action" value="update_spawn">
+                <input type="hidden" name="spawn_id" id="edit_spawn_id">
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_mapid" class="form-label">Map</label>
+                        <select class="form-select" id="edit_mapid" name="mapid" required>
+                            <?php foreach ($maps as $map): ?>
+                                <option value="<?= $map['mapid'] ?>">
+                                    <?= htmlspecialchars($map['locationname']) ?> (<?= $map['mapid'] ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_count" class="form-label">Count</label>
+                        <input type="number" class="form-control no-spinner" id="edit_count" name="count" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_locx" class="form-label">X Coordinate</label>
+                        <input type="number" class="form-control no-spinner" id="edit_locx" name="locx" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_locy" class="form-label">Y Coordinate</label>
+                        <input type="number" class="form-control no-spinner" id="edit_locy" name="locy" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_randomx" class="form-label">Random X Range</label>
+                        <input type="number" class="form-control no-spinner" id="edit_randomx" name="randomx" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_randomy" class="form-label">Random Y Range</label>
+                        <input type="number" class="form-control no-spinner" id="edit_randomy" name="randomy" min="0">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_min_respawn_delay" class="form-label">Min Respawn Delay (seconds)</label>
+                        <input type="number" class="form-control no-spinner" id="edit_min_respawn_delay" name="min_respawn_delay" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_max_respawn_delay" class="form-label">Max Respawn Delay (seconds)</label>
+                        <input type="number" class="form-control no-spinner" id="edit_max_respawn_delay" name="max_respawn_delay" min="0">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="editSpawnForm" class="btn btn-primary">Update Spawn</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Spawn Confirmation Modal -->
+<div class="modal" id="deleteSpawnModal" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Delete Spawn Location</h3>
+            <span class="close" data-bs-dismiss="modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this spawn location? This action cannot be undone.</p>
+            <p><strong>Map:</strong> <span id="delete_spawn_map"></span></p>
+        </div>
+        <div class="modal-footer">
+            <form id="deleteSpawnForm" method="POST" action="">
+                <input type="hidden" name="action" value="delete_spawn">
+                <input type="hidden" name="spawn_id" id="delete_spawn_id">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete Spawn</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 // Item data from PHP for JavaScript access
 const itemsData = <?= json_encode($itemsById) ?>;
@@ -1367,6 +1676,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initModal('addDropModal');
     initModal('editDropModal');
     initModal('deleteDropModal');
+    initModal('addSpawnModal');
+    initModal('editSpawnModal');
+    initModal('deleteSpawnModal');
     
     // Show modal function (replacement for Bootstrap's modal show)
     window.showModal = function(modalId) {
@@ -1694,6 +2006,31 @@ function confirmDeleteDrop(itemId, itemName, iconId) {
     
     // Show the modal
     showModal('deleteDropModal');
+}
+
+// Function to edit spawn
+function editSpawn(spawnId, spawnData) {
+    document.getElementById('edit_spawn_id').value = spawnId;
+    document.getElementById('edit_mapid').value = spawnData.mapid;
+    document.getElementById('edit_count').value = spawnData.count;
+    document.getElementById('edit_locx').value = spawnData.locx;
+    document.getElementById('edit_locy').value = spawnData.locy;
+    document.getElementById('edit_randomx').value = spawnData.randomx;
+    document.getElementById('edit_randomy').value = spawnData.randomy;
+    document.getElementById('edit_min_respawn_delay').value = spawnData.min_respawn_delay;
+    document.getElementById('edit_max_respawn_delay').value = spawnData.max_respawn_delay;
+    
+    var modal = new bootstrap.Modal(document.getElementById('editSpawnModal'));
+    modal.show();
+}
+
+// Function to confirm spawn deletion
+function confirmDeleteSpawn(spawnId, mapName) {
+    document.getElementById('delete_spawn_id').value = spawnId;
+    document.getElementById('delete_spawn_map').textContent = mapName;
+    
+    var modal = new bootstrap.Modal(document.getElementById('deleteSpawnModal'));
+    modal.show();
 }
 </script>
 

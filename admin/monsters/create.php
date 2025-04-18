@@ -301,20 +301,19 @@ $poisonAtkOptions = [
             <!-- Monster Image and Basic Info -->
             <div class="acquisition-card mb-4">
                 <div class="acquisition-card-header">
-                    Monster Preview
+                    Preview
                 </div>
                 <div class="acquisition-card-body d-flex flex-column align-items-center justify-content-center">
                     <img id="monster-image-preview" 
                          src="<?= SITE_URL ?>/assets/img/monsters/<?= $nextNpcId ?>.png" 
                          alt="Monster Image Preview" 
-                         style="max-width: 128px;"
+                         style="max-width: 200px;"
                          onerror="this.src='<?= SITE_URL ?>/assets/img/monsters/default.png'">
                     
                     <h5 class="mt-3">New Monster</h5>
-                    <p class="mb-1">Level: 1</p>
                     <div class="monster-ids w-100 text-center mt-3">
-                        <div class="badge bg-secondary mb-1">Monster ID: <?= $nextNpcId ?></div>
-                        <div class="badge bg-info">Level: 1</div>
+                        <div class="badge bg-dark mb-1">Monster ID: <?= $nextNpcId ?></div>
+                        <div class="badge bg-dark">Level: 1</div>
                     </div>
                 </div>
             </div>
@@ -327,19 +326,19 @@ $poisonAtkOptions = [
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>HP</span>
-                            <span class="badge bg-danger rounded-pill" id="hp-preview">100</span>
+                            <span class="badge bg-danger " id="hp-preview">100</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>MP</span>
-                            <span class="badge bg-primary rounded-pill" id="mp-preview">10</span>
+                            <span class="badge bg-primary " id="mp-preview">10</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>AC</span>
-                            <span class="badge bg-success rounded-pill" id="ac-preview">10</span>
+                            <span class="badge bg-success " id="ac-preview">10</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>Exp</span>
-                            <span class="badge bg-warning rounded-pill" id="exp-preview">10</span>
+                            <span class="badge bg-warning " id="exp-preview">10</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #2d2d2d;">
                             <span>Type</span>

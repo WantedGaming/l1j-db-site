@@ -7,11 +7,11 @@
 $pageTitle = 'Dashboard';
 
 // Include admin header
-require_once '../includes/admin-header.php';
+require_once '/../../includes/admin-header.php';
 
 // Include models
-require_once '../models/Item.php';
-require_once '../models/Monster.php';
+require_once '/../../models/Item.php';
+require_once '/../../models/Monster.php';
 
 // Initialize models
 $itemModel = new Item();
@@ -179,6 +179,11 @@ $recentActivity = [
         </div>
         
         <div class="quick-actions">
+			<a href="<?php echo SITE_URL; ?>/admin/accounts/index.php" class="action-card">
+				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/accounts.png" alt="Weapons icon" class="action-icon">
+				<div class="action-label">Accounts</div>
+			</a>
+			
 			<a href="<?php echo SITE_URL; ?>/admin/weapons/index.php" class="action-card">
 				<img src="<?php echo SITE_URL; ?>/assets/img/placeholders/weapons.png" alt="Weapons icon" class="action-icon">
 				<div class="action-label">Weapons</div>
